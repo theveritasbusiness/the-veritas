@@ -82,7 +82,7 @@ function addSubheadingBlock() {
     "-" +
     Date.now();
 
-    const res = await fetch("http://localhost:5000/articles", {
+    const res = await fetch("https://veritas-backend-dktb.onrender.com/articles", {
       method: "POST",
       headers: {
   "Content-Type": "application/json",

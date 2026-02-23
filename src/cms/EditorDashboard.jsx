@@ -5,7 +5,7 @@ export default function EditorDashboard() {
   const [articles, setArticles] = useState([]);
 
   async function loadArticles() {
-    const res = await fetch("http://localhost:5000/articles");
+    const res = await fetch("https://veritas-backend-dktb.onrender.com/articles");
     const data = await res.json();
     setArticles(data);
   }
@@ -14,7 +14,7 @@ export default function EditorDashboard() {
     const confirmDelete = window.confirm("Delete this article?");
     if (!confirmDelete) return;
 
-    await fetch(`http://localhost:5000/articles/${id}`, {
+    await fetch(`https://veritas-backend-dktb.onrender.com/articles/${id}`, {
   method: "DELETE",
   headers: {
     Authorization: `Bearer ${localStorage.getItem("editorToken")}`

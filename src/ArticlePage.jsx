@@ -9,11 +9,11 @@ export default function ArticlePage() {
   const [latest, setLatest] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/articles/${slug}`)
+    fetch(`https://veritas-backend-dktb.onrender.com/articles/${slug}`)
       .then(res => res.json())
       .then(setArticle);
 
-    fetch(`http://localhost:5000/articles`)
+    fetch(`https://veritas-backend-dktb.onrender.com/articles`)
       .then(res => res.json())
       .then(data => setLatest(data.slice(0, 5)));
   }, [slug]);

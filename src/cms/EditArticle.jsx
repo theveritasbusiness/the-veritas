@@ -8,7 +8,7 @@ export default function EditArticle() {
   const [uploading, setUploading] = useState(false);
 const [contentBlocks, setContentBlocks] = useState([]);
   useEffect(() => {
-  fetch(`http://localhost:5000/articles`)
+  fetch(`https://veritas-backend-dktb.onrender.com/articles`)
     .then(res => res.json())
     .then(data => {
       const found = data.find(a => a.id == id);
@@ -63,7 +63,7 @@ async function updateArticle() {
 
   console.log("SENDING IMAGE:", article.hero_image); // DEBUG
 
-  const res = await fetch(`http://localhost:5000/articles/${id}`, {
+  const res = await fetch(`https://veritas-backend-dktb.onrender.com/articles/${id}`, {
     method: "PUT",
     headers: {
   "Content-Type": "application/json",

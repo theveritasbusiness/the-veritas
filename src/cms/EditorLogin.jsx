@@ -7,7 +7,7 @@ export default function EditorLogin() {
   const navigate = useNavigate();
 
   async function login() {
-    const res = await fetch("http://localhost:5000/editors/login", {
+    const res = await fetch("https://veritas-backend-dktb.onrender.com/editors/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })

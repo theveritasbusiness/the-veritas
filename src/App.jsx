@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
 import TheVeritasShowcase from "./TheVeritasShowcase";
 import ArticlePage from "./ArticlePage";
@@ -15,14 +15,14 @@ import CookieConsent from "./components/CookieConsent";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <CookiePopup />
       <CookieConsent />
       <Routes>
 
         <Route path="/" element={<TheVeritasShowcase />} />
         <Route path="/article/:slug" element={<ArticlePage />} />
-        <Route path="/editors/login" element={<EditorLogin />} />
+        <Route path="/login" element={<EditorLogin />} />
         <Route path="/privacy" element={<Privacy />} />
 <Route path="/terms" element={<Terms />} />
 
@@ -55,6 +55,6 @@ export default function App() {
         />
 
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
