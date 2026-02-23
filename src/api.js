@@ -1,4 +1,4 @@
-const API_BASE = "https://veritas-backend-dktb.onrender.com/articles/";
+const API_BASE = "https://veritas-backend-dktb.onrender.com";
 
 export async function fetchArticles() {
   const res = await fetch(`${API_BASE}/articles`);

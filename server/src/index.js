@@ -18,10 +18,7 @@ console.log("🔥 RUNNING THIS INDEX.JS FILE 🔥");
 const app = express();
 
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://theveritas.netlify.app"
-  ],
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
