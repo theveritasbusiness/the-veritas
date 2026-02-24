@@ -10,10 +10,11 @@ import pool from "./db.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, "../.env") });
+dotenv.config();
 
 console.log("JWT_SECRET =", process.env.JWT_SECRET);
 console.log("🔥 RUNNING THIS INDEX.JS FILE 🔥");
+console.log("DATABASE_URL =", process.env.DATABASE_URL ? "EXISTS" : "MISSING");
 
 const app = express();
 
