@@ -1,6 +1,5 @@
 import React from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import TheVeritasShowcase from "./TheVeritasShowcase";
 import ArticlePage from "./ArticlePage";
 import EditorLogin from "./cms/EditorLogin";
@@ -15,7 +14,7 @@ import CookieConsent from "./components/CookieConsent";
 
 export default function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <CookiePopup />
       <CookieConsent />
       <Routes>
@@ -55,6 +54,6 @@ export default function App() {
         />
 
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
