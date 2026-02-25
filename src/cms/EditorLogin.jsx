@@ -7,6 +7,7 @@ export default function EditorLogin() {
   const navigate = useNavigate();
 
   async function login() {
+  try {
     const res = await fetch("https://veritas-backend-dktb.onrender.com/editors/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -15,13 +16,19 @@ export default function EditorLogin() {
 
     const data = await res.json();
 
-    if (data.token) {
+    console.log("LOGIN RESPONSE:", data); // 🔥 important
+
+    if (res.ok && data.token) {
       localStorage.setItem("editorToken", data.token);
       navigate("/cms");
     } else {
-      alert("Login failed");
+      alert(data.error || "Login failed");
     }
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    alert("Server error");
   }
+}
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center">

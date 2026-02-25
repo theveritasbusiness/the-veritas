@@ -5,7 +5,7 @@ export default function ProtectedRoute({ children }) {
   const token = localStorage.getItem("editorToken");
 
   if (!token) {
-  return <Navigate to="/editors/login" />;
+  return <Navigate to="/login" />;
 }
 
   return children;
