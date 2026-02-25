@@ -2,6 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Layout from "./components/Layout";
+import { Link } from "react-router-dom";
 
 export default function ArticlePage() {
   const { slug } = useParams();
@@ -142,9 +143,12 @@ return (
             {latest.map(item => (
               <li key={item.id} className="flex gap-3">
                 <div className="text-red-500 mt-1">◆</div>
-                <a href={`/article/${item.slug}`} className="hover:underline transition-all duration-200 hover:text-white">
-                  {item.title}
-                </a>
+                <Link
+  to={`/article/${item.slug}`}
+  className="hover:underline transition-all duration-200 hover:text-white"
+>
+  {item.title}
+</Link>
               </li>
             ))}
           </ul>
