@@ -106,26 +106,26 @@ router.post("/", requireAuth, async (req, res) => {
     const result = await pool.query(
       `INSERT INTO articles
 (title, subheadline, slug, category, hero_image, hero_caption, hashtags, paragraphs, bibliography, is_breaking, content, content_blocks, show_on_slider, approved, status, published_at)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
 RETURNING *`,
       [
-        title,
-        subheadline,
-        slug,
-        category,
-        hero_image,
-        hero_caption,
-        hashtags || [],
-        safeParagraphs,
-        bibliography,
-        is_breaking || false,
-        content,
-        contentBlocksJSON,
-        show_on_slider || false,
-        true,
-        "published",
-        new Date()
-      ]
+  title,
+  subheadline,
+  slug,
+  category,
+  hero_image,
+  hero_caption,
+  hashtags || [],
+  safeParagraphs,
+  bibliography,
+  is_breaking || false,
+  content,
+  contentBlocksJSON,
+  show_on_slider || false,
+  true,
+  "published",
+  new Date()
+]
     );
 
     res.json(result.rows[0]);
