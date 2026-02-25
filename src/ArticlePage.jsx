@@ -93,12 +93,19 @@ return (
         {/* CONTENT */}
         <div className="space-y-6 text-[18px] leading-[1.9] text-white font-serif bg-red-900 p-4">
   {(article.content_blocks || []).map((block, i) => {
-    if (!block || typeof block.text !== "string") return null;
+    if (!block) return null;
+
+    const text =
+      typeof block.text === "string"
+        ? block.text
+        : JSON.stringify(block.text || "");
+
+    if (!text) return null;
 
     if (block.type === "subheading") {
       return (
         <h2 key={i} className="text-2xl font-bold mt-8 mb-3 text-white">
-          {block.text}
+          {text}
         </h2>
       );
     }
@@ -112,7 +119,7 @@ return (
             : ""
         }
       >
-        {block.text}
+        {text}
       </p>
     );
   })}
