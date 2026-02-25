@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchArticles, fetchBreaking } from "./api";
 import logoAsset from './assets/Logo_Edit_4.png'; 
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function formatAge(article) {
   if (article.published_ago) return article.published_ago;
@@ -178,7 +179,7 @@ useEffect(() => {
       {/* ================= HERO ================= */}
       {heroArticle && (
 <header className="max-w-6xl mx-auto px-4 mt-6">
-  <a href={heroArticle ? `/article/${heroArticle.slug}` : "#"}>
+  <Link to={`/article/${heroArticle.slug}`}>
     <div className="relative h-64 md:h-96 rounded overflow-hidden cursor-pointer">
 
       {/* IMAGE */}
@@ -207,7 +208,7 @@ useEffect(() => {
       </div>
 
     </div>
-  </a>
+  </Link>
 </header>
       )}
       {/* ================= MAIN ================= */}
@@ -231,12 +232,12 @@ useEffect(() => {
   >
     <div className="text-red-500 mt-1">◆</div>
     <div>
-      <a
-  href={`/article/${a.slug}`}
+      <Link
+  to={`/article/${a.slug}`}
   className="leading-tight font-medium hover:underline"
 >
   {a.title}
-</a>
+</Link>
       <div className="text-xs text-neutral-400">
         {formatAge(a)}
       </div>
@@ -262,12 +263,12 @@ useEffect(() => {
       {featuredArticle?.category?.toUpperCase() || ""}
     </div>
 
-    <a
-  href={`/article/${featuredArticle?.slug}`}
+    <Link
+  to={`/article/${featuredArticle?.slug}`}
   className="font-serif text-2xl font-bold mt-2 block hover:underline"
 >
-  {featuredArticle?.title || ""}
-</a>
+  {featuredArticle?.title}
+</Link>
 
 
     <p className="text-neutral-300 mt-2 text-sm">
@@ -295,12 +296,12 @@ useEffect(() => {
       <div className="text-xs text-red-500 font-semibold">
         {a.category}
       </div>
-      <a
-  href={`/article/${a.slug}`}
+      <Link
+  to={`/article/${a.slug}`}
   className="font-bold mt-2 block hover:underline"
 >
   {a.title}
-</a>
+</Link>
 
       <p className="text-sm text-neutral-400 mt-2">
         {a.paragraphs?.[0]?.slice(0, 90)}
