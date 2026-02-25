@@ -92,7 +92,7 @@ return (
         <div className="border-t border-red-600 my-6"></div>
 
         {/* CONTENT */}
-        <div className="space-y-6 text-[18px] leading-[1.9] text-neutral-300 font-serif">
+        <div className="space-y-6 text-[18px] leading-[1.9] text-white font-serif bg-red-900 p-4">
           {(article.content_blocks || []).map((block, i) => {
   if (block.type === "subheading") {
     return (
