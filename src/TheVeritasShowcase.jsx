@@ -5,7 +5,11 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 function formatAge(article) {
-  if (article.published_ago) return article.published_ago;
+  if (article.published_ago) {
+    const h = article.published_ago.hours || 0;
+    const m = article.published_ago.minutes || 0;
+    return `${h}h ${m}m ago`;
+  }
 
   if (article.age) {
     const h = article.age.hours || 0;
@@ -24,7 +28,7 @@ const [breaking, setBreaking] = useState([]);
 const [searchParams] = useSearchParams();
 const navigate = useNavigate();
 
-const [searchQuery, setSearchQuery] = useState("");
+const searchQuery = searchParams.get("search") || "";
 
 const selectedCategory = searchParams.get("category");
 
@@ -34,7 +38,9 @@ const searchedArticles = articles.filter((a) => {
   return (
     a.title?.toLowerCase().includes(query) ||
     a.category?.toLowerCase().includes(query) ||
-    a.paragraphs?.some(p => p.toLowerCase().includes(query))
+    a.paragraphs?.some(p => 
+  typeof p === "string" && p.toLowerCase().includes(query)
+)
   );
 });
 
@@ -81,88 +87,6 @@ useEffect(() => {
   -------------------------------------------------- */
   return (
     <div className="min-h-screen bg-black text-white antialiased font-sans">
-
-      {/* ================= TOP BAR ================= */}
-      <div className="bg-neutral-900 border-b border-neutral-800 py-2 px-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-
-          <div className="hidden md:block text-neutral-400 text-sm">
-            {new Date().toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </div>
-
-          <div className="flex-1 flex justify-center">
-            <img
-              src={logoAsset}
-              alt="The Veritas"
-              className="h-12 object-contain"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-
-  {/* EXPANDING SEARCH BAR */}
-  <form
-  className="veritas-search"
-  onSubmit={(e) => e.preventDefault()}
->
-  <input
-    type="search"
-    placeholder="Search..."
-    value={searchQuery}
-    onChange={(e) => setSearchQuery(e.target.value)}
-  />
-    <i className="fa fa-search"></i>
-  </form>
-
-  {/* JOIN */}
-  <button className="bg-red-600 text-black px-4 py-1 rounded-full text-sm hover-bright">
-    Join
-  </button>
-
-</div>
-
-
-
-        </div>
-      </div>
-
-      {/* ================= NAV ================= */}
-      <nav className="border-b border-neutral-800">
-        <ul className="flex justify-center gap-6 py-3 text-sm">
-          {[
-            "Home",
-            "Geopolitics",
-            "India",
-            "Trending",
-            "Politics",
-            "Legal",
-            "Entertainment",
-            "Sports",
-          ].map((item) => (
-            <li
-  key={item}
-  className={`cursor-pointer transition-colors ${
-    (item === "Home" && !selectedCategory) || selectedCategory === item
-      ? "text-red-500"
-      : "hover:text-red-500"
-  }`}
-  onClick={() => {
-    if (item === "Home") {
-      navigate("/");
-    } else {
-      navigate(`/?category=${item}`);
-    }
-  }}
->
-  {item}
-</li>
-          ))}
-        </ul>
-      </nav>
 
       {/* ================= BREAKING ================= */}
       <div className="max-w-6xl mx-auto px-4 mt-6">
@@ -386,11 +310,6 @@ useEffect(() => {
   </div>
 </aside>
 </main>
-      {/* ================= FOOTER ================= */}
-      <footer className="border-t border-neutral-800 py-6 text-center text-sm text-neutral-400">
-        © The Veritas - All rights reserved
-      </footer>
-
       {/* ================= MODAL ================= */}
       {modal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center">

@@ -71,7 +71,8 @@ return (
 
         <div className="border-b border-red-500 w-16 my-4"></div>
         <div className="text-sm text-neutral-500 mt-3">
-  By The Veritas Desk • 
+  By The Veritas Desk •
+
 {article.published_ago
   ? `${article.published_ago.hours || 0}h ${article.published_ago.minutes || 0}m ago`
   : "Recently"}
@@ -94,7 +95,7 @@ return (
         <div className="border-t border-red-600 my-6"></div>
 
         {/* CONTENT */}
-        <div className="space-y-6 text-[18px] leading-[1.9] text-white font-serif bg-red-900 p-4">
+        <div className="space-y-6 text-[18px] leading-[1.9] text-white font-serif">
   {(article.content_blocks || []).map((block, i) => {
     if (!block) return null;
 

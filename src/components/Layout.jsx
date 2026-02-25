@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logoAsset from "../assets/Logo_Edit_4.png";
 import { Link } from "react-router-dom";
 import { Outlet } from "react-router-dom";
 
-export default function Layout({ children }) {
+export default function Layout() {
     const navigate = useNavigate();
 const [searchParams] = useSearchParams();
 const selectedCategory = searchParams.get("category");
+const [searchQuery, setSearchQuery] = useState("");
   return (
     <div className="bg-black text-white min-h-screen">
 
@@ -28,10 +29,28 @@ const selectedCategory = searchParams.get("category");
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="bg-red-600 text-black px-4 py-1 rounded-full text-sm">
-              Join
-            </button>
-          </div>
+
+  <form
+  className="veritas-search"
+  onSubmit={(e) => e.preventDefault()}
+>
+  <input
+    type="search"
+    placeholder="Search..."
+    value={searchQuery}
+    onChange={(e) => {
+      setSearchQuery(e.target.value);
+      navigate(`/?search=${e.target.value}`);
+    }}
+  />
+  <i className="fa fa-search"></i>
+</form>
+
+  <button className="bg-red-600 text-black px-4 py-1 rounded-full text-sm">
+    Join
+  </button>
+
+</div>
 
         </div>
       </div>
@@ -79,6 +98,58 @@ const selectedCategory = searchParams.get("category");
 <Link to="/terms">Terms & Conditions</Link>
   </div>
 </footer>
+<style>{`
+.veritas-search {
+  position: relative;
+  width: 50px;
+  height: 42px;
+  background: #0b0b0b;
+  border: 2px solid #1f1f1f;
+  border-radius: 30px;
+  padding: 5px;
+  transition: all 0.6s ease;
+}
+
+.veritas-search input {
+  position: absolute;
+  width: 0;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: white;
+  padding: 0 20px;
+  transition: width 0.6s ease;
+}
+
+.veritas-search .fa {
+  padding: 10px;
+  width: 38px;
+  height: 38px;
+  position: absolute;
+  right: 0;
+  border-radius: 50%;
+  color: #aaa;
+  text-align: center;
+  cursor: pointer;
+}
+
+.veritas-search:hover,
+.veritas-search:focus-within {
+  width: 220px;
+  border-color: #ff2b2b;
+}
+
+.veritas-search:hover input,
+.veritas-search:focus-within input {
+  width: 100%;
+}
+
+.veritas-search:hover .fa,
+.veritas-search:focus-within .fa {
+  background: #ff2b2b;
+  color: black;
+}
+`}</style>
 
     </div>
   );

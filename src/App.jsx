@@ -1,20 +1,42 @@
 import React from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
+import Layout from "./components/Layout";
 import TheVeritasShowcase from "./TheVeritasShowcase";
 import ArticlePage from "./ArticlePage";
-import Privacy from "./Privacy";
-import Terms from "./Terms";
 
-export default function App() {
+import EditorLogin from "./cms/EditorLogin";
+import EditorDashboard from "./cms/EditorDashboard";
+import NewArticle from "./cms/NewArticle";
+import EditArticle from "./cms/EditArticle";
+
+import Terms from "./Terms";
+import Privacy from "./Privacy";
+
+function App() {
   return (
     <Router>
       <Routes>
+
+        {/* ✅ WITH NAVBAR */}
+        <Route element={<Layout />}>
           <Route path="/" element={<TheVeritasShowcase />} />
           <Route path="/article/:slug" element={<ArticlePage />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
+        </Route>
+
+        {/* ❌ WITHOUT NAVBAR */}
+        <Route path="/editors/login" element={<EditorLogin />} />
+        <Route path="/editors/dashboard" element={<EditorDashboard />} />
+        <Route path="/cms" element={<EditorDashboard />} />
+        <Route path="/cms/new" element={<NewArticle />} />
+        <Route path="/cms/edit/:id" element={<EditArticle />} />
+
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+
       </Routes>
     </Router>
   );
 }
+
+export default App;
