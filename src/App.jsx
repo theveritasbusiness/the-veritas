@@ -1,5 +1,6 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import TheVeritasShowcase from "./TheVeritasShowcase";
 import ArticlePage from "./ArticlePage";
 import EditorLogin from "./cms/EditorLogin";
@@ -14,16 +15,16 @@ import CookieConsent from "./components/CookieConsent";
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <CookiePopup />
       <CookieConsent />
-      <Routes>
 
+      <Routes>
         <Route path="/" element={<TheVeritasShowcase />} />
         <Route path="/article/:slug" element={<ArticlePage />} />
         <Route path="/login" element={<EditorLogin />} />
         <Route path="/privacy" element={<Privacy />} />
-<Route path="/terms" element={<Terms />} />
+        <Route path="/terms" element={<Terms />} />
 
         <Route
           path="/cms"
@@ -43,7 +44,6 @@ export default function App() {
           }
         />
 
-        {/* ✅ FIXED POSITION */}
         <Route
           path="/cms/edit/:id"
           element={
@@ -52,8 +52,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
