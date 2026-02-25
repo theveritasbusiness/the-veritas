@@ -94,31 +94,32 @@ return (
 
         {/* CONTENT */}
         <div className="space-y-6 text-[18px] leading-[1.9] text-white font-serif bg-red-900 p-4">
-          {(article.content_blocks || []).map((block, i) => {
-  if (block.type === "subheading") {
-    return (
-      <h2
-        key={i}
-        className="text-2xl font-bold mt-8 mb-3 text-white"
-      >
-        {block.text}
-      </h2>
-    );
-  }
+  {Array.isArray(article.content_blocks) &&
+    article.content_blocks.map((block, i) => {
+      if (!block || !block.text) return null;
 
-  return (
-    <p
-      key={i}
-      className={
-        i === 0
-          ? "first-letter:text-5xl first-letter:font-bold first-letter:mr-2 first-letter:float-left"
-          : ""
+      if (block.type === "subheading") {
+        return (
+          <h2 key={i} className="text-2xl font-bold mt-8 mb-3 text-white">
+            {block.text}
+          </h2>
+        );
       }
-    >
-      {block.text}
-    </p>
-  );
-})}
+
+      return (
+        <p
+          key={i}
+          className={
+            i === 0
+              ? "first-letter:text-5xl first-letter:font-bold first-letter:mr-2 first-letter:float-left"
+              : ""
+          }
+        >
+          {block.text}
+        </p>
+      );
+    })}
+</div>
         </div>
 
         {/* BIBLIOGRAPHY */}
@@ -160,13 +161,9 @@ return (
 
   <div className="space-y-3">
     {latest.slice(0, 3).map(item => (
-      <a
-        key={item.id}
-        href={`/article/${item.slug}`}
-        className="block hover:underline text-sm"
-      >
-        {item.title}
-      </a>
+      <Link to={`/article/${item.slug}`}>
+  {item.title}
+</Link>
     ))}
   </div>
 </div>
@@ -185,7 +182,6 @@ return (
 
       </div>
 
-    </div>
   </Layout>
 );
 }
