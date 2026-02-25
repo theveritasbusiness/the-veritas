@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import logoAsset from "../assets/Logo_Edit_4.png";
+import { Link } from "react-router-dom";
 
 export default function Layout({ children }) {
     const navigate = useNavigate();
@@ -73,8 +74,8 @@ const selectedCategory = searchParams.get("category");
         {/* ===== FOOTER ===== */}
         <footer className="border-t border-neutral-800 mt-10 py-6 text-center text-sm text-neutral-400">
   <div className="flex justify-center gap-6">
-    <a href="/privacy" className="hover:text-white">Privacy Policy</a>
-    <a href="/terms" className="hover:text-white">Terms & Conditions</a>
+    <Link to="/privacy">Privacy Policy</Link>
+<Link to="/terms">Terms & Conditions</Link>
   </div>
 </footer>
 
