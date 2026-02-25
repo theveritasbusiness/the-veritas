@@ -1,7 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Layout from "./components/Layout";
 import { Link } from "react-router-dom";
 
 export default function ArticlePage() {
@@ -51,7 +50,6 @@ console.log("ARTICLE DATA:", data);
   if (!article) return <div className="text-white p-6">Loading...</div>;
 
 return (
-  <Layout>
     <div className="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-12 gap-10">
 
       {/* ================= LEFT: ARTICLE ================= */}
@@ -179,7 +177,5 @@ return (
 
       </div>
       </div>
-
-  </Layout>
 );
 }
