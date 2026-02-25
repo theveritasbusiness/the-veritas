@@ -9,14 +9,43 @@ export default function ArticlePage() {
   const [latest, setLatest] = useState([]);
 
   useEffect(() => {
-    fetch(`https://veritas-backend-dktb.onrender.com/articles/${slug}`)
-      .then(res => res.json())
-      .then(setArticle);
+  async function loadArticle() {
+    try {
+      console.log("SLUG:", slug);
 
-    fetch(`https://veritas-backend-dktb.onrender.com/articles`)
-      .then(res => res.json())
-      .then(data => setLatest(data.slice(0, 5)));
-  }, [slug]);
+      const res = await fetch(
+        `https://veritas-backend-dktb.onrender.com/articles/${slug}`
+      );
+
+      console.log("STATUS:", res.status);
+
+      if (!res.ok) {
+  console.error("Failed response:", res.status);
+  return;
+}
+
+const data = await res.json();
+console.log("ARTICLE DATA:", data);
+
+      console.log("PARSED DATA:", data);
+
+      setArticle(data);
+    } catch (err) {
+      console.error("ARTICLE FETCH ERROR:", err);
+    }
+  }
+
+  async function loadLatest() {
+    const res = await fetch(
+      `https://veritas-backend-dktb.onrender.com/articles`
+    );
+    const data = await res.json();
+    setLatest(data.slice(0, 5));
+  }
+
+  loadArticle();
+  loadLatest();
+}, [slug]);
 
   if (!article) return <div className="text-white p-6">Loading...</div>;
 

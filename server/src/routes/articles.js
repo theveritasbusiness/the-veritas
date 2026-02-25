@@ -69,11 +69,27 @@ router.get("/:slug", async (req, res) => {
       return res.status(404).json({ error: "Article not found" });
     }
 
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error("ARTICLE FETCH ERROR:", err);
-    res.status(500).json({ error: "Database error" });
+    const article = result.rows[0];
+
+let blocks = [];
+
+if (article.content_blocks) {
+  try {
+    blocks = JSON.parse(article.content_blocks);
+  } catch {
+    blocks = [];
   }
+}
+
+res.json({
+  ...article,
+  content_blocks: blocks
+});
+
+} catch (err) {
+  console.error("ARTICLE FETCH ERROR:", err);
+  res.status(500).json({ error: "Database error" });
+}
 });
 
 router.post("/", requireAuth, async (req, res) => {
