@@ -1,9 +1,7 @@
 import React from "react";
-import Layout from "./components/Layout";
 
 export default function Terms() {
   return (
-    <Layout>
       <div className="max-w-4xl mx-auto px-6 py-10 text-neutral-300 leading-7">
 
         <h1 className="text-3xl font-bold text-white mb-6">
@@ -50,6 +48,5 @@ export default function Terms() {
         </p>
 
       </div>
-    </Layout>
   );
 }
