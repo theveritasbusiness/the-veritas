@@ -71,7 +71,10 @@ return (
 
         <div className="border-b border-red-500 w-16 my-4"></div>
         <div className="text-sm text-neutral-500 mt-3">
-  By The Veritas Desk • {article.published_ago || "Recently"}
+  By The Veritas Desk • 
+{article.published_ago
+  ? `${article.published_ago.hours || 0}h ${article.published_ago.minutes || 0}m ago`
+  : "Recently"}
 </div>
 
         {/* HERO IMAGE */}
