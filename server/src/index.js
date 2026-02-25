@@ -12,9 +12,12 @@ console.log("DATABASE_URL =", process.env.DATABASE_URL ? "EXISTS" : "MISSING");
 const app = express();
 
 app.use(cors({
-  origin: ["https://theveritas.netlify.app"],
+  origin: [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://theveritas.netlify.app"
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
 
