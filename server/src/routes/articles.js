@@ -56,7 +56,8 @@ router.get("/:slug", async (req, res) => {
 
     const result = await pool.query(
       `
-      SELECT *
+      SELECT *,
+NOW() - published_at AS published_ago
       FROM articles
       WHERE slug = $1
         AND status = 'published'
@@ -73,12 +74,21 @@ router.get("/:slug", async (req, res) => {
 
 let blocks = [];
 
+// ✅ try content_blocks first
 if (article.content_blocks) {
   try {
     blocks = JSON.parse(article.content_blocks);
   } catch {
     blocks = [];
   }
+}
+
+// ✅ fallback to paragraphs if empty
+if (!blocks.length && article.paragraphs) {
+  blocks = article.paragraphs.map(p => ({
+    type: "paragraph",
+    text: p
+  }));
 }
 
 res.json({
