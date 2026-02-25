@@ -74,7 +74,7 @@ NOW() - published_at AS published_ago
 
 let blocks = [];
 
-// ✅ try content_blocks first
+// ✅ Try content_blocks first
 if (article.content_blocks) {
   try {
     blocks = JSON.parse(article.content_blocks);
@@ -83,13 +83,24 @@ if (article.content_blocks) {
   }
 }
 
-// ✅ fallback to paragraphs if empty
-if (!blocks.length && article.paragraphs) {
-  blocks = article.paragraphs.map(p => ({
-    type: "paragraph",
-    text: p
-  }));
+// ✅ BULLETPROOF FALLBACK
+if (!blocks.length) {
+  if (Array.isArray(article.paragraphs)) {
+    blocks = article.paragraphs.map(p => ({
+      type: "paragraph",
+      text: p
+    }));
+  } else if (typeof article.paragraphs === "string") {
+    blocks = article.paragraphs.split("\n").map(p => ({
+      type: "paragraph",
+      text: p
+    }));
+  }
 }
+
+// ✅ DEBUG (temporary)
+console.log("ARTICLE:", article);
+console.log("BLOCKS:", blocks);
 
 res.json({
   ...article,
