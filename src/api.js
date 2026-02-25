@@ -15,8 +15,3 @@ export function authHeaders() {
     "Authorization": `Bearer ${localStorage.getItem("editorToken")}`
   };
 }
-fetch(`${API_BASE}/articles`, {
-  method: "POST",
-  headers: authHeaders(),
-  body: JSON.stringify(data)
-});
