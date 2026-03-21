@@ -1,5 +1,5 @@
 [build]
-  command = "VITE_WS_API_URL=https://veritas-live-monitor.netlify.app npm run build"
+  command = "VITE_WS_API_URL=https://veritas-live-monitor.netlify.app npm run build:web"
   publish = "dist"
 
 [[redirects]]

@@ -239,8 +239,13 @@ export default function Layout() {
   font-weight: 800;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  background:
-    linear-gradient(135deg, #7e000b 0%, #de0216 45%, #ff3d4d 100%);
+  font-family: "Times New Roman", Times, serif;
+  background: linear-gradient(
+    135deg,
+    rgba(94, 0, 9, 1) 0%,
+    rgba(222, 2, 22, 1) 42%,
+    rgba(222, 2, 22, 1) 100%
+  );
   box-shadow:
     0 0 0 1px rgba(222, 2, 22, 0.5),
     0 0 18px rgba(222, 2, 22, 0.35),
@@ -260,7 +265,7 @@ export default function Layout() {
 
 .live-cta:hover {
   transform: translateY(-1px);
-  filter: saturate(1.08);
+  filter: brightness(1.04);
   box-shadow:
     0 0 0 1px rgba(222, 2, 22, 0.58),
     0 0 24px rgba(222, 2, 22, 0.45),
