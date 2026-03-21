@@ -610,7 +610,7 @@ export default defineConfig(({ mode }) => {
   const activeMeta = VARIANT_META[activeVariant] || VARIANT_META.full;
 
   return {
-    base: './',
+    base: '/live/',
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
     },

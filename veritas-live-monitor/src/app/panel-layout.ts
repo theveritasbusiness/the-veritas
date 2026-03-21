@@ -145,7 +145,7 @@ export class PanelLayoutManager implements AppModule {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
           <div class="variant-switcher">
-            <img src="/veritas-logo.png" alt="The Veritas" class="header-veritas-logo" />
+            <img src="/veritas-logo.png" alt="The Veritas" class="header-veritas-logo" width="132" height="22" />
           </div>
           <span class="logo">THE VERITAS MONITOR</span><span class="logo-mobile">The Veritas Monitor</span><span class="version">v1.0</span>
           <button class="mobile-settings-btn" id="mobileSettingsBtn" title="${t('header.settings')}">
@@ -246,7 +246,7 @@ export class PanelLayoutManager implements AppModule {
       </div>
       <footer class="site-footer">
         <div class="site-footer-brand">
-          <img src="/veritas-logo.png" alt="The Veritas" width="28" height="28" class="site-footer-icon" />
+          <img src="/veritas-logo.png" alt="The Veritas" width="86" height="20" class="site-footer-icon" />
           <div class="site-footer-brand-text">
             <span class="site-footer-name">THE VERITAS MONITOR</span>
           </div>
