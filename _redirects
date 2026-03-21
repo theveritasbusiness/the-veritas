@@ -1,1 +1,3 @@
+/live  https://veritas-live-monitor.netlify.app  200
+/live/*  https://veritas-live-monitor.netlify.app/:splat  200
 /* /index.html 200
