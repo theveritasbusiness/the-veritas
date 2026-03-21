@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --veritas-red: #de0216;
+}
+
 html,
 body,
 #root {

@@ -74,7 +74,9 @@ export default function TheVeritasShowcase() {
       {breaking.length > 0 && (
         <div className="max-w-6xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
           <div className="bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <div className="text-red-500 font-bold text-sm shrink-0">BREAKING</div>
+            <div className="font-bold text-sm shrink-0" style={{ color: "var(--veritas-red)" }}>
+              BREAKING
+            </div>
             <div className="overflow-hidden whitespace-nowrap flex-1 text-sm sm:text-base">
               <div className="ticker">{breaking.map((item) => item.title).join(" | ")}</div>
             </div>
@@ -95,7 +97,10 @@ export default function TheVeritasShowcase() {
 
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent p-5 sm:p-6 flex items-end">
                 <div className="max-w-3xl">
-                  <div className="text-red-500 font-semibold text-sm sm:text-base">
+                  <div
+                    className="font-semibold text-sm sm:text-base"
+                    style={{ color: "var(--veritas-red)" }}
+                  >
                     {heroArticle.is_breaking ? "BREAKING" : "TOP STORY"}
                   </div>
 
@@ -129,7 +134,9 @@ export default function TheVeritasShowcase() {
                   key={article.id}
                   className="flex items-start gap-3 hover:bg-neutral-800 p-2 rounded-xl transition-all"
                 >
-                  <div className="text-red-500 mt-1 shrink-0">◆</div>
+                  <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
+                    ◆
+                  </div>
                   <div className="min-w-0">
                     <Link
                       to={`/article/${article.slug}`}
@@ -155,7 +162,7 @@ export default function TheVeritasShowcase() {
               />
 
               <div className="md:col-span-2 min-w-0">
-                <div className="text-red-500 text-sm">
+                <div className="text-sm" style={{ color: "var(--veritas-red)" }}>
                   {featuredArticle.category?.toUpperCase() || ""}
                 </div>
 
@@ -186,7 +193,9 @@ export default function TheVeritasShowcase() {
                   className="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 hover:scale-[1.01] transition-transform shadow-sm min-w-0"
                 >
                   <div className="p-4">
-                    <div className="text-xs text-red-500 font-semibold">{article.category}</div>
+                    <div className="text-xs font-semibold" style={{ color: "var(--veritas-red)" }}>
+                      {article.category}
+                    </div>
                     <Link
                       to={`/article/${article.slug}`}
                       className="font-bold mt-2 block hover:underline break-words"
@@ -262,7 +271,10 @@ export default function TheVeritasShowcase() {
                 placeholder="Email"
                 className="bg-black border border-neutral-700 px-4 py-3 rounded-xl text-sm w-full"
               />
-              <button className="bg-red-600 text-black py-3 rounded-xl text-sm font-medium">
+              <button
+                className="text-black py-3 rounded-xl text-sm font-medium"
+                style={{ backgroundColor: "var(--veritas-red)" }}
+              >
                 Subscribe
               </button>
             </div>

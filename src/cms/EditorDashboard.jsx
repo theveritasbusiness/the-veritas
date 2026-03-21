@@ -53,12 +53,13 @@ export default function EditorDashboard() {
 
       <Link
         to="/cms/new"
-        className="inline-block bg-red-600 text-black px-4 py-2 rounded mb-6"
+        className="inline-block text-black px-4 py-2 rounded mb-6"
+        style={{ backgroundColor: "var(--veritas-red)" }}
       >
         Create New Article
       </Link>
 
-      {error && <div className="mb-4 text-red-400">{error}</div>}
+      {error && <div className="mb-4" style={{ color: "var(--veritas-red)" }}>{error}</div>}
 
       <div className="space-y-4">
         {articles.map((article) => (
@@ -85,7 +86,7 @@ export default function EditorDashboard() {
 
               <button
                 onClick={() => deleteArticle(article.id)}
-                className="text-red-500"
+                style={{ color: "var(--veritas-red)" }}
               >
                 Delete
               </button>

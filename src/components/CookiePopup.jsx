@@ -31,7 +31,8 @@ export default function CookiePopup() {
         <div className="flex justify-center gap-4">
           <button
             onClick={acceptCookies}
-            className="bg-red-600 text-black px-4 py-2 rounded font-bold"
+            className="text-black px-4 py-2 rounded font-bold"
+            style={{ backgroundColor: "var(--veritas-red)" }}
           >
             Accept
           </button>

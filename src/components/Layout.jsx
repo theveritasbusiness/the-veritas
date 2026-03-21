@@ -27,7 +27,7 @@ export default function Layout() {
   return (
     <div className="bg-black text-white min-h-screen overflow-x-hidden">
       <div className="bg-neutral-900 border-b border-neutral-800 px-3 sm:px-4 py-3">
-        <div className="max-w-6xl mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="max-w-6xl mx-auto flex flex-col items-center gap-3">
           <div className="hidden md:block text-neutral-400 text-sm shrink-0">
             {new Date().toLocaleDateString("en-US", {
               year: "numeric",
@@ -36,60 +36,65 @@ export default function Layout() {
             })}
           </div>
 
-          <div className="flex items-center justify-between gap-3 md:flex-1">
-            <Link to="/" className="min-w-0 flex items-center">
+          <div className="flex justify-center w-full">
+            <Link to="/" className="min-w-0 flex items-center justify-center">
               <img
                 src={logoAsset}
-                className="h-9 sm:h-10 md:h-12 w-auto object-contain max-w-full"
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain max-w-full"
                 alt="The Veritas"
               />
             </Link>
+          </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="search"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    const nextQuery = e.target.value;
-                    setSearchQuery(nextQuery);
-                    navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
-                  }}
-                />
-                <i className="fa fa-search" />
-              </form>
+          <div className="flex items-center justify-center gap-2 sm:gap-3 shrink-0">
+            <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
+              <input
+                type="search"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => {
+                  const nextQuery = e.target.value;
+                  setSearchQuery(nextQuery);
+                  navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
+                }}
+              />
+              <i className="fa fa-search" />
+            </form>
 
-              <button className="bg-red-600 text-black px-4 sm:px-5 py-2 rounded-full text-sm font-medium">
-                Join
-              </button>
-            </div>
+            <button
+              className="text-black px-4 sm:px-5 py-2 rounded-full text-sm font-medium"
+              style={{ backgroundColor: "var(--veritas-red)" }}
+            >
+              Join
+            </button>
           </div>
         </div>
       </div>
 
       <nav className="border-b border-neutral-800">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 overflow-x-auto no-scrollbar">
-          <ul className="flex w-max min-w-full gap-2 sm:gap-3 py-3 text-sm whitespace-nowrap">
-            {categories.map((item) => (
-              <li
-                key={item}
-                className={`cursor-pointer transition-colors px-3 py-2 rounded-full border text-sm ${
-                  (item === "Home" && !selectedCategory) || selectedCategory === item
-                    ? "text-red-500 border-red-500 bg-red-500/10"
-                    : "border-neutral-800 hover:text-red-500 hover:border-red-500/50"
-                }`}
-                onClick={() => {
-                  if (item === "Home") {
-                    navigate("/");
-                  } else {
-                    navigate(`/?category=${item}`);
-                  }
-                }}
-              >
-                {item}
-              </li>
-            ))}
+          <ul className="flex w-max min-w-full justify-start sm:justify-center gap-5 sm:gap-7 py-3 text-sm whitespace-nowrap">
+            {categories.map((item) => {
+              const isActive =
+                (item === "Home" && !selectedCategory) || selectedCategory === item;
+
+              return (
+                <li
+                  key={item}
+                  className="cursor-pointer transition-colors text-sm text-white/90 hover:text-[var(--veritas-red)]"
+                  style={{ color: isActive ? "var(--veritas-red)" : undefined }}
+                  onClick={() => {
+                    if (item === "Home") {
+                      navigate("/");
+                    } else {
+                      navigate(`/?category=${item}`);
+                    }
+                  }}
+                >
+                  {item}
+                </li>
+              );
+            })}
           </ul>
         </div>
       </nav>
@@ -147,7 +152,7 @@ export default function Layout() {
 .veritas-search:hover,
 .veritas-search:focus-within {
   width: min(44vw, 180px);
-  border-color: #ff2b2b;
+  border-color: var(--veritas-red);
 }
 
 .veritas-search:hover input,
@@ -157,7 +162,7 @@ export default function Layout() {
 
 .veritas-search:hover .fa,
 .veritas-search:focus-within .fa {
-  background: #ff2b2b;
+  background: var(--veritas-red);
   color: black;
 }
 

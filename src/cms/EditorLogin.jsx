@@ -49,7 +49,8 @@ export default function EditorLogin() {
 
         <button
           onClick={login}
-          className="w-full bg-red-600 text-black py-2 rounded font-bold"
+          className="w-full text-black py-2 rounded font-bold"
+          style={{ backgroundColor: "var(--veritas-red)" }}
         >
           Login
         </button>

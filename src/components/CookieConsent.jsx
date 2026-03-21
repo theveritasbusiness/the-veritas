@@ -29,7 +29,8 @@ export default function CookieConsent() {
 
         <button
           onClick={acceptCookies}
-          className="bg-red-600 text-black px-6 py-2 rounded"
+          className="text-black px-6 py-2 rounded"
+          style={{ backgroundColor: "var(--veritas-red)" }}
         >
           Accept
         </button>

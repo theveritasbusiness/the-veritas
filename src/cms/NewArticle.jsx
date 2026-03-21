@@ -183,7 +183,11 @@ export default function NewArticle() {
           Show on Homepage Slider
         </label>
 
-        <button onClick={submitArticle} className="bg-red-600 text-black py-2 rounded w-full">
+        <button
+          onClick={submitArticle}
+          className="text-black py-2 rounded w-full"
+          style={{ backgroundColor: "var(--veritas-red)" }}
+        >
           Publish
         </button>
       </div>

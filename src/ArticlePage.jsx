@@ -39,7 +39,7 @@ export default function ArticlePage() {
   return (
     <div className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-6 sm:py-10 grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 overflow-x-hidden">
       <div className="md:col-span-8 min-w-0">
-        <div className="text-red-500 text-sm uppercase tracking-wide mb-2">
+        <div className="text-sm uppercase tracking-wide mb-2" style={{ color: "var(--veritas-red)" }}>
           {article.category}
         </div>
 
@@ -51,7 +51,7 @@ export default function ArticlePage() {
           {article.subheadline}
         </p>
 
-        <div className="border-b border-red-500 w-16 my-4"></div>
+        <div className="border-b w-16 my-4" style={{ borderColor: "var(--veritas-red)" }}></div>
         <div className="text-sm text-neutral-500 mt-3">
           By The Veritas Desk |{" "}
           {article.published_ago
@@ -69,7 +69,7 @@ export default function ArticlePage() {
           <p className="text-sm text-neutral-500 mb-6">{article.hero_caption}</p>
         )}
 
-        <div className="border-t border-red-600 my-6"></div>
+        <div className="border-t my-6" style={{ borderColor: "var(--veritas-red)" }}></div>
 
         <div className="space-y-5 sm:space-y-6 text-[17px] sm:text-[18px] leading-[1.9] text-white font-serif break-words">
           {(article.content_blocks || []).map((block, i) => {
@@ -121,7 +121,9 @@ export default function ArticlePage() {
           <ul className="space-y-4 text-sm">
             {latest.map((item) => (
               <li key={item.id} className="flex gap-3">
-                <div className="text-red-500 mt-1 shrink-0">◆</div>
+                <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
+                  ◆
+                </div>
                 <Link
                   to={`/article/${item.slug}`}
                   className="hover:underline transition-all duration-200 hover:text-white break-words"
