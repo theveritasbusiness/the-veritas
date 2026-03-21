@@ -418,16 +418,12 @@ export class EventHandlerManager implements AppModule {
     };
     document.addEventListener('keydown', this.boundUndoHandler);
 
-    const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     this.ctx.container.querySelectorAll<HTMLAnchorElement>('.variant-option').forEach(link => {
       link.addEventListener('click', (e) => {
         const variant = link.dataset.variant;
         if (!variant || variant === SITE_VARIANT) return;
         e.preventDefault();
-        void this.navigateToVariant(variant, {
-          href: link.href,
-          isLocalDev,
-        });
+        void this.navigateToVariant(variant);
       });
     });
 
@@ -527,12 +523,11 @@ export class EventHandlerManager implements AppModule {
     overlay.addEventListener('click', () => this.closeMobileMenu());
     closeBtn.addEventListener('click', () => this.closeMobileMenu());
 
-    const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     menu.querySelectorAll<HTMLButtonElement>('.mobile-menu-variant').forEach(btn => {
       btn.addEventListener('click', () => {
         const variant = btn.dataset.variant;
         if (!variant || variant === SITE_VARIANT) return;
-        void this.navigateToVariant(variant, { isLocalDev });
+        void this.navigateToVariant(variant);
       });
     });
 
@@ -832,28 +827,27 @@ export class EventHandlerManager implements AppModule {
     } catch { /* proceed with navigation regardless */ }
   }
 
-  private async navigateToVariant(
-    variant: string,
-    options: { href?: string; isLocalDev: boolean },
-  ): Promise<void> {
+  private async navigateToVariant(variant: string): Promise<void> {
     trackVariantSwitch(SITE_VARIANT, variant);
     await this.exitFullscreenForNavigation();
+    localStorage.setItem('veritas-monitor-variant', variant);
 
-    if (this.ctx.isDesktopApp || options.isLocalDev) {
-      localStorage.setItem('worldmonitor-variant', variant);
-      window.location.reload();
-      return;
+    const target = VARIANT_META[variant]?.url;
+    if (target) {
+      try {
+        const parsed = new URL(target, window.location.href);
+        if (parsed.origin === window.location.origin && parsed.pathname === window.location.pathname) {
+          window.location.reload();
+          return;
+        }
+        window.location.assign(parsed.toString());
+        return;
+      } catch {
+        // Fall through to reload if target parsing fails.
+      }
     }
 
-    const target = options.href || VARIANT_META[variant]?.url;
-    if (!target) return;
-    try {
-      const parsed = new URL(target, window.location.href);
-      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return;
-      window.location.href = parsed.toString();
-    } catch {
-      return;
-    }
+    window.location.reload();
   }
 
   toggleFullscreen(): void {

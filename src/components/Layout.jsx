@@ -49,7 +49,7 @@ export default function Layout() {
               })}
             </div>
 
-            <Link to="/" className="flex justify-center">
+            <Link to="/" className="flex justify-center" aria-label="Go to The Veritas homepage">
               <img
                 src={logoAsset}
                 className="h-14 lg:h-16 w-auto object-contain"
@@ -74,16 +74,17 @@ export default function Layout() {
 
               <a
                 {...liveButtonProps}
-                className="text-black px-5 py-2 rounded-full text-sm font-semibold live-cta"
-                style={{ backgroundColor: "var(--veritas-red)" }}
+                className="live-cta"
+                aria-label="Open The Veritas Monitor live dashboard"
               >
-                LIVE
+                <span className="live-cta-dot" aria-hidden="true" />
+                <span className="live-cta-text">LIVE</span>
               </a>
             </div>
           </div>
 
           <div className="md:hidden flex flex-col items-center gap-3">
-            <Link to="/" className="flex justify-center">
+            <Link to="/" className="flex justify-center" aria-label="Go to The Veritas homepage">
               <img
                 src={logoAsset}
                 className="h-12 w-auto object-contain"
@@ -108,10 +109,11 @@ export default function Layout() {
 
               <a
                 {...liveButtonProps}
-                className="text-black px-5 py-2 rounded-full text-sm font-semibold live-cta"
-                style={{ backgroundColor: "var(--veritas-red)" }}
+                className="live-cta"
+                aria-label="Open The Veritas Monitor live dashboard"
               >
-                LIVE
+                <span className="live-cta-dot" aria-hidden="true" />
+                <span className="live-cta-text">LIVE</span>
               </a>
             </div>
           </div>
@@ -223,7 +225,94 @@ export default function Layout() {
 }
 
 .live-cta {
-  box-shadow: 0 0 0 1px rgba(222, 2, 22, 0.35), 0 0 26px rgba(222, 2, 22, 0.28);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.8rem 1.15rem;
+  min-width: 112px;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  background:
+    linear-gradient(135deg, #7e000b 0%, #de0216 45%, #ff3d4d 100%);
+  box-shadow:
+    0 0 0 1px rgba(222, 2, 22, 0.5),
+    0 0 18px rgba(222, 2, 22, 0.35),
+    0 0 42px rgba(222, 2, 22, 0.22);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.live-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.35) 48%, transparent 70%);
+  transform: translateX(-140%);
+  animation: liveShine 2.8s ease-in-out infinite;
+}
+
+.live-cta:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.08);
+  box-shadow:
+    0 0 0 1px rgba(222, 2, 22, 0.58),
+    0 0 24px rgba(222, 2, 22, 0.45),
+    0 0 56px rgba(222, 2, 22, 0.3);
+}
+
+.live-cta-text,
+.live-cta-dot {
+  position: relative;
+  z-index: 1;
+}
+
+.live-cta-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.65);
+  animation: liveBlink 1.05s ease-in-out infinite;
+}
+
+@keyframes liveBlink {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(0.92);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.18);
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes liveShine {
+  0%,
+  20% {
+    transform: translateX(-140%);
+  }
+  55%,
+  100% {
+    transform: translateX(140%);
+  }
+}
+
+@media (max-width: 640px) {
+  .live-cta {
+    min-width: 102px;
+    padding: 0.72rem 1rem;
+    letter-spacing: 0.18em;
+  }
 }
       `}</style>
     </div>
