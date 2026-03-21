@@ -26,27 +26,14 @@ export default function Layout() {
     setSearchQuery(querySearch);
   }, [querySearch]);
 
-  const liveButtonConfig = isExternalLiveUrl
+  const liveButtonProps = isExternalLiveUrl
     ? {
-        component: "a",
         href: LIVE_MONITOR_URL,
         target: "_blank",
         rel: "noreferrer"
       }
     : {
-        component: Link,
-        to: LIVE_MONITOR_URL
-      };
-
-  const LiveButtonTag = liveButtonConfig.component;
-  const liveButtonProps = isExternalLiveUrl
-    ? {
-        href: liveButtonConfig.href,
-        target: liveButtonConfig.target,
-        rel: liveButtonConfig.rel
-      }
-    : {
-        to: liveButtonConfig.to
+        href: LIVE_MONITOR_URL
       };
 
   return (
@@ -85,13 +72,13 @@ export default function Layout() {
                 <i className="fa fa-search" />
               </form>
 
-              <LiveButtonTag
+              <a
                 {...liveButtonProps}
                 className="text-black px-5 py-2 rounded-full text-sm font-semibold live-cta"
                 style={{ backgroundColor: "var(--veritas-red)" }}
               >
                 LIVE
-              </LiveButtonTag>
+              </a>
             </div>
           </div>
 
@@ -119,13 +106,13 @@ export default function Layout() {
                 <i className="fa fa-search" />
               </form>
 
-              <LiveButtonTag
+              <a
                 {...liveButtonProps}
                 className="text-black px-5 py-2 rounded-full text-sm font-semibold live-cta"
                 style={{ backgroundColor: "var(--veritas-red)" }}
               >
                 LIVE
-              </LiveButtonTag>
+              </a>
             </div>
           </div>
         </div>
