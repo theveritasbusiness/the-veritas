@@ -5,13 +5,9 @@ import pool from "../db.js";
 
 const router = express.Router();
 
-console.log("JWT_SECRET =", process.env.JWT_SECRET);
-
-/* LOGIN */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("LOGIN ATTEMPT:", email);
 
     const result = await pool.query(
       "SELECT * FROM editors WHERE email = $1",
@@ -19,15 +15,11 @@ router.post("/login", async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      console.log("NO SUCH USER");
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const editor = result.rows[0];
-    console.log("DB USER:", editor);
-
     const match = await bcrypt.compare(password, editor.password_hash);
-    console.log("PASSWORD MATCH:", match);
 
     if (!match) {
       return res.status(401).json({ error: "Invalid credentials" });
@@ -43,7 +35,6 @@ router.post("/login", async (req, res) => {
       token,
       editor: { id: editor.id, email: editor.email, role: editor.role }
     });
-
   } catch (err) {
     console.error("LOGIN ERROR:", err);
     res.status(500).json({ error: "Server error" });

@@ -4,9 +4,36 @@ import { requireAuth } from "../auth.js";
 
 const router = express.Router();
 
-/**
- * GET all published articles (for frontend)
- */
+function parseContentBlocks(article) {
+  if (Array.isArray(article.content_blocks)) {
+    return article.content_blocks;
+  }
+
+  if (article.content_blocks) {
+    try {
+      return JSON.parse(article.content_blocks);
+    } catch {
+      return [];
+    }
+  }
+
+  if (Array.isArray(article.paragraphs)) {
+    return article.paragraphs.map((paragraph) => ({
+      type: "paragraph",
+      text: paragraph
+    }));
+  }
+
+  if (typeof article.paragraphs === "string") {
+    return article.paragraphs.split("\n").map((paragraph) => ({
+      type: "paragraph",
+      text: paragraph
+    }));
+  }
+
+  return [];
+}
+
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(
@@ -25,9 +52,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-/**
- * GET breaking news
- */
 router.get("/breaking", async (req, res) => {
   try {
     const result = await pool.query(
@@ -35,8 +59,8 @@ router.get("/breaking", async (req, res) => {
       SELECT *
       FROM articles
       WHERE is_breaking = true
-  AND status = 'published'
-  AND approved = true
+        AND status = 'published'
+        AND approved = true
       ORDER BY published_at DESC
       `
     );
@@ -47,9 +71,57 @@ router.get("/breaking", async (req, res) => {
   }
 });
 
-/**
- * GET single article by slug
- */
+router.get("/admin", requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `
+      SELECT *,
+      NOW() - published_at AS published_ago
+      FROM articles
+      ORDER BY published_at DESC NULLS LAST, id DESC
+      `
+    );
+
+    res.json(
+      result.rows.map((article) => ({
+        ...article,
+        content_blocks: parseContentBlocks(article)
+      }))
+    );
+  } catch (err) {
+    console.error("ADMIN ARTICLES FETCH ERROR:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+router.get("/admin/:id", requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `
+      SELECT *,
+      NOW() - published_at AS published_ago
+      FROM articles
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Article not found" });
+    }
+
+    const article = result.rows[0];
+    res.json({
+      ...article,
+      content_blocks: parseContentBlocks(article)
+    });
+  } catch (err) {
+    console.error("ADMIN ARTICLE FETCH ERROR:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
 router.get("/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
@@ -57,10 +129,11 @@ router.get("/:slug", async (req, res) => {
     const result = await pool.query(
       `
       SELECT *,
-NOW() - published_at AS published_ago
+      NOW() - published_at AS published_ago
       FROM articles
       WHERE slug = $1
         AND status = 'published'
+        AND approved = true
       LIMIT 1
       `,
       [slug]
@@ -72,45 +145,14 @@ NOW() - published_at AS published_ago
 
     const article = result.rows[0];
 
-let blocks = [];
-
-// ✅ Try content_blocks first
-if (article.content_blocks) {
-  try {
-    blocks = JSON.parse(article.content_blocks);
-  } catch {
-    blocks = [];
+    res.json({
+      ...article,
+      content_blocks: parseContentBlocks(article)
+    });
+  } catch (err) {
+    console.error("ARTICLE FETCH ERROR:", err);
+    res.status(500).json({ error: "Database error" });
   }
-}
-
-// ✅ BULLETPROOF FALLBACK
-if (!blocks.length) {
-  if (Array.isArray(article.paragraphs)) {
-    blocks = article.paragraphs.map(p => ({
-      type: "paragraph",
-      text: p
-    }));
-  } else if (typeof article.paragraphs === "string") {
-    blocks = article.paragraphs.split("\n").map(p => ({
-      type: "paragraph",
-      text: p
-    }));
-  }
-}
-
-// ✅ DEBUG (temporary)
-console.log("ARTICLE:", article);
-console.log("BLOCKS:", blocks);
-
-res.json({
-  ...article,
-  content_blocks: blocks
-});
-
-} catch (err) {
-  console.error("ARTICLE FETCH ERROR:", err);
-  res.status(500).json({ error: "Database error" });
-}
 });
 
 router.post("/", requireAuth, async (req, res) => {
@@ -130,39 +172,38 @@ router.post("/", requireAuth, async (req, res) => {
       content_blocks
     } = req.body;
 
-    const safeParagraphs = (paragraphs || []).filter(p => p.trim() !== "");
-
+    const safeParagraphs = (paragraphs || []).filter((paragraph) => paragraph.trim() !== "");
     const blocks =
       content_blocks && content_blocks.length
         ? content_blocks
-        : safeParagraphs.map(p => ({ type: "paragraph", text: p }));
+        : safeParagraphs.map((paragraph) => ({ type: "paragraph", text: paragraph }));
 
-    const content = blocks.map(b => b.text).join("\n\n");
+    const content = blocks.map((block) => block.text).join("\n\n");
     const contentBlocksJSON = JSON.stringify(blocks);
 
     const result = await pool.query(
       `INSERT INTO articles
-(title, subheadline, slug, category, hero_image, hero_caption, hashtags, paragraphs, bibliography, is_breaking, content, content_blocks, show_on_slider, approved, status, published_at)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
-RETURNING *`,
+      (title, subheadline, slug, category, hero_image, hero_caption, hashtags, paragraphs, bibliography, is_breaking, content, content_blocks, show_on_slider, approved, status, published_at)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+      RETURNING *`,
       [
-  title,
-  subheadline,
-  slug,
-  category,
-  hero_image,
-  hero_caption,
-  hashtags || [],
-  safeParagraphs,
-  bibliography,
-  is_breaking || false,
-  content,
-  contentBlocksJSON,
-  show_on_slider || false,
-  true,
-  "published",
-  new Date()
-]
+        title,
+        subheadline,
+        slug,
+        category,
+        hero_image,
+        hero_caption,
+        hashtags || [],
+        safeParagraphs,
+        bibliography,
+        is_breaking || false,
+        content,
+        contentBlocksJSON,
+        show_on_slider || false,
+        true,
+        "published",
+        new Date()
+      ]
     );
 
     res.json(result.rows[0]);
@@ -174,9 +215,15 @@ RETURNING *`,
 
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
-    await pool.query("DELETE FROM articles WHERE id = $1", [req.params.id]);
+    const result = await pool.query("DELETE FROM articles WHERE id = $1 RETURNING id", [req.params.id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Article not found" });
+    }
+
     res.json({ success: true });
   } catch (err) {
+    console.error("DELETE ERROR:", err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
@@ -198,14 +245,13 @@ router.put("/:id", requireAuth, async (req, res) => {
       content_blocks
     } = req.body;
 
-    const safeParagraphs = (paragraphs || []).filter(p => p.trim() !== "");
-
+    const safeParagraphs = (paragraphs || []).filter((paragraph) => paragraph.trim() !== "");
     const blocks =
       content_blocks && content_blocks.length
         ? content_blocks
-        : safeParagraphs.map(p => ({ type: "paragraph", text: p }));
+        : safeParagraphs.map((paragraph) => ({ type: "paragraph", text: paragraph }));
 
-    const content = blocks.map(b => b.text).join("\n\n");
+    const content = blocks.map((block) => block.text).join("\n\n");
     const contentBlocksJSON = JSON.stringify(blocks);
 
     const result = await pool.query(
@@ -233,8 +279,13 @@ router.put("/:id", requireAuth, async (req, res) => {
       ]
     );
 
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Article not found" });
+    }
+
     res.json(result.rows[0]);
   } catch (err) {
+    console.error("UPDATE ERROR:", err);
     res.status(500).json({ error: "Update failed" });
   }
 });

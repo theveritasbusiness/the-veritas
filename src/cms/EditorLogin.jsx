@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../api";
 
 export default function EditorLogin() {
   const [email, setEmail] = useState("");
@@ -7,28 +8,26 @@ export default function EditorLogin() {
   const navigate = useNavigate();
 
   async function login() {
-  try {
-    const res = await fetch("https://veritas-backend-dktb.onrender.com/editors/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
+    try {
+      const res = await fetch(`${API_BASE}/editors/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
-    const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-    console.log("LOGIN RESPONSE:", data); // 🔥 important
-
-    if (res.ok && data.token) {
-      localStorage.setItem("editorToken", data.token);
-      navigate("/cms");
-    } else {
-      alert(data.error || "Login failed");
+      if (res.ok && data.token) {
+        localStorage.setItem("editorToken", data.token);
+        navigate("/cms");
+      } else {
+        alert(data.error || "Login failed");
+      }
+    } catch (err) {
+      console.error("LOGIN ERROR:", err);
+      alert("Server error");
     }
-  } catch (err) {
-    console.error("LOGIN ERROR:", err);
-    alert("Server error");
   }
-}
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -37,14 +36,14 @@ export default function EditorLogin() {
 
         <input
           placeholder="Email"
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 bg-black border"
         />
 
         <input
           type="password"
           placeholder="Password"
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           className="w-full p-2 bg-black border"
         />
 

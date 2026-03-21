@@ -1,4 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  API_BASE,
+  CLOUDINARY_UPLOAD_PRESET,
+  authHeaders,
+  getCloudinaryUploadUrl
+} from "../api";
+
 export default function NewArticle() {
   const [title, setTitle] = useState("");
   const [subheadline, setSubheadline] = useState("");
@@ -10,214 +18,174 @@ export default function NewArticle() {
   const [bibliography, setBibliography] = useState("");
   const [breaking, setBreaking] = useState(false);
   const [showOnSlider, setShowOnSlider] = useState(false);
-  const [contentBlocks, setContentBlocks] = useState([
-  { type: "paragraph", text: "" }
-]);
-function updateBlock(i, value) {
-  const copy = [...contentBlocks];
-  copy[i].text = value;
-  setContentBlocks(copy);
-}
-
-function addParagraphBlock() {
-  setContentBlocks([...contentBlocks, { type: "paragraph", text: "" }]);
-}
-
-function addSubheadingBlock() {
-  setContentBlocks([...contentBlocks, { type: "subheading", text: "" }]);
-}
+  const [contentBlocks, setContentBlocks] = useState([{ type: "paragraph", text: "" }]);
+  const navigate = useNavigate();
 
   async function handleImageUpload(file) {
-  if (!file) return;
+    if (!file) return;
 
-  setUploading(true);
+    setUploading(true);
 
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", "veritas_uploads"); // YOUR PRESET
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-  try {
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dft7kdsw6/image/upload",
-      {
+    try {
+      const res = await fetch(getCloudinaryUploadUrl(), {
         method: "POST",
-        body: formData,
+        body: formData
+      });
+      const data = await res.json();
+
+      if (!res.ok || !data.secure_url) {
+        throw new Error(data.error?.message || "Image upload failed");
       }
-    );
 
-    const data = await res.json();
-
-    setHeroImage(data.secure_url); // THIS is the real image URL
-  } catch (err) {
-    alert("Image upload failed");
+      setHeroImage(data.secure_url);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setUploading(false);
+    }
   }
-
-  setUploading(false);
-}
 
   async function submitArticle() {
+    if (!title.trim()) {
+      alert("Title required");
+      return;
+    }
 
-  // ✅ VALIDATION (CORRECT PLACE)
-  if (!title.trim()) {
-    alert("Title required");
-    return;
-  }
+    const nonEmptyBlocks = contentBlocks.filter((block) => block.text.trim());
+    const paragraphBlocks = nonEmptyBlocks.filter((block) => block.type === "paragraph");
 
-  if (contentBlocks.filter(b => b.text.trim()).length === 0)
-     {
-    alert("At least one paragraph required");
-    return;
-  }
+    if (paragraphBlocks.length === 0) {
+      alert("At least one paragraph required");
+      return;
+    }
 
-  if (!heroImage.trim()) {
-    alert("Hero image URL required");
-    return;
-  }
+    if (!heroImage.trim()) {
+      alert("Hero image URL required");
+      return;
+    }
 
-  const slug =
-    title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-") +
-    "-" +
-    Date.now();
+    const slug =
+      title
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-") +
+      "-" +
+      Date.now();
 
-    const res = await fetch("https://veritas-backend-dktb.onrender.com/articles", {
-      method: "POST",
-      headers: {
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${localStorage.getItem("editorToken")}`
-},
-      body: JSON.stringify({
-  title,
-  subheadline,
-  slug,
-  category,
-  hero_image: heroImage,
-  hero_caption: heroCaption,
-  hashtags: hashtags
-    ? hashtags.split(",").map(h => h.trim())
-    : [],
+    try {
+      const res = await fetch(`${API_BASE}/articles`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          title,
+          subheadline,
+          slug,
+          category,
+          hero_image: heroImage,
+          hero_caption: heroCaption,
+          hashtags: hashtags ? hashtags.split(",").map((item) => item.trim()).filter(Boolean) : [],
+          content_blocks: nonEmptyBlocks,
+          paragraphs: paragraphBlocks.map((block) => block.text),
+          bibliography,
+          is_breaking: breaking,
+          show_on_slider: showOnSlider
+        })
+      });
 
-  content_blocks: contentBlocks,
+      const data = await res.json().catch(() => ({}));
 
-  paragraphs: contentBlocks
-    .filter(b => b.type === "paragraph")
-    .map(b => b.text),
+      if (!res.ok) {
+        throw new Error(data.error || "Publish failed");
+      }
 
-  bibliography,
-  is_breaking: breaking,
-  show_on_slider: showOnSlider
-})
-});
-
-    const data = await res.json();
-
-    if (res.ok) {
       alert("Article published");
-      window.location.href = "/";
-    } else {
-      alert("Publish failed: " + data.error);
+      navigate("/cms");
+    } catch (err) {
+      alert(err.message);
     }
   }
 
   return (
     <div className="min-h-screen bg-black text-white p-10">
       <div className="max-w-3xl mx-auto bg-neutral-900 p-6 rounded space-y-4">
-
         <h2 className="text-2xl font-bold">Create Article</h2>
 
-        <input placeholder="Headline" className="w-full p-2 bg-black border" onChange={e=>setTitle(e.target.value)} />
-        <input placeholder="Subheadline" className="w-full p-2 bg-black border" onChange={e=>setSubheadline(e.target.value)} />
-        <input placeholder="Category" className="w-full p-2 bg-black border" onChange={e=>setCategory(e.target.value)} />
-        <input
-  type="file"
-  accept="image/*"
-  className="w-full p-2 bg-black border"
-  onChange={(e) => handleImageUpload(e.target.files[0])}
-/>
+        <input placeholder="Headline" className="w-full p-2 bg-black border" onChange={(e) => setTitle(e.target.value)} />
+        <input placeholder="Subheadline" className="w-full p-2 bg-black border" onChange={(e) => setSubheadline(e.target.value)} />
+        <input placeholder="Category" className="w-full p-2 bg-black border" onChange={(e) => setCategory(e.target.value)} />
+        <input type="file" accept="image/*" className="w-full p-2 bg-black border" onChange={(e) => handleImageUpload(e.target.files[0])} />
 
-{uploading && (
-  <div className="text-sm text-neutral-400">Uploading image...</div>
-)}
+        {uploading && <div className="text-sm text-neutral-400">Uploading image...</div>}
 
-{heroImage && (
-  <img
-    src={heroImage}
-    className="w-full h-48 object-cover rounded mt-2"
-  />
-)}
-        <input placeholder="Hero Caption" className="w-full p-2 bg-black border" onChange={e=>setHeroCaption(e.target.value)} />
-        <input placeholder="Hashtags (comma separated)" className="w-full p-2 bg-black border" onChange={e=>setHashtags(e.target.value)} />
+        {heroImage && <img src={heroImage} className="w-full h-48 object-cover rounded mt-2" alt="Uploaded hero" />}
+
+        <input placeholder="Hero Caption" className="w-full p-2 bg-black border" onChange={(e) => setHeroCaption(e.target.value)} />
+        <input placeholder="Hashtags (comma separated)" className="w-full p-2 bg-black border" onChange={(e) => setHashtags(e.target.value)} />
 
         <h3 className="font-bold">Content</h3>
 
-{contentBlocks.map((block, i) => (
-  <div key={i}>
-    {block.type === "paragraph" ? (
-      <textarea
-        className="w-full p-2 bg-black border"
-        placeholder="Paragraph..."
-        value={block.text}
-        onChange={(e) => {
-          const copy = [...contentBlocks];
-          copy[i].text = e.target.value;
-          setContentBlocks(copy);
-        }}
-      />
-    ) : (
-      <input
-        className="w-full p-2 bg-black border text-lg font-bold"
-        placeholder="Subheading..."
-        value={block.text}
-        onChange={(e) => {
-          const copy = [...contentBlocks];
-          copy[i].text = e.target.value;
-          setContentBlocks(copy);
-        }}
-      />
-    )}
-  </div>
-))}
+        {contentBlocks.map((block, i) => (
+          <div key={i}>
+            {block.type === "paragraph" ? (
+              <textarea
+                className="w-full p-2 bg-black border"
+                placeholder="Paragraph..."
+                value={block.text}
+                onChange={(e) => {
+                  const copy = [...contentBlocks];
+                  copy[i].text = e.target.value;
+                  setContentBlocks(copy);
+                }}
+              />
+            ) : (
+              <input
+                className="w-full p-2 bg-black border text-lg font-bold"
+                placeholder="Subheading..."
+                value={block.text}
+                onChange={(e) => {
+                  const copy = [...contentBlocks];
+                  copy[i].text = e.target.value;
+                  setContentBlocks(copy);
+                }}
+              />
+            )}
+          </div>
+        ))}
 
-<div className="flex gap-2">
-  <button
-    onClick={() =>
-      setContentBlocks([...contentBlocks, { type: "paragraph", text: "" }])
-    }
-    className="bg-neutral-700 px-4 py-2 rounded"
-  >
-    + Paragraph
-  </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setContentBlocks([...contentBlocks, { type: "paragraph", text: "" }])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + Paragraph
+          </button>
 
-  <button
-    onClick={() =>
-      setContentBlocks([...contentBlocks, { type: "subheading", text: "" }])
-    }
-    className="bg-neutral-700 px-4 py-2 rounded"
-  >
-    + Subheading
-  </button>
-</div>
+          <button
+            onClick={() => setContentBlocks([...contentBlocks, { type: "subheading", text: "" }])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + Subheading
+          </button>
+        </div>
 
-        <textarea placeholder="Bibliography" className="w-full p-2 bg-black border" onChange={e=>setBibliography(e.target.value)} />
+        <textarea placeholder="Bibliography" className="w-full p-2 bg-black border" onChange={(e) => setBibliography(e.target.value)} />
 
         <label className="flex gap-2">
-          <input type="checkbox" onChange={e=>setBreaking(e.target.checked)} />
+          <input type="checkbox" onChange={(e) => setBreaking(e.target.checked)} />
           Breaking News
         </label>
         <label className="flex gap-2">
-  <input
-    type="checkbox"
-    onChange={e => setShowOnSlider(e.target.checked)}
-  />
-  Show on Homepage Slider
-</label>
+          <input type="checkbox" onChange={(e) => setShowOnSlider(e.target.checked)} />
+          Show on Homepage Slider
+        </label>
 
         <button onClick={submitArticle} className="bg-red-600 text-black py-2 rounded w-full">
           Publish
         </button>
-
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import EditorLogin from "./cms/EditorLogin";
 import EditorDashboard from "./cms/EditorDashboard";
 import NewArticle from "./cms/NewArticle";
 import EditArticle from "./cms/EditArticle";
+import ProtectedRoute from "./ProtectedRoutes";
 
 import Terms from "./Terms";
 import Privacy from "./Privacy";
@@ -26,10 +27,38 @@ function App() {
 
         {/* ❌ WITHOUT NAVBAR */}
         <Route path="/editors/login" element={<EditorLogin />} />
-        <Route path="/editors/dashboard" element={<EditorDashboard />} />
-        <Route path="/cms" element={<EditorDashboard />} />
-        <Route path="/cms/new" element={<NewArticle />} />
-        <Route path="/cms/edit/:id" element={<EditArticle />} />
+        <Route
+          path="/editors/dashboard"
+          element={
+            <ProtectedRoute>
+              <EditorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cms"
+          element={
+            <ProtectedRoute>
+              <EditorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cms/new"
+          element={
+            <ProtectedRoute>
+              <NewArticle />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cms/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditArticle />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
