@@ -60,12 +60,13 @@ export default function Layout() {
                 <i className="fa fa-search" />
               </form>
 
-              <button
-                className="text-black px-5 py-2 rounded-full text-sm font-medium"
+              <Link
+                to="/live"
+                className="text-black px-5 py-2 rounded-full text-sm font-semibold live-cta"
                 style={{ backgroundColor: "var(--veritas-red)" }}
               >
-                Join
-              </button>
+                LIVE
+              </Link>
             </div>
           </div>
 
@@ -93,12 +94,13 @@ export default function Layout() {
                 <i className="fa fa-search" />
               </form>
 
-              <button
-                className="text-black px-5 py-2 rounded-full text-sm font-medium"
+              <Link
+                to="/live"
+                className="text-black px-5 py-2 rounded-full text-sm font-semibold live-cta"
                 style={{ backgroundColor: "var(--veritas-red)" }}
               >
-                Join
-              </button>
+                LIVE
+              </Link>
             </div>
           </div>
         </div>
@@ -206,6 +208,10 @@ export default function Layout() {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+.live-cta {
+  box-shadow: 0 0 0 1px rgba(222, 2, 22, 0.35), 0 0 26px rgba(222, 2, 22, 0.28);
 }
       `}</style>
     </div>

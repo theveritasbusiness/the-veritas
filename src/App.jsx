@@ -4,6 +4,7 @@ import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import TheVeritasShowcase from "./TheVeritasShowcase";
 import ArticlePage from "./ArticlePage";
+import LiveMonitor from "./LiveMonitor";
 
 import EditorLogin from "./cms/EditorLogin";
 import EditorDashboard from "./cms/EditorDashboard";
@@ -23,6 +24,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<TheVeritasShowcase />} />
           <Route path="/article/:slug" element={<ArticlePage />} />
+          <Route path="/live" element={<LiveMonitor />} />
         </Route>
 
         {/* ❌ WITHOUT NAVBAR */}
