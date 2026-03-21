@@ -26,54 +26,87 @@ export default function Layout() {
 
   return (
     <div className="bg-black text-white min-h-screen overflow-x-hidden">
-      <div className="bg-neutral-900 border-b border-neutral-800 px-3 sm:px-4 py-3">
-        <div className="max-w-6xl mx-auto flex flex-col items-center gap-3">
-          <div className="hidden md:block text-neutral-400 text-sm shrink-0">
-            {new Date().toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric"
-            })}
-          </div>
+      <header className="bg-neutral-900 border-b border-neutral-800">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-4">
+            <div className="text-neutral-400 text-sm">
+              {new Date().toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+              })}
+            </div>
 
-          <div className="flex justify-center w-full">
-            <Link to="/" className="min-w-0 flex items-center justify-center">
+            <Link to="/" className="flex justify-center">
               <img
                 src={logoAsset}
-                className="h-12 sm:h-14 md:h-16 w-auto object-contain max-w-full"
+                className="h-14 lg:h-16 w-auto object-contain"
                 alt="The Veritas"
               />
             </Link>
+
+            <div className="flex items-center justify-end gap-3">
+              <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
+                <input
+                  type="search"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const nextQuery = e.target.value;
+                    setSearchQuery(nextQuery);
+                    navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
+                  }}
+                />
+                <i className="fa fa-search" />
+              </form>
+
+              <button
+                className="text-black px-5 py-2 rounded-full text-sm font-medium"
+                style={{ backgroundColor: "var(--veritas-red)" }}
+              >
+                Join
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center justify-center gap-2 sm:gap-3 shrink-0">
-            <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="search"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => {
-                  const nextQuery = e.target.value;
-                  setSearchQuery(nextQuery);
-                  navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
-                }}
+          <div className="md:hidden flex flex-col items-center gap-3">
+            <Link to="/" className="flex justify-center">
+              <img
+                src={logoAsset}
+                className="h-12 w-auto object-contain"
+                alt="The Veritas"
               />
-              <i className="fa fa-search" />
-            </form>
+            </Link>
 
-            <button
-              className="text-black px-4 sm:px-5 py-2 rounded-full text-sm font-medium"
-              style={{ backgroundColor: "var(--veritas-red)" }}
-            >
-              Join
-            </button>
+            <div className="flex items-center justify-center gap-3">
+              <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
+                <input
+                  type="search"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const nextQuery = e.target.value;
+                    setSearchQuery(nextQuery);
+                    navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
+                  }}
+                />
+                <i className="fa fa-search" />
+              </form>
+
+              <button
+                className="text-black px-5 py-2 rounded-full text-sm font-medium"
+                style={{ backgroundColor: "var(--veritas-red)" }}
+              >
+                Join
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
       <nav className="border-b border-neutral-800">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 overflow-x-auto no-scrollbar">
-          <ul className="flex w-max min-w-full justify-start sm:justify-center gap-5 sm:gap-7 py-3 text-sm whitespace-nowrap">
+          <ul className="flex w-max min-w-full justify-start md:justify-center gap-5 sm:gap-7 py-3 text-sm whitespace-nowrap">
             {categories.map((item) => {
               const isActive =
                 (item === "Home" && !selectedCategory) || selectedCategory === item;
