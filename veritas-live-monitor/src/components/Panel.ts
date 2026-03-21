@@ -776,10 +776,11 @@ export class Panel {
     }
 
     const ctaBtn = h('button', { type: 'button', className: 'panel-locked-cta' }, t('premium.joinWaitlist'));
+    const veritasAccessUrl = 'https://theveritas.netlify.app/live';
     if (isDesktopRuntime()) {
-      ctaBtn.addEventListener('click', () => void invokeTauri<void>('open_url', { url: 'https://worldmonitor.app/pro' }).catch(() => window.open('https://worldmonitor.app/pro', '_blank')));
+      ctaBtn.addEventListener('click', () => void invokeTauri<void>('open_url', { url: veritasAccessUrl }).catch(() => window.open(veritasAccessUrl, '_blank')));
     } else {
-      ctaBtn.addEventListener('click', () => window.open('https://worldmonitor.app/pro', '_blank'));
+      ctaBtn.addEventListener('click', () => window.open(veritasAccessUrl, '_blank'));
     }
     lockedChildren.push(ctaBtn);
 

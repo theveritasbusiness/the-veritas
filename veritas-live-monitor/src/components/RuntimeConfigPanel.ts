@@ -370,7 +370,7 @@ export class RuntimeConfigPanel extends Panel {
 
     if (this.mode === 'alert') {
       this.content.querySelector<HTMLButtonElement>('[data-early-access]')?.addEventListener('click', () => {
-        const url = 'https://www.worldmonitor.app/pro';
+        const url = 'https://theveritas.netlify.app/live';
         if (isDesktopRuntime()) {
           void invokeTauri<void>('open_url', { url }).catch(() => window.open(url, '_blank'));
         } else {
