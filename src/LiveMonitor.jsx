@@ -21,6 +21,15 @@ function formatClock(date) {
   }).format(date);
 }
 
+const regionBlueprint = [
+  { region: "North Atlantic", x: "28%", y: "26%", city: "London" },
+  { region: "South Asia", x: "63%", y: "48%", city: "New Delhi" },
+  { region: "East Asia", x: "78%", y: "34%", city: "Singapore" },
+  { region: "Middle East", x: "58%", y: "38%", city: "Dubai" },
+  { region: "North America", x: "16%", y: "33%", city: "Washington" },
+  { region: "Eastern Europe", x: "51%", y: "24%", city: "Warsaw" }
+];
+
 export default function LiveMonitor() {
   const [articles, setArticles] = useState([]);
   const [breaking, setBreaking] = useState([]);
@@ -69,16 +78,27 @@ export default function LiveMonitor() {
 
   const topStory = articles[0] || null;
   const latestStories = articles.slice(0, 8);
-  const conflictWatch = useMemo(
-    () =>
-      articles.filter((article) =>
-        ["geopolitics", "politics", "india", "legal", "sports", "trending"].includes(
-          (article.category || "").toLowerCase()
-        )
-      ),
-    [articles]
-  );
-  const spotlightStories = conflictWatch.slice(0, 4);
+  const spotlightStories = articles.slice(0, 4);
+  const watchlistStories = articles.slice(4, 10);
+  const breakingBoard = breaking.length ? breaking : latestStories.slice(0, 5);
+
+  const categoryMatrix = useMemo(() => {
+    const counts = new Map();
+    for (const article of articles) {
+      const category = article.category || "Unsorted";
+      counts.set(category, (counts.get(category) || 0) + 1);
+    }
+
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([label, count], index) => ({
+        label,
+        count,
+        priority: ["Critical", "Elevated", "Active", "Watching", "Scanning", "Queued"][index] || "Watching"
+      }));
+  }, [articles]);
+
   const monitorCounts = useMemo(
     () => [
       { label: "Live Stories", value: String(articles.length || 0).padStart(2, "0") },
@@ -89,6 +109,30 @@ export default function LiveMonitor() {
       }
     ],
     [articles, breaking]
+  );
+
+  const regionalSignals = useMemo(
+    () =>
+      regionBlueprint.map((region, index) => {
+        const story = articles[index] || topStory;
+        return {
+          ...region,
+          title: story?.title || "Awaiting signal",
+          category: story?.category || "Monitor",
+          age: formatAge(story)
+        };
+      }),
+    [articles, topStory]
+  );
+
+  const liveChannels = useMemo(
+    () => [
+      { title: "Desk Feed", subtitle: "Editorial priority stream", value: `${latestStories.length} active` },
+      { title: "Breaking Layer", subtitle: "High-attention developments", value: `${breaking.length || 0} active` },
+      { title: "Signal Matrix", subtitle: "Category density and alerts", value: `${categoryMatrix.length} live` },
+      { title: "Regional Watch", subtitle: "Geo-priority checkpoints", value: `${regionalSignals.length} nodes` }
+    ],
+    [latestStories.length, breaking.length, categoryMatrix.length, regionalSignals.length]
   );
 
   return (
@@ -109,12 +153,12 @@ export default function LiveMonitor() {
                 <h1 className="mt-5 font-serif text-5xl sm:text-6xl xl:text-7xl leading-[0.92] tracking-tight">
                   Global Monitor
                   <br />
-                  Live Desk
+                  Control Desk
                 </h1>
 
                 <p className="mt-4 max-w-3xl text-neutral-300 text-base sm:text-lg leading-relaxed">
-                  A live command surface for breaking stories, strategic movement, and
-                  high-attention developments across The Veritas network.
+                  A live command surface for breaking stories, strategic movement, regional
+                  watchlists, and high-attention developments across The Veritas network.
                 </p>
               </div>
 
@@ -185,10 +229,10 @@ export default function LiveMonitor() {
           </div>
         )}
 
-        <section className="mt-5 grid gap-5 xl:grid-cols-[1.15fr,0.85fr]">
+        <section className="mt-5 grid gap-5 xl:grid-cols-[1.08fr,0.92fr]">
           <div className="space-y-5 min-w-0">
             <article className="rounded-[26px] border border-neutral-800 bg-neutral-950 overflow-hidden">
-              <div className="grid lg:grid-cols-[1.15fr,0.85fr]">
+              <div className="grid lg:grid-cols-[1.08fr,0.92fr]">
                 <div className="p-5 sm:p-6 xl:p-7 min-w-0">
                   <div
                     className="text-xs uppercase tracking-[0.24em]"
@@ -209,7 +253,7 @@ export default function LiveMonitor() {
 
                   <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-neutral-400">
                     <span>{topStory?.category || "Monitor"}</span>
-                    <span>•</span>
+                    <span>|</span>
                     <span>{formatAge(topStory)}</span>
                   </div>
 
@@ -239,6 +283,66 @@ export default function LiveMonitor() {
                 </div>
               </div>
             </article>
+
+            <section className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif text-2xl">Operations Map</h3>
+                <span
+                  className="text-xs uppercase tracking-[0.24em]"
+                  style={{ color: "var(--veritas-red)" }}
+                >
+                  Regional Grid
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-5 lg:grid-cols-[1.08fr,0.92fr]">
+                <div className="relative min-h-[360px] rounded-[24px] border border-neutral-800 overflow-hidden ops-map">
+                  <div className="absolute inset-0 ops-grid" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(222,2,22,0.08),transparent_55%)]" />
+
+                  {regionalSignals.map((signal) => (
+                    <div
+                      key={`${signal.region}-${signal.city}`}
+                      className="absolute -translate-x-1/2 -translate-y-1/2"
+                      style={{ left: signal.x, top: signal.y }}
+                    >
+                      <div className="ops-node" />
+                      <div className="mt-3 w-44 rounded-xl border border-neutral-800 bg-black/85 backdrop-blur px-3 py-3">
+                        <div
+                          className="text-[11px] uppercase tracking-[0.2em]"
+                          style={{ color: "var(--veritas-red)" }}
+                        >
+                          {signal.city}
+                        </div>
+                        <div className="mt-1 text-sm font-semibold leading-snug break-words">
+                          {signal.title}
+                        </div>
+                        <div className="mt-2 text-[11px] text-neutral-400">
+                          {signal.region} | {signal.category} | {signal.age}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid gap-3 content-start">
+                  {liveChannels.map((channel) => (
+                    <div
+                      key={channel.title}
+                      className="rounded-xl border border-neutral-800 bg-black/30 px-4 py-4"
+                    >
+                      <div className="text-xs uppercase tracking-[0.24em] text-neutral-400">
+                        {channel.title}
+                      </div>
+                      <div className="mt-2 text-xl font-semibold">{channel.value}</div>
+                      <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
+                        {channel.subtitle}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
 
             <div className="grid gap-5 lg:grid-cols-2">
               <section className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 sm:p-6">
@@ -277,32 +381,34 @@ export default function LiveMonitor() {
 
               <section className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 sm:p-6">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-serif text-2xl">Strategic Watch</h3>
+                  <h3 className="font-serif text-2xl">Signal Matrix</h3>
                   <span
                     className="text-xs uppercase tracking-[0.24em]"
                     style={{ color: "var(--veritas-red)" }}
                   >
-                    Focus
+                    Priority
                   </span>
                 </div>
 
                 <div className="mt-5 grid gap-3">
-                  {spotlightStories.map((story) => (
+                  {categoryMatrix.map((signal) => (
                     <div
-                      key={story.id}
+                      key={signal.label}
                       className="rounded-xl border border-neutral-800 bg-black/30 px-4 py-4"
                     >
-                      <div
-                        className="text-xs uppercase tracking-[0.22em]"
-                        style={{ color: "var(--veritas-red)" }}
-                      >
-                        {story.category || "Monitor"}
-                      </div>
-                      <div className="mt-2 text-lg font-semibold leading-snug break-words">
-                        {story.title}
-                      </div>
-                      <div className="mt-2 text-sm text-neutral-400">
-                        {story.subheadline || story.paragraphs?.[0]?.slice(0, 100) || "No summary yet."}
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <div
+                            className="text-[11px] uppercase tracking-[0.2em]"
+                            style={{ color: "var(--veritas-red)" }}
+                          >
+                            {signal.priority}
+                          </div>
+                          <div className="mt-1 text-lg font-semibold">{signal.label}</div>
+                        </div>
+                        <div className="text-3xl font-semibold text-white/90">
+                          {String(signal.count).padStart(2, "0")}
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -314,50 +420,79 @@ export default function LiveMonitor() {
           <aside className="space-y-5 min-w-0">
             <section className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 sm:p-6">
               <div className="flex items-center justify-between gap-3">
-                <h3 className="font-serif text-2xl">Command Layer</h3>
+                <h3 className="font-serif text-2xl">Spotlight Stack</h3>
                 <span
                   className="text-xs uppercase tracking-[0.24em]"
                   style={{ color: "var(--veritas-red)" }}
                 >
-                  Phase 2
+                  Focus
                 </span>
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                <div className="rounded-xl border border-neutral-800 bg-black/30 px-4 py-4">
-                  <div className="text-xs uppercase tracking-[0.24em] text-neutral-400">
-                    Monitor Map
+              <div className="mt-5 grid gap-3">
+                {spotlightStories.map((story) => (
+                  <Link
+                    key={story.id}
+                    to={`/article/${story.slug}`}
+                    className="rounded-xl border border-neutral-800 bg-black/30 px-4 py-4 hover:border-neutral-600 transition-colors"
+                  >
+                    <div
+                      className="text-xs uppercase tracking-[0.22em]"
+                      style={{ color: "var(--veritas-red)" }}
+                    >
+                      {story.category || "Monitor"}
+                    </div>
+                    <div className="mt-2 text-lg font-semibold leading-snug break-words">
+                      {story.title}
+                    </div>
+                    <div className="mt-2 text-sm text-neutral-400 leading-relaxed">
+                      {story.subheadline || story.paragraphs?.[0]?.slice(0, 110) || "No summary yet."}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif text-2xl">Watchlist</h3>
+                <span
+                  className="text-xs uppercase tracking-[0.24em]"
+                  style={{ color: "var(--veritas-red)" }}
+                >
+                  Queue
+                </span>
+              </div>
+
+              <div className="mt-5 space-y-3">
+                {watchlistStories.map((story) => (
+                  <div
+                    key={story.id}
+                    className="rounded-xl border border-neutral-800 bg-black/30 px-4 py-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium leading-snug break-words">{story.title}</div>
+                        <div className="mt-2 text-xs text-neutral-400">
+                          {story.category || "Monitor"} | {formatAge(story)}
+                        </div>
+                      </div>
+                      <div
+                        className="text-[11px] uppercase tracking-[0.2em] shrink-0"
+                        style={{ color: "var(--veritas-red)" }}
+                      >
+                        Watch
+                      </div>
+                    </div>
                   </div>
-                  <div className="mt-2 text-xl font-semibold">Next Layer</div>
-                  <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
-                    The next integration step is bringing in live map and world-state surfaces behind this desk.
-                  </p>
-                </div>
-                <div className="rounded-xl border border-neutral-800 bg-black/30 px-4 py-4">
-                  <div className="text-xs uppercase tracking-[0.24em] text-neutral-400">
-                    Live Signals
-                  </div>
-                  <div className="mt-2 text-xl font-semibold">Panels Ready</div>
-                  <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
-                    This route is now structured to host richer monitor panels without changing the rest of the site.
-                  </p>
-                </div>
-                <div className="rounded-xl border border-neutral-800 bg-black/30 px-4 py-4">
-                  <div className="text-xs uppercase tracking-[0.24em] text-neutral-400">
-                    Veritas Layer
-                  </div>
-                  <div className="mt-2 text-xl font-semibold">Brand Locked</div>
-                  <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
-                    Accent, framing, spacing and CTA treatment are already aligned with The Veritas styling system.
-                  </p>
-                </div>
+                ))}
               </div>
             </section>
 
             <section className="rounded-2xl border border-neutral-800 bg-neutral-950 p-5 sm:p-6">
               <h3 className="font-serif text-2xl">Breaking Board</h3>
               <div className="mt-5 space-y-3">
-                {(breaking.length ? breaking : latestStories.slice(0, 5)).map((story) => (
+                {breakingBoard.map((story) => (
                   <Link
                     key={story.id}
                     to={`/article/${story.slug}`}
@@ -388,6 +523,29 @@ export default function LiveMonitor() {
   display: inline-block;
   padding-left: 100%;
   animation: liveTicker 24s linear infinite;
+}
+
+.ops-map {
+  background:
+    radial-gradient(circle at center, rgba(222, 2, 22, 0.12), transparent 52%),
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)),
+    #080808;
+}
+
+.ops-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.45;
+}
+
+.ops-node {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--veritas-red);
+  box-shadow: 0 0 0 6px rgba(222, 2, 22, 0.12), 0 0 24px rgba(222, 2, 22, 0.5);
 }
 
 @keyframes livePulse {
