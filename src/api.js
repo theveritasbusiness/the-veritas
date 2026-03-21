@@ -7,6 +7,9 @@ export const CLOUDINARY_CLOUD_NAME =
 export const CLOUDINARY_UPLOAD_PRESET =
   import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "veritas_uploads";
 
+export const LIVE_MONITOR_URL =
+  import.meta.env.VITE_LIVE_MONITOR_URL || "/live";
+
 async function readJson(res) {
   const data = await res.json().catch(() => ({}));
 

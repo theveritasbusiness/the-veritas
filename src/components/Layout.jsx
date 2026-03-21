@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate, useSearchParams } from "react-router-dom";
 import logoAsset from "../assets/Logo_Edit_4.png";
+import { LIVE_MONITOR_URL } from "../api";
 
 const categories = [
   "Home",
@@ -19,10 +20,34 @@ export default function Layout() {
   const selectedCategory = searchParams.get("category");
   const querySearch = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(querySearch);
+  const isExternalLiveUrl = /^https?:\/\//i.test(LIVE_MONITOR_URL);
 
   useEffect(() => {
     setSearchQuery(querySearch);
   }, [querySearch]);
+
+  const liveButtonConfig = isExternalLiveUrl
+    ? {
+        component: "a",
+        href: LIVE_MONITOR_URL,
+        target: "_blank",
+        rel: "noreferrer"
+      }
+    : {
+        component: Link,
+        to: LIVE_MONITOR_URL
+      };
+
+  const LiveButtonTag = liveButtonConfig.component;
+  const liveButtonProps = isExternalLiveUrl
+    ? {
+        href: liveButtonConfig.href,
+        target: liveButtonConfig.target,
+        rel: liveButtonConfig.rel
+      }
+    : {
+        to: liveButtonConfig.to
+      };
 
   return (
     <div className="bg-black text-white min-h-screen overflow-x-hidden">
@@ -60,13 +85,13 @@ export default function Layout() {
                 <i className="fa fa-search" />
               </form>
 
-              <Link
-                to="/live"
+              <LiveButtonTag
+                {...liveButtonProps}
                 className="text-black px-5 py-2 rounded-full text-sm font-semibold live-cta"
                 style={{ backgroundColor: "var(--veritas-red)" }}
               >
                 LIVE
-              </Link>
+              </LiveButtonTag>
             </div>
           </div>
 
@@ -94,13 +119,13 @@ export default function Layout() {
                 <i className="fa fa-search" />
               </form>
 
-              <Link
-                to="/live"
+              <LiveButtonTag
+                {...liveButtonProps}
                 className="text-black px-5 py-2 rounded-full text-sm font-semibold live-cta"
                 style={{ backgroundColor: "var(--veritas-red)" }}
               >
                 LIVE
-              </Link>
+              </LiveButtonTag>
             </div>
           </div>
         </div>
