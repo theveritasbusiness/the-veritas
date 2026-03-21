@@ -13,12 +13,12 @@ export interface VariantMeta {
 
 export const VARIANT_META: { full: VariantMeta; [k: string]: VariantMeta } = {
   full: {
-    title: 'The Veritas Live - Real-Time Global Intelligence Dashboard',
-    description: 'The Veritas live intelligence dashboard for real-time news, markets, military tracking, infrastructure monitoring, and geopolitical data in one operational view.',
-    keywords: 'the veritas live, veritas live monitor, global intelligence, geopolitical dashboard, world news, market data, military bases, nuclear facilities, undersea cables, conflict zones, real-time monitoring, situation awareness, OSINT, flight tracking, AIS ships, earthquake monitor, protest tracker, power outages, oil prices, government spending, polymarket predictions',
-    url: 'https://theveritas.netlify.app/#/live',
-    siteName: 'The Veritas Live',
-    shortName: 'Veritas Live',
+    title: 'The Veritas Monitor - Real-Time Global Intelligence Dashboard',
+    description: 'The Veritas Monitor delivers real-time news, markets, military tracking, infrastructure monitoring, and geopolitical data in one operational view.',
+    keywords: 'the veritas monitor, veritas monitor, global intelligence, geopolitical dashboard, world news, market data, military bases, nuclear facilities, undersea cables, conflict zones, real-time monitoring, situation awareness, OSINT, flight tracking, AIS ships, earthquake monitor, protest tracker, power outages, oil prices, government spending, polymarket predictions',
+    url: 'https://theveritas.netlify.app/live',
+    siteName: 'The Veritas Monitor',
+    shortName: 'Veritas Monitor',
     subject: 'Real-Time Global Intelligence and Situation Awareness',
     classification: 'Intelligence Dashboard, OSINT Tool, News Aggregator',
     categories: ['news', 'productivity'],

@@ -6,24 +6,24 @@
    ============================================================ */
 :root {
   /* Backgrounds */
-  --bg: #0a0a0a;
-  --bg-secondary: #111;
-  --surface: #141414;
-  --surface-hover: #1e1e1e;
-  --surface-active: #1a1a2e;
+  --bg: #050505;
+  --bg-secondary: #0b0b0c;
+  --surface: #101012;
+  --surface-hover: #16161a;
+  --surface-active: #170b0d;
 
   /* Borders */
-  --border: #2a2a2a;
-  --border-strong: #444;
-  --border-subtle: #1a1a1a;
+  --border: #2c171a;
+  --border-strong: #5f1b23;
+  --border-subtle: #181113;
 
   /* Text */
   --text: #e8e8e8;
-  --text-secondary: #ccc;
-  --text-dim: #888;
-  --text-muted: #666;
-  --text-faint: #555;
-  --text-ghost: #444;
+  --text-secondary: #d6d6d6;
+  --text-dim: #9a9a9a;
+  --text-muted: #7c7c7c;
+  --text-faint: #5f5f5f;
+  --text-ghost: #474747;
   --accent: #de0216;
 
   /* Overlays & shadows */
@@ -44,14 +44,14 @@
   --input-bg: #1a1a1a;
 
   /* Panels */
-  --panel-bg: #141414;
-  --panel-border: #2a2a2a;
+  --panel-bg: #101012;
+  --panel-border: #2c171a;
 
   /* Map */
-  --map-bg: #020a08;
-  --map-grid: #0a2a20;
-  --map-country: #0a2018;
-  --map-stroke: #0f5040;
+  --map-bg: #060607;
+  --map-grid: #2a0c12;
+  --map-country: #13080b;
+  --map-stroke: #5b1821;
 
   /* Font stack */
   --font-mono: 'SF Mono', 'Monaco', 'Cascadia Code', 'Fira Code', 'DejaVu Sans Mono', 'Liberation Mono', monospace;
@@ -76,18 +76,18 @@
 :root {
   /* Severity levels */
   --semantic-critical: #de0216;
-  --semantic-high: #ff8800;
-  --semantic-elevated: #ffaa00;
-  --semantic-normal: #44aa44;
+  --semantic-high: #ff5c30;
+  --semantic-elevated: #ff8b3d;
+  --semantic-normal: #de0216;
   --semantic-low: #3388ff;
   --semantic-info: #3b82f6;
-  --semantic-positive: #44ff88;
+  --semantic-positive: #ff8f9a;
 
   /* Threat levels */
   --threat-critical: #de0216;
-  --threat-high: #f97316;
-  --threat-medium: #eab308;
-  --threat-low: #22c55e;
+  --threat-high: #ff5c30;
+  --threat-medium: #ff8b3d;
+  --threat-low: #ff8f9a;
   --threat-info: #3b82f6;
 
   /* DEFCON levels */
@@ -95,16 +95,16 @@
   --defcon-2: #ff4b2b;
   --defcon-3: #ffaa00;
   --defcon-4: #00aaff;
-  --defcon-5: #2d8a6e;
+  --defcon-5: #a63543;
 
   /* Status indicators */
-  --status-live: #44ff88;
+  --status-live: #de0216;
   --status-cached: #ffaa00;
   --status-unavailable: #de0216;
 
   /* Legacy color aliases (used by existing var() references) */
   --red: #de0216;
-  --green: #44ff88;
+  --green: #de0216;
   --yellow: #ffaa00;
 }
 
@@ -118,27 +118,27 @@
   /* Tailwind orange-600 (was #ff8800, 2.27:1) */
   --semantic-elevated: #d97706;
   /* Tailwind amber-600 (was #ffaa00, 1.81:1) */
-  --semantic-normal: #15803d;
+  --semantic-normal: #de0216;
   /* Tailwind green-700 (was #44aa44, 2.81:1) */
-  --semantic-positive: #16a34a;
+  --semantic-positive: #c81a2b;
   /* Tailwind green-600 (was #44ff88, too bright for light bg) */
   --threat-high: #c2410c;
   /* Tailwind orange-700 (was #f97316, 2.66:1) */
   --threat-medium: #ca8a04;
   /* Tailwind yellow-600 (was #eab308, 1.82:1) */
-  --threat-low: #15803d;
+  --threat-low: #c81a2b;
   /* Tailwind green-700 (was #22c55e, 2.16:1) */
   --defcon-3: #d97706;
   /* Tailwind amber-600 (was #ffaa00, 1.81:1) */
   --defcon-4: #0284c7;
   /* Tailwind sky-600 (was #00aaff, 2.43:1) */
-  --status-live: #16a34a;
+  --status-live: #de0216;
   /* Tailwind green-600 (was #44ff88, 1.25:1) */
   --status-cached: #d97706;
   /* Tailwind amber-600 (was #ffaa00, 1.81:1) */
   --status-unavailable: #dc2626;
   /* Tailwind red-600 (was #ff4444, better contrast on light bg) */
-  --green: #16a34a;
+  --green: #de0216;
   /* Tailwind green-600 (was #44ff88) */
   --yellow: #d97706;
   /* Tailwind amber-600 (was #ffaa00) */

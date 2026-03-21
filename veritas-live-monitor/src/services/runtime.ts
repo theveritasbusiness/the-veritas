@@ -9,7 +9,7 @@ const ENV = (() => {
 })();
 
 const WS_API_URL = ENV.VITE_WS_API_URL || '';
-const DEFAULT_WEB_API_URL = 'https://api.worldmonitor.app';
+const DEFAULT_WEB_API_URL = ENV.VITE_WS_API_URL || 'https://veritas-live-monitor.netlify.app';
 const KEYED_CLOUD_API_PATTERN = /^\/api\/(?:[^/]+\/v1\/|bootstrap(?:\?|$)|polymarket(?:\?|$)|ais-snapshot(?:\?|$))/;
 
 const DEFAULT_REMOTE_HOSTS: Record<string, string> = {
@@ -122,7 +122,9 @@ export function getApiBaseUrl(): string {
 function isWorldMonitorWebHost(hostname: string): boolean {
   return hostname === 'worldmonitor.app'
     || hostname === 'www.worldmonitor.app'
-    || hostname.endsWith('.worldmonitor.app');
+    || hostname.endsWith('.worldmonitor.app')
+    || hostname === 'veritas-live-monitor.netlify.app'
+    || hostname === 'theveritas.netlify.app';
 }
 
 export function getConfiguredWebApiBaseUrl(): string {
@@ -165,7 +167,7 @@ export function getRemoteApiBaseUrl(): string {
   if (fromHosts) return fromHosts;
 
   // Desktop builds may not set VITE_WS_API_URL; default to production.
-  if (isDesktopRuntime()) return 'https://worldmonitor.app';
+  if (isDesktopRuntime()) return 'https://veritas-live-monitor.netlify.app';
   return '';
 }
 
@@ -213,6 +215,8 @@ const APP_HOSTS = new Set([
   'www.worldmonitor.app',
   'tech.worldmonitor.app',
   'api.worldmonitor.app',
+  'veritas-live-monitor.netlify.app',
+  'theveritas.netlify.app',
   'localhost',
   '127.0.0.1',
   ...extractHostnames(WS_API_URL, ENV.VITE_WS_RELAY_URL),
@@ -732,7 +736,7 @@ export function installRuntimeFetchPatch(): void {
   (window as unknown as Record<string, unknown>).__wmFetchPatched = true;
 }
 
-const ALLOWED_REDIRECT_HOSTS = /^https:\/\/([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)*worldmonitor\.app(:\d+)?$/;
+const ALLOWED_REDIRECT_HOSTS = /^https:\/\/([a-z0-9]([a-z0-9-]*[a-z0-9])?\.)*worldmonitor\.app(:\d+)?$|^https:\/\/veritas-live-monitor\.netlify\.app(:\d+)?$/;
 
 function isAllowedRedirectTarget(url: string): boolean {
   try {

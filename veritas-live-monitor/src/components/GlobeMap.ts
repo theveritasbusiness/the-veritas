@@ -1802,7 +1802,7 @@ export class GlobeMap {
       </div>`;
     const authorBadge = document.createElement('div');
     authorBadge.className = 'map-author-badge';
-    authorBadge.textContent = '© Elie Habib · Someone™';
+      authorBadge.textContent = '© The Veritas Monitor';
     el.appendChild(authorBadge);
     this.container.appendChild(el);
 

@@ -610,6 +610,7 @@ export default defineConfig(({ mode }) => {
   const activeMeta = VARIANT_META[activeVariant] || VARIANT_META.full;
 
   return {
+    base: './',
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
     },
@@ -635,12 +636,12 @@ export default defineConfig(({ mode }) => {
           name: `${activeMeta.siteName} - ${activeMeta.subject}`,
           short_name: activeMeta.shortName,
           description: activeMeta.description,
-          start_url: '/',
-          scope: '/',
+          start_url: './',
+          scope: './',
           display: 'standalone',
           orientation: 'any',
-          theme_color: '#0a0f0a',
-          background_color: '#0a0f0a',
+          theme_color: '#de0216',
+          background_color: '#050505',
           categories: activeMeta.categories,
           icons: [
             { src: '/favico/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
