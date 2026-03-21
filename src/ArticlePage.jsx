@@ -37,24 +37,23 @@ export default function ArticlePage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-3 sm:px-4 py-10 grid md:grid-cols-12 gap-10">
-      <div className="md:col-span-8">
+    <div className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-6 sm:py-10 grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 overflow-x-hidden">
+      <div className="md:col-span-8 min-w-0">
         <div className="text-red-500 text-sm uppercase tracking-wide mb-2">
           {article.category}
         </div>
 
-        <h1 className="text-4xl md:text-7xl font-serif font-bold leading-[1.1] tracking-tight">
+        <h1 className="text-[2.3rem] sm:text-5xl md:text-7xl font-serif font-bold leading-[1.02] tracking-tight break-words">
           {article.title}
         </h1>
 
-        <p className="text-neutral-400 italic mt-3 text-lg">
+        <p className="text-neutral-400 italic mt-3 text-base sm:text-lg leading-relaxed">
           {article.subheadline}
         </p>
 
         <div className="border-b border-red-500 w-16 my-4"></div>
         <div className="text-sm text-neutral-500 mt-3">
-          By The Veritas Desk |
-          {" "}
+          By The Veritas Desk |{" "}
           {article.published_ago
             ? `${article.published_ago.hours || 0}h ${article.published_ago.minutes || 0}m ago`
             : "Recently"}
@@ -62,7 +61,7 @@ export default function ArticlePage() {
 
         <img
           src={article.hero_image}
-          className="my-8 rounded-xl w-full object-cover shadow-lg"
+          className="my-6 sm:my-8 rounded-2xl w-full object-cover shadow-lg max-h-[520px]"
           alt={article.hero_caption || article.title}
         />
 
@@ -72,7 +71,7 @@ export default function ArticlePage() {
 
         <div className="border-t border-red-600 my-6"></div>
 
-        <div className="space-y-6 text-[18px] leading-[1.9] text-white font-serif">
+        <div className="space-y-5 sm:space-y-6 text-[17px] sm:text-[18px] leading-[1.9] text-white font-serif break-words">
           {(article.content_blocks || []).map((block, i) => {
             if (!block) return null;
 
@@ -113,8 +112,8 @@ export default function ArticlePage() {
         )}
       </div>
 
-      <div className="md:col-span-4 space-y-6 md:sticky md:top-24 h-fit">
-        <div className="bg-neutral-900 border border-neutral-800 p-5 rounded">
+      <div className="md:col-span-4 space-y-5 sm:space-y-6 md:sticky md:top-24 h-fit min-w-0">
+        <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
           <h3 className="font-serif text-2xl mb-4 border-b border-neutral-700 pb-2">
             Latest News
           </h3>
@@ -122,10 +121,10 @@ export default function ArticlePage() {
           <ul className="space-y-4 text-sm">
             {latest.map((item) => (
               <li key={item.id} className="flex gap-3">
-                <div className="text-red-500 mt-1">◆</div>
+                <div className="text-red-500 mt-1 shrink-0">◆</div>
                 <Link
                   to={`/article/${item.slug}`}
-                  className="hover:underline transition-all duration-200 hover:text-white"
+                  className="hover:underline transition-all duration-200 hover:text-white break-words"
                 >
                   {item.title}
                 </Link>
@@ -134,7 +133,7 @@ export default function ArticlePage() {
           </ul>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 p-5 rounded">
+        <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
           <h3 className="font-serif text-xl mb-4 border-b border-neutral-700 pb-2">
             Related
           </h3>
@@ -144,18 +143,18 @@ export default function ArticlePage() {
               .filter((item) => item.slug !== slug)
               .slice(0, 3)
               .map((item) => (
-                <Link key={item.id} to={`/article/${item.slug}`} className="block hover:underline">
+                <Link key={item.id} to={`/article/${item.slug}`} className="block hover:underline break-words">
                   {item.title}
                 </Link>
               ))}
           </div>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 p-6 text-center text-neutral-400 rounded">
+        <div className="bg-neutral-900 border border-neutral-800 p-6 text-center text-neutral-400 rounded-2xl">
           Advertisement
         </div>
 
-        <div className="flex gap-4 text-neutral-400">
+        <div className="flex flex-wrap gap-3 text-neutral-400">
           <span>Link</span>
           <span>News</span>
           <span>Discuss</span>

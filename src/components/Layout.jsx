@@ -2,6 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate, useSearchParams } from "react-router-dom";
 import logoAsset from "../assets/Logo_Edit_4.png";
 
+const categories = [
+  "Home",
+  "Geopolitics",
+  "India",
+  "Trending",
+  "Politics",
+  "Legal",
+  "Entertainment",
+  "Sports"
+];
+
 export default function Layout() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -14,10 +25,10 @@ export default function Layout() {
   }, [querySearch]);
 
   return (
-    <div className="bg-black text-white min-h-screen">
-      <div className="bg-neutral-900 border-b border-neutral-800 py-2 px-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="hidden md:block text-neutral-400 text-sm">
+    <div className="bg-black text-white min-h-screen overflow-x-hidden">
+      <div className="bg-neutral-900 border-b border-neutral-800 px-3 sm:px-4 py-3">
+        <div className="max-w-6xl mx-auto flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="hidden md:block text-neutral-400 text-sm shrink-0">
             {new Date().toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
@@ -25,69 +36,68 @@ export default function Layout() {
             })}
           </div>
 
-          <div className="flex-1 flex justify-center">
-            <img src={logoAsset} className="h-12 object-contain" alt="The Veritas" />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="search"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => {
-                  const nextQuery = e.target.value;
-                  setSearchQuery(nextQuery);
-                  navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
-                }}
+          <div className="flex items-center justify-between gap-3 md:flex-1">
+            <Link to="/" className="min-w-0 flex items-center">
+              <img
+                src={logoAsset}
+                className="h-9 sm:h-10 md:h-12 w-auto object-contain max-w-full"
+                alt="The Veritas"
               />
-              <i className="fa fa-search"></i>
-            </form>
+            </Link>
 
-            <button className="bg-red-600 text-black px-4 py-1 rounded-full text-sm">
-              Join
-            </button>
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
+                <input
+                  type="search"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    const nextQuery = e.target.value;
+                    setSearchQuery(nextQuery);
+                    navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
+                  }}
+                />
+                <i className="fa fa-search" />
+              </form>
+
+              <button className="bg-red-600 text-black px-4 sm:px-5 py-2 rounded-full text-sm font-medium">
+                Join
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <nav className="border-b border-neutral-800">
-        <ul className="flex justify-center gap-6 py-3 text-sm">
-          {[
-            "Home",
-            "Geopolitics",
-            "India",
-            "Trending",
-            "Politics",
-            "Legal",
-            "Entertainment",
-            "Sports"
-          ].map((item) => (
-            <li
-              key={item}
-              className={`cursor-pointer transition-colors ${
-                (item === "Home" && !selectedCategory) || selectedCategory === item
-                  ? "text-red-500"
-                  : "hover:text-red-500"
-              }`}
-              onClick={() => {
-                if (item === "Home") {
-                  navigate("/");
-                } else {
-                  navigate(`/?category=${item}`);
-                }
-              }}
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 overflow-x-auto no-scrollbar">
+          <ul className="flex w-max min-w-full gap-2 sm:gap-3 py-3 text-sm whitespace-nowrap">
+            {categories.map((item) => (
+              <li
+                key={item}
+                className={`cursor-pointer transition-colors px-3 py-2 rounded-full border text-sm ${
+                  (item === "Home" && !selectedCategory) || selectedCategory === item
+                    ? "text-red-500 border-red-500 bg-red-500/10"
+                    : "border-neutral-800 hover:text-red-500 hover:border-red-500/50"
+                }`}
+                onClick={() => {
+                  if (item === "Home") {
+                    navigate("/");
+                  } else {
+                    navigate(`/?category=${item}`);
+                  }
+                }}
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
       </nav>
 
       <Outlet />
 
-      <footer className="border-t border-neutral-800 mt-10 py-6 text-center text-sm text-neutral-400">
-        <div className="flex justify-center gap-6">
+      <footer className="border-t border-neutral-800 mt-10 py-6 text-center text-sm text-neutral-400 px-4">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms & Conditions</Link>
         </div>
@@ -96,32 +106,38 @@ export default function Layout() {
       <style>{`
 .veritas-search {
   position: relative;
-  width: 50px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   background: #0b0b0b;
   border: 2px solid #1f1f1f;
-  border-radius: 30px;
+  border-radius: 999px;
   padding: 5px;
-  transition: all 0.6s ease;
+  transition: all 0.35s ease;
+  flex-shrink: 0;
 }
 
 .veritas-search input {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 0;
   height: 100%;
   border: none;
   background: transparent;
   color: white;
-  padding: 0 20px;
-  transition: width 0.6s ease;
+  padding: 0 18px;
+  transition: width 0.35s ease;
+  font-size: 0.95rem;
+  outline: none;
 }
 
 .veritas-search .fa {
   padding: 10px;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   position: absolute;
-  right: 0;
+  top: 3px;
+  right: 3px;
   border-radius: 50%;
   color: #aaa;
   text-align: center;
@@ -130,7 +146,7 @@ export default function Layout() {
 
 .veritas-search:hover,
 .veritas-search:focus-within {
-  width: 220px;
+  width: min(44vw, 180px);
   border-color: #ff2b2b;
 }
 
@@ -143,6 +159,15 @@ export default function Layout() {
 .veritas-search:focus-within .fa {
   background: #ff2b2b;
   color: black;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
       `}</style>
     </div>
