@@ -25,6 +25,7 @@ function App() {
           <Route path="/" element={<TheVeritasShowcase />} />
           <Route path="/article/:slug" element={<ArticlePage />} />
           <Route path="/live" element={<LiveMonitor />} />
+          <Route path="/trending" element={<LiveMonitor />} />
         </Route>
 
         {/* ❌ WITHOUT NAVBAR */}

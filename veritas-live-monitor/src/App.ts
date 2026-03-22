@@ -19,7 +19,7 @@ import { getAiFlowSettings, subscribeAiFlowChange, isHeadlineMemoryEnabled } fro
 import { startLearning } from '@/services/country-instability';
 import { loadFromStorage, parseMapUrlState, saveToStorage, isMobileDevice } from '@/utils';
 import type { ParsedMapUrlState } from '@/utils';
-import { SignalModal, IntelligenceGapBadge, BreakingNewsBanner } from '@/components';
+import { SignalModal, BreakingNewsBanner } from '@/components';
 import { initBreakingNewsAlerts, destroyBreakingNewsAlerts } from '@/services/breaking-news-alerts';
 import type { ServiceStatusPanel } from '@/components/ServiceStatusPanel';
 import type { StablecoinPanel } from '@/components/StablecoinPanel';
@@ -398,6 +398,23 @@ export class App {
         localStorage.setItem(HAPPY_PANEL_FIX_KEY, 'done');
       }
 
+      // One-time migration: disable stale cross-variant panels for the active monitor variant.
+      // This keeps older sessions from rendering premium or unsupported panels that were enabled
+      // during earlier unified-panel experiments.
+      const ACTIVE_VARIANT_PANEL_FIX_KEY = `veritas-monitor-variant-panel-fix-${SITE_VARIANT}-v1`;
+      if (!localStorage.getItem(ACTIVE_VARIANT_PANEL_FIX_KEY)) {
+        const activeKeys = new Set(VARIANT_DEFAULTS[SITE_VARIANT] ?? []);
+        let fixed = false;
+        for (const key of Object.keys(panelSettings)) {
+          if (!activeKeys.has(key) && !isDynamicPanel(key) && panelSettings[key]?.enabled) {
+            panelSettings[key] = { ...panelSettings[key]!, enabled: false };
+            fixed = true;
+          }
+        }
+        if (fixed) saveToStorage(STORAGE_KEYS.panels, panelSettings);
+        localStorage.setItem(ACTIVE_VARIANT_PANEL_FIX_KEY, 'done');
+      }
+
       console.log('[App] Loaded panel settings from storage:', Object.entries(panelSettings).filter(([_, v]) => !v.enabled).map(([k]) => k));
 
       // One-time migration: reorder panels for existing users (v1.9 panel layout)
@@ -729,20 +746,6 @@ export class App {
     this.state.signalModal.setLocationClickHandler((lat, lon) => {
       this.state.map?.setCenter(lat, lon, 4);
     });
-    if (!this.state.isMobile) {
-      this.state.findingsBadge = new IntelligenceGapBadge();
-      this.state.findingsBadge.setOnSignalClick((signal) => {
-        if (this.state.countryBriefPage?.isVisible()) return;
-        if (localStorage.getItem('wm-settings-open') === '1') return;
-        this.state.signalModal?.showSignal(signal);
-      });
-      this.state.findingsBadge.setOnAlertClick((alert) => {
-        if (this.state.countryBriefPage?.isVisible()) return;
-        if (localStorage.getItem('wm-settings-open') === '1') return;
-        this.state.signalModal?.showAlert(alert);
-      });
-    }
-
     if (!this.state.isMobile) {
       initBreakingNewsAlerts();
       this.state.breakingBanner = new BreakingNewsBanner();

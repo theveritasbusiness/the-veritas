@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, Outlet, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import logoAsset from "../assets/Logo_Edit_4.png";
 import { LIVE_MONITOR_URL } from "../api";
 
@@ -16,11 +16,13 @@ const categories = [
 
 export default function Layout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const selectedCategory = searchParams.get("category");
   const querySearch = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(querySearch);
   const isExternalLiveUrl = /^https?:\/\//i.test(LIVE_MONITOR_URL);
+  const isTrendingRoute = location.pathname === "/trending";
 
   useEffect(() => {
     setSearchQuery(querySearch);
@@ -39,7 +41,7 @@ export default function Layout() {
   return (
     <div className="bg-black text-white min-h-screen overflow-x-hidden">
       <header className="bg-neutral-900 border-b border-neutral-800">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3">
           <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-4">
             <div className="text-neutral-400 text-sm">
               {new Date().toLocaleDateString("en-US", {
@@ -52,7 +54,7 @@ export default function Layout() {
             <Link to="/" className="flex justify-center" aria-label="Go to The Veritas homepage">
               <img
                 src={logoAsset}
-                className="h-14 lg:h-16 w-auto object-contain"
+                className="h-16 lg:h-20 w-auto object-contain"
                 alt="The Veritas"
               />
             </Link>
@@ -87,7 +89,7 @@ export default function Layout() {
             <Link to="/" className="flex justify-center" aria-label="Go to The Veritas homepage">
               <img
                 src={logoAsset}
-                className="h-12 w-auto object-contain"
+                className="h-14 w-auto object-contain"
                 alt="The Veritas"
               />
             </Link>
@@ -125,7 +127,9 @@ export default function Layout() {
           <ul className="flex w-max min-w-full justify-start md:justify-center gap-5 sm:gap-7 py-3 text-sm whitespace-nowrap">
             {categories.map((item) => {
               const isActive =
-                (item === "Home" && !selectedCategory) || selectedCategory === item;
+                (item === "Home" && !selectedCategory && !isTrendingRoute) ||
+                (item === "Trending" && isTrendingRoute) ||
+                selectedCategory === item;
 
               return (
                 <li
@@ -135,6 +139,8 @@ export default function Layout() {
                   onClick={() => {
                     if (item === "Home") {
                       navigate("/");
+                    } else if (item === "Trending") {
+                      navigate("/trending");
                     } else {
                       navigate(`/?category=${item}`);
                     }
@@ -233,43 +239,26 @@ export default function Layout() {
   min-width: 112px;
   justify-content: center;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(222, 2, 22, 0.78);
   color: #fff;
   font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.24em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  font-family: "Times New Roman", Times, serif;
-  background: linear-gradient(
-    135deg,
-    rgba(94, 0, 9, 1) 0%,
-    rgba(222, 2, 22, 1) 42%,
-    rgba(222, 2, 22, 1) 100%
-  );
+  font-family: inherit;
+  background: #de0216;
   box-shadow:
     0 0 0 1px rgba(222, 2, 22, 0.5),
-    0 0 18px rgba(222, 2, 22, 0.35),
-    0 0 42px rgba(222, 2, 22, 0.22);
-  overflow: hidden;
+    0 0 14px rgba(222, 2, 22, 0.28);
   transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
-}
-
-.live-cta::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.35) 48%, transparent 70%);
-  transform: translateX(-140%);
-  animation: liveShine 2.8s ease-in-out infinite;
 }
 
 .live-cta:hover {
   transform: translateY(-1px);
-  filter: brightness(1.04);
+  filter: brightness(1.03);
   box-shadow:
     0 0 0 1px rgba(222, 2, 22, 0.58),
-    0 0 24px rgba(222, 2, 22, 0.45),
-    0 0 56px rgba(222, 2, 22, 0.3);
+    0 0 20px rgba(222, 2, 22, 0.34);
 }
 
 .live-cta-text,
@@ -298,17 +287,6 @@ export default function Layout() {
     opacity: 0.55;
     transform: scale(1.18);
     box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
-  }
-}
-
-@keyframes liveShine {
-  0%,
-  20% {
-    transform: translateX(-140%);
-  }
-  55%,
-  100% {
-    transform: translateX(140%);
   }
 }
 

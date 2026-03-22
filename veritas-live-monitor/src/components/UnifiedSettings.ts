@@ -290,8 +290,9 @@ export class UnifiedSettings {
     ];
 
     for (const [catKey, catDef] of Object.entries(PANEL_CATEGORY_MAP)) {
-      const hasEnabledPanel = catDef.panelKeys.some(pk => settings[pk]?.enabled);
-      if (hasEnabledPanel) {
+      const isAllowedVariant = !catDef.variants || catDef.variants.includes(SITE_VARIANT);
+      const hasKnownPanel = catDef.panelKeys.some((pk) => pk in settings || pk in ALL_PANELS);
+      if (isAllowedVariant && hasKnownPanel) {
         categories.push({ key: catKey, label: t(catDef.labelKey) });
       }
     }

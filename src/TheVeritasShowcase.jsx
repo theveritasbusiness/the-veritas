@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { fetchArticles, fetchBreaking } from "./api";
-import logoAsset from "./assets/Logo_Edit_4.png";
 
 function formatAge(article) {
   if (article.published_ago) {
@@ -252,31 +251,6 @@ export default function TheVeritasShowcase() {
                   </div>
                 </div>
               </a>
-            </div>
-          </div>
-
-          <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl text-center">
-            <img src={logoAsset} className="h-8 mx-auto mb-2" alt="The Veritas logo" />
-            <div className="text-sm text-neutral-400">Open E-Paper</div>
-          </div>
-
-          <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
-            <h4 className="font-semibold mb-2">Subscribe</h4>
-            <p className="text-sm text-neutral-400 mb-3">
-              Get the day's top stories in your inbox.
-            </p>
-
-            <div className="flex flex-col gap-2">
-              <input
-                placeholder="Email"
-                className="bg-black border border-neutral-700 px-4 py-3 rounded-xl text-sm w-full"
-              />
-              <button
-                className="text-black py-3 rounded-xl text-sm font-medium"
-                style={{ backgroundColor: "var(--veritas-red)" }}
-              >
-                Subscribe
-              </button>
             </div>
           </div>
         </aside>

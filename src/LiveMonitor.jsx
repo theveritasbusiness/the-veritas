@@ -147,18 +147,19 @@ export default function LiveMonitor() {
                   style={{ borderColor: "rgba(222,2,22,0.45)", color: "var(--veritas-red)" }}
                 >
                   <span className="h-2.5 w-2.5 rounded-full live-pulse" />
-                  The Veritas Live
+                  Trending Desk
                 </div>
 
                 <h1 className="mt-5 font-serif text-5xl sm:text-6xl xl:text-7xl leading-[0.92] tracking-tight">
-                  Global Monitor
+                  The Veritas
                   <br />
-                  Control Desk
+                  Trending Wire
                 </h1>
 
                 <p className="mt-4 max-w-3xl text-neutral-300 text-base sm:text-lg leading-relaxed">
-                  A live command surface for breaking stories, strategic movement, regional
-                  watchlists, and high-attention developments across The Veritas network.
+                  A live article-tracking surface for the stories rising fastest across The
+                  Veritas network, with breaking movement, category density, and regional watch
+                  points in one command view.
                 </p>
               </div>
 
@@ -238,7 +239,7 @@ export default function LiveMonitor() {
                     className="text-xs uppercase tracking-[0.24em]"
                     style={{ color: "var(--veritas-red)" }}
                   >
-                    Lead Story
+                    Trending Lead
                   </div>
 
                   <h2 className="mt-3 font-serif text-4xl sm:text-5xl leading-[0.98] break-words">
@@ -248,7 +249,7 @@ export default function LiveMonitor() {
                   <p className="mt-4 text-neutral-300 text-base sm:text-lg leading-relaxed max-w-2xl">
                     {topStory?.subheadline ||
                       topStory?.paragraphs?.[0]?.slice(0, 200) ||
-                      "The Veritas Live Monitor will surface the most important stories here as the feed syncs."}
+                      "The Veritas trending desk surfaces the most important stories here as the live article feed syncs."}
                   </p>
 
                   <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-neutral-400">
