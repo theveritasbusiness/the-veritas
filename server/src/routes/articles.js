@@ -29,35 +29,101 @@ function hasColumn(columns, name) {
   return columns.has(name);
 }
 
-function buildPublishedArticleQuery(columns) {
-  const selectPublishedAgo = hasColumn(columns, "published_at")
-    ? ", NOW() - published_at AS published_ago"
-    : "";
+function isTruthy(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  if (typeof value === "string") {
+    return ["true", "t", "1", "yes", "y"].includes(value.trim().toLowerCase());
+  }
+  return false;
+}
 
-  const whereClauses = [];
-  if (hasColumn(columns, "status")) {
-    whereClauses.push("status = 'published'");
+function isFalsy(value) {
+  if (value == null) return false;
+  if (typeof value === "boolean") return value === false;
+  if (typeof value === "number") return value === 0;
+  if (typeof value === "string") {
+    return ["false", "f", "0", "no", "n"].includes(value.trim().toLowerCase());
   }
-  if (hasColumn(columns, "approved")) {
-    whereClauses.push("COALESCE(approved, true) = true");
-  }
+  return false;
+}
 
-  const orderClauses = [];
-  if (hasColumn(columns, "priority")) {
-    orderClauses.push("priority DESC NULLS LAST");
-  }
-  if (hasColumn(columns, "published_at")) {
-    orderClauses.push("published_at DESC");
-  }
-  if (hasColumn(columns, "id")) {
-    orderClauses.push("id DESC");
-  }
+function parseTimestamp(value) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
 
+function computePublishedAgo(publishedAt) {
+  const publishedDate = parseTimestamp(publishedAt);
+  if (!publishedDate) return undefined;
+
+  const diffMs = Math.max(Date.now() - publishedDate.getTime(), 0);
+  const totalMinutes = Math.floor(diffMs / 60000);
   return {
-    selectPublishedAgo,
-    whereSql: whereClauses.length ? `WHERE ${whereClauses.join(" AND ")}` : "",
-    orderSql: orderClauses.length ? `ORDER BY ${orderClauses.join(", ")}` : ""
+    hours: Math.floor(totalMinutes / 60),
+    minutes: totalMinutes % 60
   };
+}
+
+function compareArticles(a, b, columns) {
+  if (hasColumn(columns, "priority")) {
+    const priorityA = Number.isFinite(Number(a.priority)) ? Number(a.priority) : -Infinity;
+    const priorityB = Number.isFinite(Number(b.priority)) ? Number(b.priority) : -Infinity;
+    if (priorityA !== priorityB) {
+      return priorityB - priorityA;
+    }
+  }
+
+  if (hasColumn(columns, "published_at")) {
+    const publishedA = parseTimestamp(a.published_at)?.getTime() ?? -Infinity;
+    const publishedB = parseTimestamp(b.published_at)?.getTime() ?? -Infinity;
+    if (publishedA !== publishedB) {
+      return publishedB - publishedA;
+    }
+  }
+
+  if (hasColumn(columns, "id")) {
+    const idA = Number.isFinite(Number(a.id)) ? Number(a.id) : -Infinity;
+    const idB = Number.isFinite(Number(b.id)) ? Number(b.id) : -Infinity;
+    if (idA !== idB) {
+      return idB - idA;
+    }
+  }
+
+  return 0;
+}
+
+function isPublishedArticle(article, columns) {
+  if (hasColumn(columns, "status")) {
+    const status = String(article.status ?? "").trim().toLowerCase();
+    if (status && status !== "published") {
+      return false;
+    }
+  }
+
+  if (hasColumn(columns, "approved") && isFalsy(article.approved)) {
+    return false;
+  }
+
+  return true;
+}
+
+function normalizeArticle(article, columns) {
+  return {
+    ...article,
+    content_blocks: parseContentBlocks(article),
+    published_ago: hasColumn(columns, "published_at")
+      ? computePublishedAgo(article.published_at)
+      : article.published_ago
+  };
+}
+
+function normalizePublishedArticles(rows, columns) {
+  return rows
+    .filter((article) => isPublishedArticle(article, columns))
+    .sort((a, b) => compareArticles(a, b, columns))
+    .map((article) => normalizeArticle(article, columns));
 }
 
 function parseContentBlocks(article) {
@@ -93,17 +159,8 @@ function parseContentBlocks(article) {
 router.get("/", async (req, res) => {
   try {
     const columns = await getArticleColumns();
-    const { selectPublishedAgo, whereSql, orderSql } = buildPublishedArticleQuery(columns);
-
-    const result = await pool.query(
-      `
-      SELECT *${selectPublishedAgo}
-      FROM articles
-      ${whereSql}
-      ${orderSql}
-      `
-    );
-    res.json(result.rows);
+    const result = await pool.query("SELECT * FROM articles");
+    res.json(normalizePublishedArticles(result.rows, columns));
   } catch (err) {
     console.error("ARTICLES FETCH ERROR:", err);
     res.status(500).json({ error: "Database error" });
@@ -113,21 +170,15 @@ router.get("/", async (req, res) => {
 router.get("/breaking", async (req, res) => {
   try {
     const columns = await getArticleColumns();
-    const { selectPublishedAgo, whereSql, orderSql } = buildPublishedArticleQuery(columns);
-    const breakingFilter = hasColumn(columns, "is_breaking") ? "is_breaking = true" : "FALSE";
-    const combinedWhere = [breakingFilter, whereSql.replace(/^WHERE\s+/, "")]
-      .filter(Boolean)
-      .join(" AND ");
+    if (!hasColumn(columns, "is_breaking")) {
+      return res.json([]);
+    }
 
-    const result = await pool.query(
-      `
-      SELECT *${selectPublishedAgo}
-      FROM articles
-      WHERE ${combinedWhere}
-      ${orderSql}
-      `
+    const result = await pool.query("SELECT * FROM articles");
+    const rows = normalizePublishedArticles(result.rows, columns).filter((article) =>
+      isTruthy(article.is_breaking)
     );
-    res.json(result.rows);
+    res.json(rows);
   } catch (err) {
     console.error("BREAKING FETCH ERROR:", err);
     res.status(500).json({ error: "Database error" });
@@ -137,27 +188,8 @@ router.get("/breaking", async (req, res) => {
 router.get("/admin", requireAuth, async (req, res) => {
   try {
     const columns = await getArticleColumns();
-    const selectPublishedAgo = hasColumn(columns, "published_at")
-      ? ", NOW() - published_at AS published_ago"
-      : "";
-    const orderSql = hasColumn(columns, "published_at")
-      ? "ORDER BY published_at DESC NULLS LAST, id DESC"
-      : "ORDER BY id DESC";
-
-    const result = await pool.query(
-      `
-      SELECT *${selectPublishedAgo}
-      FROM articles
-      ${orderSql}
-      `
-    );
-
-    res.json(
-      result.rows.map((article) => ({
-        ...article,
-        content_blocks: parseContentBlocks(article)
-      }))
-    );
+    const result = await pool.query("SELECT * FROM articles");
+    res.json(result.rows.sort((a, b) => compareArticles(a, b, columns)).map((article) => normalizeArticle(article, columns)));
   } catch (err) {
     console.error("ADMIN ARTICLES FETCH ERROR:", err);
     res.status(500).json({ error: "Database error" });
@@ -167,13 +199,9 @@ router.get("/admin", requireAuth, async (req, res) => {
 router.get("/admin/:id", requireAuth, async (req, res) => {
   try {
     const columns = await getArticleColumns();
-    const selectPublishedAgo = hasColumn(columns, "published_at")
-      ? ", NOW() - published_at AS published_ago"
-      : "";
-
     const result = await pool.query(
       `
-      SELECT *${selectPublishedAgo}
+      SELECT *
       FROM articles
       WHERE id = $1
       LIMIT 1
@@ -186,10 +214,7 @@ router.get("/admin/:id", requireAuth, async (req, res) => {
     }
 
     const article = result.rows[0];
-    res.json({
-      ...article,
-      content_blocks: parseContentBlocks(article)
-    });
+    res.json(normalizeArticle(article, columns));
   } catch (err) {
     console.error("ADMIN ARTICLE FETCH ERROR:", err);
     res.status(500).json({ error: "Database error" });
@@ -204,16 +229,11 @@ router.get("/:slug", async (req, res) => {
       return res.status(404).json({ error: "Article not found" });
     }
 
-    const { selectPublishedAgo, whereSql } = buildPublishedArticleQuery(columns);
-    const combinedWhere = [`slug = $1`, whereSql.replace(/^WHERE\s+/, "")]
-      .filter(Boolean)
-      .join(" AND ");
-
     const result = await pool.query(
       `
-      SELECT *${selectPublishedAgo}
+      SELECT *
       FROM articles
-      WHERE ${combinedWhere}
+      WHERE slug = $1
       LIMIT 1
       `,
       [slug]
@@ -224,11 +244,11 @@ router.get("/:slug", async (req, res) => {
     }
 
     const article = result.rows[0];
+    if (!isPublishedArticle(article, columns)) {
+      return res.status(404).json({ error: "Article not found" });
+    }
 
-    res.json({
-      ...article,
-      content_blocks: parseContentBlocks(article)
-    });
+    res.json(normalizeArticle(article, columns));
   } catch (err) {
     console.error("ARTICLE FETCH ERROR:", err);
     res.status(500).json({ error: "Database error" });
