@@ -16,6 +16,8 @@ app.use(
       "http://127.0.0.1:5173",
       "https://theveritas.netlify.app",
       "https://theveritas.in",
+      "https://www.theveritas.in",
+      "http://www.theveritas.in",
       "http://theveritas.in"
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],

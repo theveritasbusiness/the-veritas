@@ -141,7 +141,9 @@ export default function TheVeritasShowcase() {
             <div className="max-w-xl mx-auto rounded-2xl border border-neutral-800 bg-neutral-950 px-6 py-10">
               <h2 className="font-serif text-3xl text-white">No articles found.</h2>
               <p className="mt-3 text-sm sm:text-base text-neutral-400 leading-relaxed">
-                {loadError || "The latest article feed is empty right now. Please check back shortly."}
+                {loadError
+                  ? "We’re reconnecting to the latest story feed. Please check back in a moment."
+                  : "The latest article feed is empty right now. Please check back shortly."}
               </p>
             </div>
           </div>
@@ -150,7 +152,11 @@ export default function TheVeritasShowcase() {
         {loading && (
           <div className="col-span-12 text-center text-neutral-400 py-20">
             <div className="max-w-xl mx-auto rounded-2xl border border-neutral-800 bg-neutral-950 px-6 py-10">
-              Loading articles...
+              <div className="veritas-loader mx-auto" aria-hidden="true" />
+              <div className="mt-5 font-serif text-2xl text-white">Loading stories</div>
+              <p className="mt-3 text-sm sm:text-base text-neutral-400 leading-relaxed">
+                Pulling in the latest Veritas stories now.
+              </p>
             </div>
           </div>
         )}
@@ -294,9 +300,58 @@ export default function TheVeritasShowcase() {
       </main>
 
       <style>{`
+        .veritas-loader {
+          width: 68px;
+          height: 68px;
+          border-radius: 999px;
+          border: 3px solid rgba(255,255,255,0.12);
+          border-top-color: var(--veritas-red);
+          border-right-color: #fecc1c;
+          position: relative;
+          animation: veritasSpin 1s linear infinite;
+          box-shadow:
+            0 0 0 1px rgba(255,255,255,0.03) inset,
+            0 0 24px rgba(222, 2, 22, 0.18);
+        }
+
+        .veritas-loader::before,
+        .veritas-loader::after {
+          content: "";
+          position: absolute;
+          inset: 11px;
+          border-radius: 999px;
+          border: 2px solid transparent;
+        }
+
+        .veritas-loader::before {
+          border-left-color: #fecc1c;
+          border-bottom-color: rgba(222, 2, 22, 0.9);
+          animation: veritasSpinReverse 1.4s linear infinite;
+        }
+
+        .veritas-loader::after {
+          inset: 24px;
+          background:
+            radial-gradient(circle, #fecc1c 0 18%, transparent 20%),
+            radial-gradient(circle, rgba(222, 2, 22, 0.9) 0 14%, transparent 16%);
+          background-position: 50% 28%, 50% 72%;
+          background-repeat: no-repeat;
+          filter: drop-shadow(0 0 10px rgba(222, 2, 22, 0.35));
+        }
+
         .ticker {
           animation: tickerMove 18s linear infinite;
           white-space: nowrap;
+        }
+
+        @keyframes veritasSpin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes veritasSpinReverse {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
         }
 
         @keyframes tickerMove {
