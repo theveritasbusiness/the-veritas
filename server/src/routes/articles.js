@@ -126,6 +126,20 @@ function normalizePublishedArticles(rows, columns) {
     .map((article) => normalizeArticle(article, columns));
 }
 
+function logArticleError(label, err, columns) {
+  console.error(`${label}:`, {
+    message: err?.message,
+    code: err?.code,
+    detail: err?.detail,
+    hint: err?.hint,
+    columns: columns ? Array.from(columns) : undefined
+  });
+
+  if (err?.stack) {
+    console.error(err.stack);
+  }
+}
+
 function parseContentBlocks(article) {
   if (Array.isArray(article.content_blocks)) {
     return article.content_blocks;
@@ -162,7 +176,13 @@ router.get("/", async (req, res) => {
     const result = await pool.query("SELECT * FROM articles");
     res.json(normalizePublishedArticles(result.rows, columns));
   } catch (err) {
-    console.error("ARTICLES FETCH ERROR:", err);
+    let columns;
+    try {
+      columns = await getArticleColumns();
+    } catch {
+      columns = undefined;
+    }
+    logArticleError("ARTICLES FETCH ERROR", err, columns);
     res.status(500).json({ error: "Database error" });
   }
 });
@@ -180,7 +200,13 @@ router.get("/breaking", async (req, res) => {
     );
     res.json(rows);
   } catch (err) {
-    console.error("BREAKING FETCH ERROR:", err);
+    let columns;
+    try {
+      columns = await getArticleColumns();
+    } catch {
+      columns = undefined;
+    }
+    logArticleError("BREAKING FETCH ERROR", err, columns);
     res.status(500).json({ error: "Database error" });
   }
 });
@@ -191,7 +217,13 @@ router.get("/admin", requireAuth, async (req, res) => {
     const result = await pool.query("SELECT * FROM articles");
     res.json(result.rows.sort((a, b) => compareArticles(a, b, columns)).map((article) => normalizeArticle(article, columns)));
   } catch (err) {
-    console.error("ADMIN ARTICLES FETCH ERROR:", err);
+    let columns;
+    try {
+      columns = await getArticleColumns();
+    } catch {
+      columns = undefined;
+    }
+    logArticleError("ADMIN ARTICLES FETCH ERROR", err, columns);
     res.status(500).json({ error: "Database error" });
   }
 });
@@ -216,7 +248,13 @@ router.get("/admin/:id", requireAuth, async (req, res) => {
     const article = result.rows[0];
     res.json(normalizeArticle(article, columns));
   } catch (err) {
-    console.error("ADMIN ARTICLE FETCH ERROR:", err);
+    let columns;
+    try {
+      columns = await getArticleColumns();
+    } catch {
+      columns = undefined;
+    }
+    logArticleError("ADMIN ARTICLE FETCH ERROR", err, columns);
     res.status(500).json({ error: "Database error" });
   }
 });
@@ -250,7 +288,13 @@ router.get("/:slug", async (req, res) => {
 
     res.json(normalizeArticle(article, columns));
   } catch (err) {
-    console.error("ARTICLE FETCH ERROR:", err);
+    let columns;
+    try {
+      columns = await getArticleColumns();
+    } catch {
+      columns = undefined;
+    }
+    logArticleError("ARTICLE FETCH ERROR", err, columns);
     res.status(500).json({ error: "Database error" });
   }
 });
