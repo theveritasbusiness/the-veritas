@@ -29,6 +29,37 @@ function hasColumn(columns, name) {
   return columns.has(name);
 }
 
+function buildPublishedArticleQuery(columns) {
+  const selectPublishedAgo = hasColumn(columns, "published_at")
+    ? ", NOW() - published_at AS published_ago"
+    : "";
+
+  const whereClauses = [];
+  if (hasColumn(columns, "status")) {
+    whereClauses.push("status = 'published'");
+  }
+  if (hasColumn(columns, "approved")) {
+    whereClauses.push("COALESCE(approved, true) = true");
+  }
+
+  const orderClauses = [];
+  if (hasColumn(columns, "priority")) {
+    orderClauses.push("priority DESC NULLS LAST");
+  }
+  if (hasColumn(columns, "published_at")) {
+    orderClauses.push("published_at DESC");
+  }
+  if (hasColumn(columns, "id")) {
+    orderClauses.push("id DESC");
+  }
+
+  return {
+    selectPublishedAgo,
+    whereSql: whereClauses.length ? `WHERE ${whereClauses.join(" AND ")}` : "",
+    orderSql: orderClauses.length ? `ORDER BY ${orderClauses.join(", ")}` : ""
+  };
+}
+
 function parseContentBlocks(article) {
   if (Array.isArray(article.content_blocks)) {
     return article.content_blocks;
@@ -62,20 +93,14 @@ function parseContentBlocks(article) {
 router.get("/", async (req, res) => {
   try {
     const columns = await getArticleColumns();
-    const approvedFilter = hasColumn(columns, "approved")
-      ? " AND COALESCE(approved, true) = true"
-      : "";
-    const orderBy = hasColumn(columns, "priority")
-      ? "ORDER BY priority DESC NULLS LAST, published_at DESC"
-      : "ORDER BY published_at DESC";
+    const { selectPublishedAgo, whereSql, orderSql } = buildPublishedArticleQuery(columns);
 
     const result = await pool.query(
       `
-      SELECT *,
-      NOW() - published_at AS published_ago
+      SELECT *${selectPublishedAgo}
       FROM articles
-      WHERE status = 'published'${approvedFilter}
-      ${orderBy}
+      ${whereSql}
+      ${orderSql}
       `
     );
     res.json(result.rows);
@@ -88,18 +113,18 @@ router.get("/", async (req, res) => {
 router.get("/breaking", async (req, res) => {
   try {
     const columns = await getArticleColumns();
-    const approvedFilter = hasColumn(columns, "approved")
-      ? " AND COALESCE(approved, true) = true"
-      : "";
+    const { selectPublishedAgo, whereSql, orderSql } = buildPublishedArticleQuery(columns);
+    const breakingFilter = hasColumn(columns, "is_breaking") ? "is_breaking = true" : "FALSE";
+    const combinedWhere = [breakingFilter, whereSql.replace(/^WHERE\s+/, "")]
+      .filter(Boolean)
+      .join(" AND ");
 
     const result = await pool.query(
       `
-      SELECT *
+      SELECT *${selectPublishedAgo}
       FROM articles
-      WHERE is_breaking = true
-        AND status = 'published'
-        ${approvedFilter}
-      ORDER BY published_at DESC
+      WHERE ${combinedWhere}
+      ${orderSql}
       `
     );
     res.json(result.rows);
@@ -111,12 +136,19 @@ router.get("/breaking", async (req, res) => {
 
 router.get("/admin", requireAuth, async (req, res) => {
   try {
+    const columns = await getArticleColumns();
+    const selectPublishedAgo = hasColumn(columns, "published_at")
+      ? ", NOW() - published_at AS published_ago"
+      : "";
+    const orderSql = hasColumn(columns, "published_at")
+      ? "ORDER BY published_at DESC NULLS LAST, id DESC"
+      : "ORDER BY id DESC";
+
     const result = await pool.query(
       `
-      SELECT *,
-      NOW() - published_at AS published_ago
+      SELECT *${selectPublishedAgo}
       FROM articles
-      ORDER BY published_at DESC NULLS LAST, id DESC
+      ${orderSql}
       `
     );
 
@@ -134,10 +166,14 @@ router.get("/admin", requireAuth, async (req, res) => {
 
 router.get("/admin/:id", requireAuth, async (req, res) => {
   try {
+    const columns = await getArticleColumns();
+    const selectPublishedAgo = hasColumn(columns, "published_at")
+      ? ", NOW() - published_at AS published_ago"
+      : "";
+
     const result = await pool.query(
       `
-      SELECT *,
-      NOW() - published_at AS published_ago
+      SELECT *${selectPublishedAgo}
       FROM articles
       WHERE id = $1
       LIMIT 1
@@ -164,18 +200,20 @@ router.get("/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
     const columns = await getArticleColumns();
-    const approvedFilter = hasColumn(columns, "approved")
-      ? " AND COALESCE(approved, true) = true"
-      : "";
+    if (!hasColumn(columns, "slug")) {
+      return res.status(404).json({ error: "Article not found" });
+    }
+
+    const { selectPublishedAgo, whereSql } = buildPublishedArticleQuery(columns);
+    const combinedWhere = [`slug = $1`, whereSql.replace(/^WHERE\s+/, "")]
+      .filter(Boolean)
+      .join(" AND ");
 
     const result = await pool.query(
       `
-      SELECT *,
-      NOW() - published_at AS published_ago
+      SELECT *${selectPublishedAgo}
       FROM articles
-      WHERE slug = $1
-        AND status = 'published'
-        ${approvedFilter}
+      WHERE ${combinedWhere}
       LIMIT 1
       `,
       [slug]
