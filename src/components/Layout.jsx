@@ -85,16 +85,16 @@ export default function Layout() {
             </div>
           </div>
 
-          <div className="md:hidden flex flex-col items-center gap-3">
-            <Link to="/" className="flex justify-center" aria-label="Go to The Veritas homepage">
+          <div className="md:hidden flex items-center justify-between gap-3">
+            <Link to="/" className="flex min-w-0 flex-1" aria-label="Go to The Veritas homepage">
               <img
                 src={logoAsset}
-                className="h-14 w-auto object-contain"
+                className="h-10 w-auto max-w-[220px] object-contain"
                 alt="The Veritas"
               />
             </Link>
 
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-end gap-2 shrink-0">
               <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
                 <input
                   type="search"
@@ -291,10 +291,25 @@ export default function Layout() {
 }
 
 @media (max-width: 640px) {
+  .veritas-search {
+    width: 42px;
+    height: 42px;
+  }
+
+  .veritas-search .fa {
+    width: 32px;
+    height: 32px;
+    top: 3px;
+    right: 3px;
+    padding: 8px;
+  }
+
   .live-cta {
-    min-width: 102px;
-    padding: 0.72rem 1rem;
-    letter-spacing: 0.18em;
+    min-width: 96px;
+    padding: 0.68rem 0.9rem;
+    letter-spacing: 0.14em;
+    gap: 8px;
+    font-size: 0.76rem;
   }
 }
       `}</style>
