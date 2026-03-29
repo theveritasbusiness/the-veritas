@@ -142,8 +142,6 @@ export default function LiveMonitor() {
                 </div>
 
                 <h1 className="mt-5 font-serif text-5xl sm:text-6xl xl:text-7xl leading-[0.92] tracking-tight">
-                  The Veritas
-                  <br />
                   The Veritas Desk Wire
                 </h1>
 
