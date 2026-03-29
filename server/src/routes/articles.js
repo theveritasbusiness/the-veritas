@@ -41,7 +41,7 @@ router.get("/", async (req, res) => {
       SELECT *,
       NOW() - published_at AS published_ago
       FROM articles
-      WHERE status = 'published' AND approved = true
+      WHERE status = 'published' AND COALESCE(approved, true) = true
       ORDER BY priority DESC, published_at DESC
       `
     );
@@ -60,7 +60,7 @@ router.get("/breaking", async (req, res) => {
       FROM articles
       WHERE is_breaking = true
         AND status = 'published'
-        AND approved = true
+        AND COALESCE(approved, true) = true
       ORDER BY published_at DESC
       `
     );
@@ -133,7 +133,7 @@ router.get("/:slug", async (req, res) => {
       FROM articles
       WHERE slug = $1
         AND status = 'published'
-        AND approved = true
+        AND COALESCE(approved, true) = true
       LIMIT 1
       `,
       [slug]

@@ -21,6 +21,8 @@ function formatAge(article) {
 export default function TheVeritasShowcase() {
   const [articles, setArticles] = useState([]);
   const [breaking, setBreaking] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [searchParams] = useSearchParams();
 
   const searchQuery = searchParams.get("search") || "";
@@ -53,6 +55,7 @@ export default function TheVeritasShowcase() {
   useEffect(() => {
     async function loadData() {
       try {
+        setLoading(true);
         const [allArticles, breakingArticles] = await Promise.all([
           fetchArticles(),
           fetchBreaking()
@@ -60,8 +63,12 @@ export default function TheVeritasShowcase() {
 
         setArticles(allArticles);
         setBreaking(breakingArticles);
+        setLoadError("");
       } catch (err) {
         console.error("Failed to load articles:", err);
+        setLoadError(err.message || "Failed to load articles.");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -118,13 +125,25 @@ export default function TheVeritasShowcase() {
       )}
 
       <main className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6">
-        {finalArticles.length === 0 && (
+        {!loading && finalArticles.length === 0 && (
           <div className="col-span-12 text-center text-neutral-400 py-20">
-            No articles found.
+            <div className="max-w-xl mx-auto rounded-2xl border border-neutral-800 bg-neutral-950 px-6 py-10">
+              <h2 className="font-serif text-3xl text-white">No articles found.</h2>
+              <p className="mt-3 text-sm sm:text-base text-neutral-400 leading-relaxed">
+                {loadError || "The latest article feed is empty right now. Please check back shortly."}
+              </p>
+            </div>
           </div>
         )}
 
-        <section className="order-2 md:order-1 md:col-span-3 min-w-0">
+        {loading && (
+          <div className="col-span-12 text-center text-neutral-400 py-20">
+            Loading articles...
+          </div>
+        )}
+
+        {finalArticles.length > 0 && (
+          <section className="order-2 md:order-1 md:col-span-3 min-w-0">
           <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
             <h3 className="font-serif text-[2rem] sm:text-2xl mb-3 border-b pb-3">Latest News</h3>
             <ul className="space-y-3 text-sm">
@@ -149,9 +168,11 @@ export default function TheVeritasShowcase() {
               ))}
             </ul>
           </div>
-        </section>
+          </section>
+        )}
 
-        <section className="order-1 md:order-2 md:col-span-6 space-y-5 sm:space-y-6 min-w-0">
+        {finalArticles.length > 0 && (
+          <section className="order-1 md:order-2 md:col-span-6 space-y-5 sm:space-y-6 min-w-0">
           {featuredArticle && (
             <article className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-[140px,1fr] md:grid-cols-3 gap-4">
               <img
@@ -213,9 +234,11 @@ export default function TheVeritasShowcase() {
               ))}
             </div>
           </div>
-        </section>
+          </section>
+        )}
 
-        <aside className="order-3 md:col-span-3 space-y-5 sm:space-y-6 min-w-0">
+        {finalArticles.length > 0 && (
+          <aside className="order-3 md:col-span-3 space-y-5 sm:space-y-6 min-w-0">
           <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
             <h3 className="font-serif text-xl mb-4 border-b border-neutral-700 pb-2">
               Shorts
@@ -253,7 +276,8 @@ export default function TheVeritasShowcase() {
               </a>
             </div>
           </div>
-        </aside>
+          </aside>
+        )}
       </main>
 
       <style>{`
