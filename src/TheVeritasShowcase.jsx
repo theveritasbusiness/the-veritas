@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { fetchArticles, fetchBreaking } from "./api";
+import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } from "./api";
 
 function formatAge(article) {
   if (article.published_ago) {
@@ -54,6 +54,17 @@ export default function TheVeritasShowcase() {
 
   useEffect(() => {
     async function loadData() {
+      const cachedArticles = loadCachedArticles();
+      const cachedBreaking = loadCachedBreaking();
+
+      if (cachedArticles.length > 0) {
+        setArticles(cachedArticles);
+      }
+
+      if (cachedBreaking.length > 0) {
+        setBreaking(cachedBreaking);
+      }
+
       try {
         setLoading(true);
         const [allArticles, breakingArticles] = await Promise.all([
@@ -138,7 +149,9 @@ export default function TheVeritasShowcase() {
 
         {loading && (
           <div className="col-span-12 text-center text-neutral-400 py-20">
-            Loading articles...
+            <div className="max-w-xl mx-auto rounded-2xl border border-neutral-800 bg-neutral-950 px-6 py-10">
+              Loading articles...
+            </div>
           </div>
         )}
 
