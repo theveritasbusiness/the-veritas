@@ -173,6 +173,7 @@ export class PanelLayoutManager implements AppModule {
           </button>
         </div>
         <div class="header-right">
+          <a class="home-link-btn" href="https://www.theveritas.in/" title="Back to Homepage">Back to Homepage</a>
           <button class="search-btn" id="searchBtn"><kbd>⌘K</kbd> ${t('header.search')}</button>
           ${SITE_VARIANT === 'happy' ? `<button class="tv-mode-btn" id="tvModeBtn" title="TV Mode (Shift+T)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>` : ''}
           <span id="unifiedSettingsMount"></span>
@@ -252,6 +253,7 @@ export class PanelLayoutManager implements AppModule {
             <span class="site-footer-name">THE VERITAS MONITOR</span>
           </div>
         </div>
+        <a class="site-footer-home" href="https://www.theveritas.in/">Back to Homepage</a>
         <span class="site-footer-copy">&copy; ${new Date().getFullYear()} The Veritas Monitor</span>
       </footer>
     `;

@@ -7,7 +7,7 @@ const categories = [
   "Home",
   "Geopolitics",
   "India",
-  "Trending",
+  "The Veritas Desk",
   "Politics",
   "Legal",
   "Entertainment",
@@ -128,7 +128,7 @@ export default function Layout() {
             {categories.map((item) => {
               const isActive =
                 (item === "Home" && !selectedCategory && !isTrendingRoute) ||
-                (item === "Trending" && isTrendingRoute) ||
+                (item === "The Veritas Desk" && isTrendingRoute) ||
                 selectedCategory === item;
 
               return (
@@ -139,7 +139,7 @@ export default function Layout() {
                   onClick={() => {
                     if (item === "Home") {
                       navigate("/");
-                    } else if (item === "Trending") {
+                    } else if (item === "The Veritas Desk") {
                       navigate("/trending");
                     } else {
                       navigate(`/?category=${item}`);

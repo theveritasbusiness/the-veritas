@@ -14,6 +14,7 @@ export default function NewArticle() {
   const [heroImage, setHeroImage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [heroCaption, setHeroCaption] = useState("");
+  const [authorName, setAuthorName] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [bibliography, setBibliography] = useState("");
   const [breaking, setBreaking] = useState(false);
@@ -87,6 +88,7 @@ export default function NewArticle() {
           category,
           hero_image: heroImage,
           hero_caption: heroCaption,
+          author_name: authorName.trim(),
           hashtags: hashtags ? hashtags.split(",").map((item) => item.trim()).filter(Boolean) : [],
           content_blocks: nonEmptyBlocks,
           paragraphs: paragraphBlocks.map((block) => block.text),
@@ -124,6 +126,7 @@ export default function NewArticle() {
         {heroImage && <img src={heroImage} className="w-full h-48 object-cover rounded mt-2" alt="Uploaded hero" />}
 
         <input placeholder="Hero Caption" className="w-full p-2 bg-black border" onChange={(e) => setHeroCaption(e.target.value)} />
+        <input placeholder="Byline / Author Name" className="w-full p-2 bg-black border" onChange={(e) => setAuthorName(e.target.value)} />
         <input placeholder="Hashtags (comma separated)" className="w-full p-2 bg-black border" onChange={(e) => setHashtags(e.target.value)} />
 
         <h3 className="font-bold">Content</h3>

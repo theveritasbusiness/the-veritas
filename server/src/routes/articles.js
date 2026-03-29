@@ -29,6 +29,17 @@ function hasColumn(columns, name) {
   return columns.has(name);
 }
 
+async function ensureArticleColumn(name, sqlType) {
+  const columns = await getArticleColumns();
+  if (hasColumn(columns, name)) {
+    return columns;
+  }
+
+  await pool.query(`ALTER TABLE articles ADD COLUMN IF NOT EXISTS ${name} ${sqlType}`);
+  articleColumnsPromise = null;
+  return getArticleColumns();
+}
+
 function isTruthy(value) {
   if (typeof value === "boolean") return value;
   if (typeof value === "number") return value === 1;
@@ -112,6 +123,7 @@ function isPublishedArticle(article, columns) {
 function normalizeArticle(article, columns) {
   return {
     ...article,
+    author_name: article.author_name || "The Veritas Desk",
     content_blocks: parseContentBlocks(article),
     published_ago: hasColumn(columns, "published_at")
       ? computePublishedAgo(article.published_at)
@@ -308,6 +320,7 @@ router.post("/", requireAuth, async (req, res) => {
       category,
       hero_image,
       hero_caption,
+      author_name,
       hashtags,
       paragraphs,
       bibliography,
@@ -325,29 +338,53 @@ router.post("/", requireAuth, async (req, res) => {
     const content = blocks.map((block) => block.text).join("\n\n");
     const contentBlocksJSON = JSON.stringify(blocks);
 
+    const columns = await ensureArticleColumn("author_name", "TEXT");
+    const insertColumns = [
+      "title",
+      "subheadline",
+      "slug",
+      "category",
+      "hero_image",
+      "hero_caption",
+      "hashtags",
+      "paragraphs",
+      "bibliography",
+      "is_breaking",
+      "content",
+      "content_blocks",
+      "show_on_slider",
+      "approved",
+      "status",
+      "published_at"
+    ];
+    const values = [
+      title,
+      subheadline,
+      slug,
+      category,
+      hero_image,
+      hero_caption,
+      hashtags || [],
+      safeParagraphs,
+      bibliography,
+      is_breaking || false,
+      content,
+      contentBlocksJSON,
+      show_on_slider || false,
+      true,
+      "published",
+      new Date()
+    ];
+
+    if (hasColumn(columns, "author_name")) {
+      insertColumns.splice(6, 0, "author_name");
+      values.splice(6, 0, author_name?.trim() || "");
+    }
+
+    const placeholders = insertColumns.map((_, index) => `$${index + 1}`).join(",");
     const result = await pool.query(
-      `INSERT INTO articles
-      (title, subheadline, slug, category, hero_image, hero_caption, hashtags, paragraphs, bibliography, is_breaking, content, content_blocks, show_on_slider, approved, status, published_at)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
-      RETURNING *`,
-      [
-        title,
-        subheadline,
-        slug,
-        category,
-        hero_image,
-        hero_caption,
-        hashtags || [],
-        safeParagraphs,
-        bibliography,
-        is_breaking || false,
-        content,
-        contentBlocksJSON,
-        show_on_slider || false,
-        true,
-        "published",
-        new Date()
-      ]
+      `INSERT INTO articles (${insertColumns.join(", ")}) VALUES (${placeholders}) RETURNING *`,
+      values
     );
 
     res.json(result.rows[0]);
@@ -381,6 +418,7 @@ router.put("/:id", requireAuth, async (req, res) => {
       category,
       hero_image,
       hero_caption,
+      author_name,
       hashtags,
       paragraphs,
       bibliography,
@@ -398,29 +436,34 @@ router.put("/:id", requireAuth, async (req, res) => {
     const content = blocks.map((block) => block.text).join("\n\n");
     const contentBlocksJSON = JSON.stringify(blocks);
 
+    const columns = await ensureArticleColumn("author_name", "TEXT");
+    const updateEntries = [
+      ["title", title],
+      ["subheadline", subheadline],
+      ["category", category],
+      ["hero_image", hero_image],
+      ["hero_caption", hero_caption],
+      ["hashtags", hashtags || []],
+      ["paragraphs", safeParagraphs],
+      ["bibliography", bibliography],
+      ["is_breaking", is_breaking || false],
+      ["content", content],
+      ["content_blocks", contentBlocksJSON],
+      ["show_on_slider", show_on_slider ?? false]
+    ];
+
+    if (hasColumn(columns, "author_name")) {
+      updateEntries.splice(5, 0, ["author_name", author_name?.trim() || ""]);
+    }
+
+    const values = updateEntries.map(([, value]) => value);
+    const updates = updateEntries.map(([column], index) => `${column}=$${index + 1}`);
+    const whereIndex = values.length + 1;
+    values.push(id);
+
     const result = await pool.query(
-      `UPDATE articles SET
-        title=$1, subheadline=$2, category=$3,
-        hero_image=$4, hero_caption=$5,
-        hashtags=$6, paragraphs=$7, bibliography=$8,
-        is_breaking=$9, content=$10,
-        content_blocks=$11, show_on_slider=$12
-       WHERE id=$13 RETURNING *`,
-      [
-        title,
-        subheadline,
-        category,
-        hero_image,
-        hero_caption,
-        hashtags || [],
-        safeParagraphs,
-        bibliography,
-        is_breaking || false,
-        content,
-        contentBlocksJSON,
-        show_on_slider ?? false,
-        id
-      ]
+      `UPDATE articles SET ${updates.join(", ")} WHERE id=$${whereIndex} RETURNING *`,
+      values
     );
 
     if (result.rows.length === 0) {

@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "World Monitor",
+    "title": "The Veritas Monitor",
     "description": "Global Situation with AI Insights"
   },
   "widgets": {
@@ -576,7 +576,7 @@
       },
       "openSettings": "Open Settings",
       "reserveEarlyAccess": "Reserve Your Early Access",
-      "skipSetup": "Skip the setup — a single World Monitor license unlocks everything. Join the waitlist for early access.",
+      "skipSetup": "Skip the setup — one Veritas access layer unlocks the full monitor. Join the waitlist for early access.",
       "summary": {
         "desktop": "Desktop mode",
         "web": "Web mode (read-only, server-managed credentials)",
@@ -621,11 +621,11 @@
       "sidecarUnreachable": "Sidecar not reachable.",
       "logCleared": "Log cleared.",
       "worldMonitor": {
-        "tabLabel": "World Monitor",
+        "tabLabel": "The Veritas Monitor",
         "heroTitle": "One key. Everything included.",
-        "heroDescription": "A single World Monitor license replaces every API key and LLM provider you'd otherwise configure yourself. AI summaries, real-time intelligence, market data, conflict tracking, fire detection, satellite imagery — all powered, all managed, zero setup.",
+        "heroDescription": "A single Veritas access layer replaces every API key and provider you would otherwise configure yourself. AI summaries, real-time intelligence, market data, conflict tracking, fire detection, and satellite imagery stay managed in one place.",
         "apiKey": {
-          "title": "License Key",
+          "title": "Access Key",
           "placeholder": "wm_xxxxxxxxxxxxxxxxxxxxxxxx",
           "description": "Paste your license to unlock every data source and AI feature instantly.",
           "statusValid": "LICENSED",
@@ -634,7 +634,7 @@
         "dividerOr": "OR",
         "register": {
           "title": "Reserve Your Spot",
-          "description": "We're preparing to launch World Monitor licenses. Sign up now and be first in line — early members get priority access and founding-member pricing.",
+          "description": "We're preparing Veritas Monitor access. Sign up now and be first in line for early access and launch updates.",
           "emailPlaceholder": "your@email.com",
           "submitBtn": "Join Waitlist",
           "submitting": "Submitting...",
@@ -1553,7 +1553,7 @@
     "orefSirens": {
       "checking": "Checking siren alerts...",
       "noAlerts": "No active sirens — all clear",
-      "notConfigured": "Sirens service not configured",
+      "notConfigured": "Sirens service unavailable",
       "activeSirens": "{{count}} active siren(s)",
       "area": "Area",
       "time": "Time",
@@ -1721,7 +1721,7 @@
       "infoTooltip": "Real-time signals from monitored Telegram OSINT channels",
       "loading": "Connecting to Telegram relay...",
       "empty": "No messages available",
-      "disabled": "Telegram relay not active",
+      "disabled": "Telegram relay unavailable",
       "filterAll": "All",
       "filterBreaking": "Breaking",
       "filterConflict": "Conflict",
@@ -2636,7 +2636,7 @@
   },
   "premium": {
     "pro": "PRO",
-    "lockedDesc": "Requires a World Monitor license key",
+    "lockedDesc": "Requires Veritas Monitor access",
     "joinWaitlist": "Join Waitlist",
     "features": {
       "orefSirens1": "Real-time Israel missile & rocket alerts",

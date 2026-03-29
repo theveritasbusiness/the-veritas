@@ -1,22 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } from "./api";
-
-function formatAge(article) {
-  if (article.published_ago) {
-    const h = article.published_ago.hours || 0;
-    const m = article.published_ago.minutes || 0;
-    return `${h}h ${m}m ago`;
-  }
-
-  if (article.age) {
-    const h = article.age.hours || 0;
-    const m = article.age.minutes || 0;
-    return `${h}h ${m}m ago`;
-  }
-
-  return "";
-}
+import { getArticleDisplayTime } from "./utils/time";
 
 export default function TheVeritasShowcase() {
   const [articles, setArticles] = useState([]);
@@ -181,7 +166,7 @@ export default function TheVeritasShowcase() {
                     >
                       {article.title}
                     </Link>
-                    <div className="text-xs text-neutral-400">{formatAge(article)}</div>
+                    <div className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</div>
                   </div>
                 </li>
               ))}
@@ -246,7 +231,7 @@ export default function TheVeritasShowcase() {
                       {article.paragraphs?.[0]?.slice(0, 90)}
                     </p>
                     <div className="mt-3">
-                      <span className="text-xs text-neutral-400">{formatAge(article)}</span>
+                      <span className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</span>
                     </div>
                   </div>
                 </div>

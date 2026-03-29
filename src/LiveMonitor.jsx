@@ -1,16 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchArticles, fetchBreaking } from "./api";
-
-function formatAge(article) {
-  if (article?.published_ago) {
-    const hours = article.published_ago.hours || 0;
-    const minutes = article.published_ago.minutes || 0;
-    return `${hours}h ${minutes}m ago`;
-  }
-
-  return "Recently";
-}
+import { getArticleDisplayTime } from "./utils/time";
 
 function formatClock(date) {
   return new Intl.DateTimeFormat("en-US", {
@@ -119,7 +110,7 @@ export default function LiveMonitor() {
           ...region,
           title: story?.title || "Awaiting signal",
           category: story?.category || "Monitor",
-          age: formatAge(story)
+          age: getArticleDisplayTime(story)
         };
       }),
     [articles, topStory]
@@ -147,13 +138,13 @@ export default function LiveMonitor() {
                   style={{ borderColor: "rgba(222,2,22,0.45)", color: "var(--veritas-red)" }}
                 >
                   <span className="h-2.5 w-2.5 rounded-full live-pulse" />
-                  Trending Desk
+                  The Veritas Desk
                 </div>
 
                 <h1 className="mt-5 font-serif text-5xl sm:text-6xl xl:text-7xl leading-[0.92] tracking-tight">
                   The Veritas
                   <br />
-                  Trending Wire
+                  The Veritas Desk Wire
                 </h1>
 
                 <p className="mt-4 max-w-3xl text-neutral-300 text-base sm:text-lg leading-relaxed">
@@ -255,7 +246,7 @@ export default function LiveMonitor() {
                   <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-neutral-400">
                     <span>{topStory?.category || "Monitor"}</span>
                     <span>|</span>
-                    <span>{formatAge(topStory)}</span>
+                    <span>{getArticleDisplayTime(topStory)}</span>
                   </div>
 
                   {topStory?.slug && (
@@ -373,7 +364,7 @@ export default function LiveMonitor() {
                       <div className="min-w-0">
                         <div className="text-sm text-neutral-400">{story.category || "Monitor"}</div>
                         <div className="mt-1 font-medium leading-snug break-words">{story.title}</div>
-                        <div className="mt-2 text-xs text-neutral-500">{formatAge(story)}</div>
+                        <div className="mt-2 text-xs text-neutral-500">{getArticleDisplayTime(story)}</div>
                       </div>
                     </Link>
                   ))}
@@ -475,7 +466,7 @@ export default function LiveMonitor() {
                       <div className="min-w-0">
                         <div className="text-sm font-medium leading-snug break-words">{story.title}</div>
                         <div className="mt-2 text-xs text-neutral-400">
-                          {story.category || "Monitor"} | {formatAge(story)}
+                          {story.category || "Monitor"} | {getArticleDisplayTime(story)}
                         </div>
                       </div>
                       <div

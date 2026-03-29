@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchArticleBySlug, fetchArticles } from "./api";
+import { getArticleDisplayTime } from "./utils/time";
 
 export default function ArticlePage() {
   const { slug } = useParams();
@@ -53,10 +54,7 @@ export default function ArticlePage() {
 
         <div className="border-b w-16 my-4" style={{ borderColor: "var(--veritas-red)" }}></div>
         <div className="text-sm text-neutral-500 mt-3">
-          By The Veritas Desk |{" "}
-          {article.published_ago
-            ? `${article.published_ago.hours || 0}h ${article.published_ago.minutes || 0}m ago`
-            : "Recently"}
+          By {article.author_name?.trim() || "The Veritas Desk"} | {getArticleDisplayTime(article)}
         </div>
 
         <img

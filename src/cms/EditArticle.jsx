@@ -81,6 +81,7 @@ export default function EditArticle() {
           category: article.category,
           hero_image: article.hero_image,
           hero_caption: article.hero_caption || "",
+          author_name: article.author_name || "",
           hashtags: article.hashtags || [],
           content_blocks: nonEmptyBlocks,
           paragraphs: paragraphBlocks.map((block) => block.text),
@@ -156,6 +157,13 @@ export default function EditArticle() {
           onChange={(e) => setArticle({ ...article, hero_caption: e.target.value })}
           className="w-full p-2 bg-black border"
           placeholder="Hero caption"
+        />
+
+        <input
+          value={article.author_name || ""}
+          onChange={(e) => setArticle({ ...article, author_name: e.target.value })}
+          className="w-full p-2 bg-black border"
+          placeholder="Byline / Author Name"
         />
 
         <textarea
