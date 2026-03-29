@@ -3,6 +3,31 @@ import pool from "../db.js";
 import { requireAuth } from "../auth.js";
 
 const router = express.Router();
+let articleColumnsPromise = null;
+
+async function getArticleColumns() {
+  if (!articleColumnsPromise) {
+    articleColumnsPromise = pool
+      .query(
+        `
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'articles'
+        `
+      )
+      .then((result) => new Set(result.rows.map((row) => row.column_name)))
+      .catch((error) => {
+        articleColumnsPromise = null;
+        throw error;
+      });
+  }
+
+  return articleColumnsPromise;
+}
+
+function hasColumn(columns, name) {
+  return columns.has(name);
+}
 
 function parseContentBlocks(article) {
   if (Array.isArray(article.content_blocks)) {
@@ -36,13 +61,21 @@ function parseContentBlocks(article) {
 
 router.get("/", async (req, res) => {
   try {
+    const columns = await getArticleColumns();
+    const approvedFilter = hasColumn(columns, "approved")
+      ? " AND COALESCE(approved, true) = true"
+      : "";
+    const orderBy = hasColumn(columns, "priority")
+      ? "ORDER BY priority DESC NULLS LAST, published_at DESC"
+      : "ORDER BY published_at DESC";
+
     const result = await pool.query(
       `
       SELECT *,
       NOW() - published_at AS published_ago
       FROM articles
-      WHERE status = 'published' AND COALESCE(approved, true) = true
-      ORDER BY priority DESC, published_at DESC
+      WHERE status = 'published'${approvedFilter}
+      ${orderBy}
       `
     );
     res.json(result.rows);
@@ -54,13 +87,18 @@ router.get("/", async (req, res) => {
 
 router.get("/breaking", async (req, res) => {
   try {
+    const columns = await getArticleColumns();
+    const approvedFilter = hasColumn(columns, "approved")
+      ? " AND COALESCE(approved, true) = true"
+      : "";
+
     const result = await pool.query(
       `
       SELECT *
       FROM articles
       WHERE is_breaking = true
         AND status = 'published'
-        AND COALESCE(approved, true) = true
+        ${approvedFilter}
       ORDER BY published_at DESC
       `
     );
@@ -125,6 +163,10 @@ router.get("/admin/:id", requireAuth, async (req, res) => {
 router.get("/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
+    const columns = await getArticleColumns();
+    const approvedFilter = hasColumn(columns, "approved")
+      ? " AND COALESCE(approved, true) = true"
+      : "";
 
     const result = await pool.query(
       `
@@ -133,7 +175,7 @@ router.get("/:slug", async (req, res) => {
       FROM articles
       WHERE slug = $1
         AND status = 'published'
-        AND COALESCE(approved, true) = true
+        ${approvedFilter}
       LIMIT 1
       `,
       [slug]
