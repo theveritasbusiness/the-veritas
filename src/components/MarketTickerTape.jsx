@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 function formatValue(item) {
-  if (item.value == null || Number.isNaN(item.value)) return "—";
+  if (item.value == null || Number.isNaN(item.value)) return "--";
 
   const isCurrencyLike =
     item.label.includes("GOLD") ||
@@ -10,19 +10,19 @@ function formatValue(item) {
     item.label.includes("DOLLAR");
 
   return new Intl.NumberFormat("en-IN", {
-    maximumFractionDigits: isCurrencyLike ? 2 : 2,
-    minimumFractionDigits: item.value < 100 ? 2 : 0
+    maximumFractionDigits: 2,
+    minimumFractionDigits: isCurrencyLike || item.value < 100 ? 2 : 0
   }).format(item.value);
 }
 
 function formatChange(value) {
-  if (value == null || Number.isNaN(value)) return "—";
+  if (value == null || Number.isNaN(value)) return "--";
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(2)}`;
 }
 
 function formatPercent(value) {
-  if (value == null || Number.isNaN(value)) return "—";
+  if (value == null || Number.isNaN(value)) return "--";
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(2)}%`;
 }
