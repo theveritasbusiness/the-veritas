@@ -1,10 +1,14 @@
-import Layout from "../src/components/Layout";
-import LiveMonitor from "../src/LiveMonitor";
+import { LIVE_MONITOR_URL } from "../src/lib/env";
 
 export default function LivePage() {
-  return (
-    <Layout>
-      <LiveMonitor />
-    </Layout>
-  );
+  return null;
+}
+
+export async function getServerSideProps() {
+  return {
+    redirect: {
+      destination: LIVE_MONITOR_URL,
+      permanent: false
+    }
+  };
 }
