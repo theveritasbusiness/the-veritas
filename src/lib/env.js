@@ -17,4 +17,4 @@ export const AD_SLOT_ARTICLE_SIDEBAR =
   process.env.NEXT_PUBLIC_AD_SLOT_ARTICLE_SIDEBAR || "8191960213";
 
 export const LIVE_MONITOR_URL =
-  process.env.NEXT_PUBLIC_LIVE_MONITOR_URL || "https://veritas-live-monitor.netlify.app/";
+  process.env.NEXT_PUBLIC_LIVE_MONITOR_URL || "/live/";

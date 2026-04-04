@@ -4,3 +4,15 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+[[redirects]]
+  from = "/live"
+  to = "https://veritas-live-monitor.netlify.app/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/live/*"
+  to = "https://veritas-live-monitor.netlify.app/:splat"
+  status = 200
+  force = true
