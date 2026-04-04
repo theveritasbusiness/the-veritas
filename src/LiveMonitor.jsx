@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "./lib/router";
 import { fetchArticles, fetchBreaking } from "./api";
 import Seo from "./components/Seo";
 import { getArticleDisplayTime } from "./utils/time";

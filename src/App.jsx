@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "./lib/router";
 
 import Layout from "./components/Layout";
 import TheVeritasShowcase from "./TheVeritasShowcase";

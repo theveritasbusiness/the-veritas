@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "./lib/router";
 import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } from "./api";
 import AdSlot from "./components/AdSlot";
 import Seo from "./components/Seo";

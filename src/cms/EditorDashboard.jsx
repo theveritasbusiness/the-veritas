@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "../lib/router";
 import { API_BASE, authHeaders, fetchAdminArticles } from "../api";
 
 export default function EditorDashboard() {
