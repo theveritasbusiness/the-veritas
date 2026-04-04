@@ -144,7 +144,7 @@ export default function MarketTickerTape() {
           display: flex;
           align-items: center;
           width: max-content;
-          animation: marketScroll 42s linear infinite;
+          animation: marketScroll 72s linear infinite;
         }
 
         .market-strip:hover .market-strip-track {
