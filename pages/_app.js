@@ -35,7 +35,9 @@ export default function VeritasApp({ Component, pageProps }) {
           content="The Veritas covers breaking news, geopolitics, India, politics, legal affairs, entertainment, sports, and live desk tracking."
         />
         <meta name="twitter:image" content="https://www.theveritas.in/LOGO.jpeg" />
-        <link rel="icon" type="image/jpeg" href="/LOGO.jpeg" />
+        <link rel="icon" href="/LOGO.jpeg?v=2" />
+        <link rel="shortcut icon" href="/LOGO.jpeg?v=2" />
+        <link rel="apple-touch-icon" href="/LOGO.jpeg?v=2" />
         <link
           rel="stylesheet"
           href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"

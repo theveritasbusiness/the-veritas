@@ -6,11 +6,17 @@ import Seo from "./components/Seo";
 import { AD_SLOT_HOME_INLINE } from "./lib/env";
 import { getArticleDisplayTime } from "./utils/time";
 
-export default function TheVeritasShowcase() {
-  const [articles, setArticles] = useState([]);
-  const [breaking, setBreaking] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
+export default function TheVeritasShowcase({
+  initialArticles = [],
+  initialBreaking = [],
+  initialLoadError = ""
+}) {
+  const [articles, setArticles] = useState(initialArticles);
+  const [breaking, setBreaking] = useState(initialBreaking);
+  const [loading, setLoading] = useState(
+    initialArticles.length === 0 && initialBreaking.length === 0 && !initialLoadError
+  );
+  const [loadError, setLoadError] = useState(initialLoadError);
   const [searchParams] = useSearchParams();
 
   const searchQuery = searchParams.get("search") || "";
@@ -64,7 +70,9 @@ export default function TheVeritasShowcase() {
       }
 
       try {
-        setLoading(true);
+        if (articles.length === 0 && breaking.length === 0) {
+          setLoading(true);
+        }
         const [allArticles, breakingArticles] = await Promise.all([
           fetchArticles(),
           fetchBreaking()
@@ -201,6 +209,8 @@ export default function TheVeritasShowcase() {
                   src={featuredArticle.hero_image || ""}
                   className="rounded-xl object-cover h-44 sm:h-full w-full"
                   alt={featuredArticle.title}
+                  loading="lazy"
+                  decoding="async"
                 />
 
                 <div className="md:col-span-2 min-w-0">
@@ -283,6 +293,7 @@ export default function TheVeritasShowcase() {
                         src={short.embed}
                         title={`Instagram reel ${short.href}`}
                         className="absolute inset-0 h-full w-full"
+                        loading="lazy"
                         allowTransparency={true}
                         allowFullScreen
                       />

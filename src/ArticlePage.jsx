@@ -6,11 +6,15 @@ import Seo from "./components/Seo";
 import { AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
 import { getArticleDisplayTime } from "./utils/time";
 
-export default function ArticlePage() {
+export default function ArticlePage({
+  initialArticle = null,
+  initialLatest = [],
+  initialError = ""
+}) {
   const { slug } = useParams();
-  const [article, setArticle] = useState(null);
-  const [latest, setLatest] = useState([]);
-  const [error, setError] = useState("");
+  const [article, setArticle] = useState(initialArticle);
+  const [latest, setLatest] = useState(initialLatest);
+  const [error, setError] = useState(initialError);
 
   useEffect(() => {
     if (!slug) {
@@ -80,6 +84,8 @@ export default function ArticlePage() {
           src={article.hero_image}
           className="my-6 sm:my-8 rounded-2xl w-full object-cover shadow-lg max-h-[520px]"
           alt={article.hero_caption || article.title}
+          loading="eager"
+          decoding="async"
         />
 
         {article.hero_caption && (
@@ -112,6 +118,8 @@ export default function ArticlePage() {
                     src={text}
                     alt={block.caption || `${article.title} inline visual ${i + 1}`}
                     className="w-full rounded-2xl object-cover shadow-lg max-h-[560px]"
+                    loading="lazy"
+                    decoding="async"
                   />
                   {block.caption && (
                     <figcaption className="text-sm text-neutral-400 leading-relaxed">
