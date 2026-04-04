@@ -17,6 +17,10 @@ export default function EditArticle() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!id) {
+      return undefined;
+    }
+
     async function loadArticle() {
       try {
         const found = await fetchAdminArticle(id);
@@ -29,9 +33,10 @@ export default function EditArticle() {
     }
 
     loadArticle();
+    return undefined;
   }, [id]);
 
-  async function handleImageUpload(file) {
+  async function uploadImage(file) {
     if (!file) return;
 
     setUploading(true);
@@ -51,14 +56,34 @@ export default function EditArticle() {
         throw new Error(data.error?.message || "Image upload failed");
       }
 
-      setArticle((prev) => ({
-        ...prev,
-        hero_image: data.secure_url
-      }));
+      return data.secure_url;
     } catch (err) {
       alert(err.message);
+      return null;
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handleImageUpload(file) {
+    const imageUrl = await uploadImage(file);
+
+    if (imageUrl) {
+      setArticle((prev) => ({
+        ...prev,
+        hero_image: imageUrl
+      }));
+    }
+  }
+
+  async function handleInlineImageUpload(file) {
+    const imageUrl = await uploadImage(file);
+
+    if (imageUrl) {
+      setContentBlocks((prev) => [
+        ...prev,
+        { type: "image", text: imageUrl, caption: "" }
+      ]);
     }
   }
 
@@ -68,7 +93,13 @@ export default function EditArticle() {
       return;
     }
 
-    const nonEmptyBlocks = contentBlocks.filter((block) => block.text.trim());
+    const nonEmptyBlocks = contentBlocks.filter((block) => {
+      if (block.type === "image") {
+        return block.text?.trim();
+      }
+
+      return block.text?.trim();
+    });
     const paragraphBlocks = nonEmptyBlocks.filter((block) => block.type === "paragraph");
 
     try {
@@ -175,7 +206,7 @@ export default function EditArticle() {
         <h3 className="font-bold mt-4">Content</h3>
 
         {contentBlocks.map((block, i) => (
-          <div key={i}>
+          <div key={i} className="space-y-2">
             {block.type === "paragraph" ? (
               <textarea
                 className="w-full p-2 bg-black border mb-2"
@@ -186,7 +217,7 @@ export default function EditArticle() {
                   setContentBlocks(copy);
                 }}
               />
-            ) : (
+            ) : block.type === "subheading" ? (
               <input
                 className="w-full p-2 bg-black border text-lg font-bold mb-2"
                 value={block.text}
@@ -196,11 +227,39 @@ export default function EditArticle() {
                   setContentBlocks(copy);
                 }}
               />
+            ) : (
+              <div className="rounded border border-neutral-700 bg-black/60 p-3 space-y-3">
+                {block.text && (
+                  <img
+                    src={block.text}
+                    alt={block.caption || `Inline article image ${i + 1}`}
+                    className="w-full max-h-72 object-cover rounded"
+                  />
+                )}
+                <input
+                  className="w-full p-2 bg-black border"
+                  value={block.caption || ""}
+                  placeholder="Image caption (optional)"
+                  onChange={(e) => {
+                    const copy = [...contentBlocks];
+                    copy[i].caption = e.target.value;
+                    setContentBlocks(copy);
+                  }}
+                />
+              </div>
             )}
+
+            <button
+              type="button"
+              onClick={() => setContentBlocks(contentBlocks.filter((_, blockIndex) => blockIndex !== i))}
+              className="text-sm text-neutral-400 hover:text-white"
+            >
+              Remove block
+            </button>
           </div>
         ))}
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setContentBlocks([...contentBlocks, { type: "paragraph", text: "" }])}
             className="bg-neutral-700 px-4 py-2 rounded"
@@ -214,6 +273,16 @@ export default function EditArticle() {
           >
             + Subheading
           </button>
+
+          <label className="bg-neutral-700 px-4 py-2 rounded cursor-pointer">
+            + Image
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleInlineImageUpload(e.target.files?.[0])}
+            />
+          </label>
         </div>
 
         <label className="flex gap-2">

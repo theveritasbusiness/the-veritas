@@ -1,8 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Seo from "./components/Seo";
 export default function Privacy() {
   return (
       <div className="max-w-4xl mx-auto px-6 py-10 text-neutral-300 leading-7">
+        <Seo
+          title="Privacy Policy"
+          description="Read the Privacy Policy for The Veritas, including how data is collected, used, and protected."
+          path="/privacy"
+        />
         <Link
           to="/"
           className="inline-flex items-center gap-2 rounded-full border border-neutral-700 px-4 py-2 text-sm text-white hover:border-[var(--veritas-red)] hover:text-[var(--veritas-red)] transition-colors"

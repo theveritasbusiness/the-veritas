@@ -1,11 +1,8 @@
-export const API_BASE =
-  import.meta.env.VITE_API_BASE || "https://veritas-backend-dktb.onrender.com";
-
-export const CLOUDINARY_CLOUD_NAME =
-  import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dft7kdsw6";
-
-export const CLOUDINARY_UPLOAD_PRESET =
-  import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "veritas_uploads";
+import {
+  API_BASE,
+  CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_UPLOAD_PRESET
+} from "./lib/env";
 
 export const LIVE_MONITOR_URL = "/live/";
 const ARTICLES_CACHE_KEY = "veritas_articles_cache";

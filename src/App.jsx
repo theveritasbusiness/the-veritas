@@ -1,5 +1,5 @@
 import React from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 
 import Layout from "./components/Layout";
 import TheVeritasShowcase from "./TheVeritasShowcase";
@@ -15,9 +15,25 @@ import ProtectedRoute from "./ProtectedRoutes";
 import Terms from "./Terms";
 import Privacy from "./Privacy";
 
+function HashRouteCompat() {
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const { hash } = window.location;
+    if (!hash.startsWith("#/")) return;
+
+    const target = hash.slice(1);
+    window.history.replaceState(null, "", target);
+    navigate(target, { replace: true });
+  }, [navigate]);
+
+  return null;
+}
+
 function App() {
   return (
     <Router>
+      <HashRouteCompat />
       <Routes>
 
         {/* ✅ WITH NAVBAR */}

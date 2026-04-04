@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import logoAsset from "../assets/Logo_Edit_4.png";
 import { LIVE_MONITOR_URL } from "../api";
 
 const categories = [
   "Home",
-  "Geopolitics",
+  "World",
   "India",
   "The Veritas Desk",
   "Politics",
+  "Business",
+  "Science",
   "Legal",
-  "Entertainment",
+  "Lifestyle",
   "Sports"
 ];
 
-export default function Layout() {
+export default function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -53,7 +54,7 @@ export default function Layout() {
 
             <Link to="/" className="flex justify-center" aria-label="Go to The Veritas homepage">
               <img
-                src={logoAsset}
+                src="/Logo_Edit_4.png"
                 className="h-16 lg:h-20 w-auto object-contain"
                 alt="The Veritas"
               />
@@ -88,7 +89,7 @@ export default function Layout() {
           <div className="md:hidden flex items-center justify-between gap-3">
             <Link to="/" className="flex min-w-0 flex-1" aria-label="Go to The Veritas homepage">
               <img
-                src={logoAsset}
+                src="/Logo_Edit_4.png"
                 className="h-10 w-auto max-w-[220px] object-contain"
                 alt="The Veritas"
               />
@@ -154,7 +155,7 @@ export default function Layout() {
         </div>
       </nav>
 
-      <Outlet />
+      {children || <Outlet />}
 
       <footer className="border-t border-neutral-800 mt-10 py-6 text-center text-sm text-neutral-400 px-4">
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">

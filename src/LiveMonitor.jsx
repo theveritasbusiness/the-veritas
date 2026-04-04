@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { fetchArticles, fetchBreaking } from "./api";
+import Seo from "./components/Seo";
 import { getArticleDisplayTime } from "./utils/time";
 
 function formatClock(date) {
@@ -22,6 +23,7 @@ const regionBlueprint = [
 ];
 
 export default function LiveMonitor() {
+  const location = useLocation();
   const [articles, setArticles] = useState([]);
   const [breaking, setBreaking] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -128,6 +130,11 @@ export default function LiveMonitor() {
 
   return (
     <div className="min-h-screen bg-black text-white px-3 sm:px-4 py-5 sm:py-8">
+      <Seo
+        title="The Veritas Desk"
+        description="Track the fastest-moving Veritas stories, breaking developments, category density, and regional signals in The Veritas Desk Wire."
+        path={location.pathname}
+      />
       <div className="max-w-7xl mx-auto">
         <section className="rounded-[28px] border border-neutral-800 bg-[radial-gradient(circle_at_top,#340208_0%,#161616_34%,#040404_78%)] overflow-hidden">
           <div className="px-5 py-7 sm:px-8 sm:py-10 xl:px-10">

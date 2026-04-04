@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } from "./api";
+import AdSlot from "./components/AdSlot";
+import Seo from "./components/Seo";
+import { AD_SLOT_HOME_INLINE } from "./lib/env";
 import { getArticleDisplayTime } from "./utils/time";
 
 export default function TheVeritasShowcase() {
@@ -36,6 +39,16 @@ export default function TheVeritasShowcase() {
   const sliderArticles = finalArticles.filter((article) => article.show_on_slider === true);
   const heroArticle = sliderArticles[0] || finalArticles[0] || null;
   const featuredArticle = finalArticles.length > 1 ? finalArticles[1] : null;
+  const shorts = [
+    {
+      href: "https://www.instagram.com/reel/DUllbZmEjM4/",
+      embed: "https://www.instagram.com/reel/DUllbZmEjM4/embed"
+    },
+    {
+      href: "https://www.instagram.com/reel/DU6IJd1DaoR/",
+      embed: "https://www.instagram.com/reel/DU6IJd1DaoR/embed"
+    }
+  ];
 
   useEffect(() => {
     async function loadData() {
@@ -73,6 +86,11 @@ export default function TheVeritasShowcase() {
 
   return (
     <div className="min-h-screen bg-black text-white antialiased font-sans overflow-x-hidden">
+      <Seo
+        title="Home"
+        description="The Veritas brings breaking news, world coverage, India reporting, politics, business, science, legal affairs, lifestyle, sports, and live editorial tracking in one sharp newsroom."
+        path="/"
+      />
       {breaking.length > 0 && (
         <div className="max-w-6xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
           <div className="bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
@@ -148,138 +166,139 @@ export default function TheVeritasShowcase() {
 
         {finalArticles.length > 0 && (
           <section className="order-2 md:order-1 md:col-span-3 min-w-0">
-          <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
-            <h3 className="font-serif text-[2rem] sm:text-2xl mb-3 border-b pb-3">Latest News</h3>
-            <ul className="space-y-3 text-sm">
-              {finalArticles.slice(1, 6).map((article) => (
-                <li
-                  key={article.id}
-                  className="flex items-start gap-3 hover:bg-neutral-800 p-2 rounded-xl transition-all"
-                >
-                  <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
-                    ◆
-                  </div>
-                  <div className="min-w-0">
-                    <Link
-                      to={`/article/${article.slug}`}
-                      className="leading-tight font-medium hover:underline block break-words"
-                    >
-                      {article.title}
-                    </Link>
-                    <div className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+            <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
+              <h3 className="font-serif text-[2rem] sm:text-2xl mb-3 border-b pb-3">Latest News</h3>
+              <ul className="space-y-3 text-sm">
+                {finalArticles.slice(1, 6).map((article) => (
+                  <li
+                    key={article.id}
+                    className="flex items-start gap-3 hover:bg-neutral-800 p-2 rounded-xl transition-all"
+                  >
+                    <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
+                      ◆
+                    </div>
+                    <div className="min-w-0">
+                      <Link
+                        to={`/article/${article.slug}`}
+                        className="leading-tight font-medium hover:underline block break-words"
+                      >
+                        {article.title}
+                      </Link>
+                      <div className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
         )}
 
         {finalArticles.length > 0 && (
           <section className="order-1 md:order-2 md:col-span-6 space-y-5 sm:space-y-6 min-w-0">
-          {featuredArticle && (
-            <article className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-[140px,1fr] md:grid-cols-3 gap-4">
-              <img
-                src={featuredArticle.hero_image || ""}
-                className="rounded-xl object-cover h-44 sm:h-full w-full"
-                alt={featuredArticle.title}
-              />
+            {featuredArticle && (
+              <article className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-[140px,1fr] md:grid-cols-3 gap-4">
+                <img
+                  src={featuredArticle.hero_image || ""}
+                  className="rounded-xl object-cover h-44 sm:h-full w-full"
+                  alt={featuredArticle.title}
+                />
 
-              <div className="md:col-span-2 min-w-0">
-                <div className="text-sm" style={{ color: "var(--veritas-red)" }}>
-                  {featuredArticle.category?.toUpperCase() || ""}
+                <div className="md:col-span-2 min-w-0">
+                  <div className="text-sm" style={{ color: "var(--veritas-red)" }}>
+                    {featuredArticle.category?.toUpperCase() || ""}
+                  </div>
+
+                  <Link
+                    to={`/article/${featuredArticle.slug}`}
+                    className="font-serif text-2xl sm:text-[2rem] font-bold mt-2 block hover:underline break-words"
+                  >
+                    {featuredArticle.title}
+                  </Link>
+
+                  <p className="text-neutral-300 mt-2 text-sm">
+                    {featuredArticle.paragraphs?.[0]?.slice(0, 120)}
+                  </p>
                 </div>
+              </article>
+            )}
 
-                <Link
-                  to={`/article/${featuredArticle.slug}`}
-                  className="font-serif text-2xl sm:text-[2rem] font-bold mt-2 block hover:underline break-words"
-                >
-                  {featuredArticle.title}
-                </Link>
+            <AdSlot
+              slot={AD_SLOT_HOME_INLINE}
+              label="Sponsored"
+              className="min-h-[160px]"
+            />
 
-                <p className="text-neutral-300 mt-2 text-sm">
-                  {featuredArticle.paragraphs?.[0]?.slice(0, 120)}
-                </p>
-              </div>
-            </article>
-          )}
+            <div>
+              <h3 className="font-serif text-xl mb-4">More Stories</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                {finalArticles.slice(2, 5).map((article) => (
+                  <div
+                    key={article.id}
+                    className="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 hover:scale-[1.01] transition-transform shadow-sm min-w-0"
+                  >
+                    <div className="p-4">
+                      <div className="text-xs font-semibold" style={{ color: "var(--veritas-red)" }}>
+                        {article.category}
+                      </div>
+                      <Link
+                        to={`/article/${article.slug}`}
+                        className="font-bold mt-2 block hover:underline break-words"
+                      >
+                        {article.title}
+                      </Link>
 
-          <div className="border border-neutral-800 rounded-2xl p-6 text-center text-neutral-400">
-            Google Ad Space
-          </div>
-
-          <div>
-            <h3 className="font-serif text-xl mb-4">More Stories</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-              {finalArticles.slice(2, 5).map((article) => (
-                <div
-                  key={article.id}
-                  className="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 hover:scale-[1.01] transition-transform shadow-sm min-w-0"
-                >
-                  <div className="p-4">
-                    <div className="text-xs font-semibold" style={{ color: "var(--veritas-red)" }}>
-                      {article.category}
-                    </div>
-                    <Link
-                      to={`/article/${article.slug}`}
-                      className="font-bold mt-2 block hover:underline break-words"
-                    >
-                      {article.title}
-                    </Link>
-
-                    <p className="text-sm text-neutral-400 mt-2">
-                      {article.paragraphs?.[0]?.slice(0, 90)}
-                    </p>
-                    <div className="mt-3">
-                      <span className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</span>
+                      <p className="text-sm text-neutral-400 mt-2">
+                        {article.paragraphs?.[0]?.slice(0, 90)}
+                      </p>
+                      <div className="mt-3">
+                        <span className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
           </section>
         )}
 
         {finalArticles.length > 0 && (
           <aside className="order-3 md:col-span-3 space-y-5 sm:space-y-6 min-w-0">
-          <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
-            <h3 className="font-serif text-xl mb-4 border-b border-neutral-700 pb-2">
-              Shorts
-            </h3>
+            <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
+              <h3 className="font-serif text-xl mb-4 border-b border-neutral-700 pb-2">
+                Shorts
+              </h3>
 
-            <div className="space-y-4">
-              <a
-                href="https://www.instagram.com/reel/DUllbZmEjM4/"
-                target="_blank"
-                rel="noreferrer"
-                className="block group"
-              >
-                <div className="relative h-44 sm:h-48 bg-neutral-800 rounded-xl overflow-hidden flex items-center justify-center">
-                  <span className="text-4xl">▶</span>
-
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-sm">
-                    Watch Reel
+              <div className="space-y-4">
+                {shorts.map((short) => (
+                  <div
+                    key={short.href}
+                    className="overflow-hidden rounded-[1.75rem] border"
+                    style={{ borderColor: "rgba(222, 2, 22, 0.35)" }}
+                  >
+                    <div
+                      className="relative bg-black"
+                      style={{ aspectRatio: "9 / 16" }}
+                    >
+                      <iframe
+                        src={short.embed}
+                        title={`Instagram reel ${short.href}`}
+                        className="absolute inset-0 h-full w-full"
+                        allowTransparency={true}
+                        allowFullScreen
+                      />
+                    </div>
+                    <a
+                      href={short.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
+                    >
+                      Watch Reel
+                    </a>
                   </div>
-                </div>
-              </a>
-
-              <a
-                href="https://www.instagram.com/reel/DU6IJd1DaoR/"
-                target="_blank"
-                rel="noreferrer"
-                className="block group"
-              >
-                <div className="relative h-44 sm:h-48 bg-neutral-800 rounded-xl overflow-hidden flex items-center justify-center">
-                  <span className="text-4xl">▶</span>
-
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-sm">
-                    Watch Reel
-                  </div>
-                </div>
-              </a>
+                ))}
+              </div>
             </div>
-          </div>
           </aside>
         )}
       </main>
@@ -328,7 +347,6 @@ export default function TheVeritasShowcase() {
           animation: tickerMove 18s linear infinite;
           white-space: nowrap;
         }
-
         @keyframes veritasSpin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }

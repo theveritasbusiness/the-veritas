@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { fetchArticleBySlug, fetchArticles } from "./api";
+import AdSlot from "./components/AdSlot";
+import Seo from "./components/Seo";
+import { AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
 import { getArticleDisplayTime } from "./utils/time";
 
 export default function ArticlePage() {
@@ -10,6 +13,10 @@ export default function ArticlePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!slug) {
+      return undefined;
+    }
+
     async function loadPage() {
       try {
         const [articleData, latestArticles] = await Promise.all([
@@ -27,6 +34,7 @@ export default function ArticlePage() {
     }
 
     loadPage();
+    return undefined;
   }, [slug]);
 
   if (error) {
@@ -39,6 +47,17 @@ export default function ArticlePage() {
 
   return (
     <div className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-6 sm:py-10 grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 overflow-x-hidden">
+      <Seo
+        title={article.title}
+        description={
+          article.subheadline ||
+          article.paragraphs?.[0]?.slice(0, 155) ||
+          `${article.title} on The Veritas.`
+        }
+        path={`/article/${article.slug}`}
+        image={article.hero_image || undefined}
+        type="article"
+      />
       <div className="md:col-span-8 min-w-0">
         <div className="text-sm uppercase tracking-wide mb-2" style={{ color: "var(--veritas-red)" }}>
           {article.category}
@@ -78,8 +97,6 @@ export default function ArticlePage() {
                 ? block.text
                 : JSON.stringify(block.text || "");
 
-            if (!text) return null;
-
             if (block.type === "subheading") {
               return (
                 <h2 key={i} className="text-2xl font-bold mt-8 mb-3 text-white">
@@ -87,6 +104,25 @@ export default function ArticlePage() {
                 </h2>
               );
             }
+
+            if (block.type === "image" && text) {
+              return (
+                <figure key={i} className="my-8 space-y-3">
+                  <img
+                    src={text}
+                    alt={block.caption || `${article.title} inline visual ${i + 1}`}
+                    className="w-full rounded-2xl object-cover shadow-lg max-h-[560px]"
+                  />
+                  {block.caption && (
+                    <figcaption className="text-sm text-neutral-400 leading-relaxed">
+                      {block.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              );
+            }
+
+            if (!text) return null;
 
             return (
               <p
@@ -150,9 +186,11 @@ export default function ArticlePage() {
           </div>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 p-6 text-center text-neutral-400 rounded-2xl">
-          Advertisement
-        </div>
+        <AdSlot
+          slot={AD_SLOT_ARTICLE_SIDEBAR}
+          label="Advertisement"
+          className="min-h-[250px]"
+        />
 
         <div className="flex flex-wrap gap-3 text-neutral-400">
           <span>Link</span>

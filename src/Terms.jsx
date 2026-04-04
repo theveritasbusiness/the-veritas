@@ -1,9 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Seo from "./components/Seo";
 
 export default function Terms() {
   return (
       <div className="max-w-4xl mx-auto px-6 py-10 text-neutral-300 leading-7">
+        <Seo
+          title="Terms and Conditions"
+          description="Read the Terms and Conditions governing the use of The Veritas website and its content."
+          path="/terms"
+        />
         <Link
           to="/"
           className="inline-flex items-center gap-2 rounded-full border border-neutral-700 px-4 py-2 text-sm text-white hover:border-[var(--veritas-red)] hover:text-[var(--veritas-red)] transition-colors"

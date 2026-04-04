@@ -2,6 +2,10 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 function hasValidEditorToken() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   const token = localStorage.getItem("editorToken");
 
   if (!token) {
@@ -25,7 +29,13 @@ function hasValidEditorToken() {
 }
 
 export default function ProtectedRoute({ children }) {
-  if (!hasValidEditorToken()) {
+  const isValid = hasValidEditorToken();
+
+  if (isValid === null) {
+    return null;
+  }
+
+  if (!isValid) {
     return <Navigate to="/editors/login" replace />;
   }
 
