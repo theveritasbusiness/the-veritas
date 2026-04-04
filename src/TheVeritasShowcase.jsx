@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "./lib/router";
 import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } from "./api";
 import AdSlot from "./components/AdSlot";
+import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
 import { AD_SLOT_HOME_INLINE } from "./lib/env";
 import { getArticleDisplayTime } from "./utils/time";
@@ -99,18 +100,7 @@ export default function TheVeritasShowcase({
         description="The Veritas brings breaking news, world coverage, India reporting, politics, business, science, legal affairs, lifestyle, sports, and live editorial tracking in one sharp newsroom."
         path="/"
       />
-      {breaking.length > 0 && (
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-xl px-3 py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <div className="font-bold text-sm shrink-0" style={{ color: "var(--veritas-red)" }}>
-              BREAKING
-            </div>
-            <div className="overflow-hidden whitespace-nowrap flex-1 text-sm sm:text-base">
-              <div className="ticker">{breaking.map((item) => item.title).join(" | ")}</div>
-            </div>
-          </div>
-        </div>
-      )}
+      <MarketTickerTape />
 
       {heroArticle && (
         <header className="max-w-6xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
