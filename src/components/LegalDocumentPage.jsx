@@ -31,12 +31,12 @@ export default function LegalDocumentPage({
   return (
     <>
       <Seo title={title} description={description} path={path} />
-      <div className="min-h-screen bg-[#f7f3eb] text-[#161616]">
+      <div className="min-h-screen bg-black text-white">
         <div className="mx-auto max-w-6xl px-6 py-10 sm:px-8 lg:px-12 lg:py-14">
           <div className="flex justify-end">
             <Link
               to="/"
-              className="inline-flex items-center rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-[#161616] transition hover:border-[var(--veritas-red)] hover:text-[var(--veritas-red)]"
+              className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:border-[var(--veritas-red)] hover:text-[var(--veritas-red)]"
             >
               Back to Homepage
             </Link>
@@ -55,24 +55,24 @@ export default function LegalDocumentPage({
               {title}
             </h1>
 
-            <div className="mt-6 space-y-5 font-serif text-xl leading-10 text-[#222222] max-sm:text-lg max-sm:leading-9">
+            <div className="mt-6 space-y-5 font-serif text-xl leading-10 text-neutral-100 max-sm:text-lg max-sm:leading-9">
               {intro.map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
             </div>
 
-            <div className="mt-12 divide-y divide-black/10 border-y border-black/10 bg-white/55 backdrop-blur-sm">
+            <div className="mt-12 divide-y divide-white/10 border-y border-white/10 bg-neutral-950/80 backdrop-blur-sm">
               {sections.map((section, index) => (
                 <details
                   key={section.title}
                   className="group"
                   open={index === 0}
                 >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-1 py-6 font-serif text-2xl leading-tight text-[#171717] marker:content-none max-sm:text-xl">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-1 py-6 font-serif text-2xl leading-tight text-white marker:content-none max-sm:text-xl">
                     <span>{section.title}</span>
                     <Chevron />
                   </summary>
-                  <div className="pb-7 pr-10 text-base leading-8 text-[#383838] max-sm:pr-0">
+                  <div className="pb-7 pr-10 text-base leading-8 text-neutral-300 max-sm:pr-0">
                     <div className="space-y-4">
                       {section.body.map((paragraph) => (
                         <p key={paragraph}>{paragraph}</p>
