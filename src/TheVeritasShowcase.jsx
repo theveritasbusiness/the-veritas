@@ -127,7 +127,7 @@ export default function TheVeritasShowcase({
                   </h1>
 
                   <p className="text-neutral-300 mt-3 max-w-2xl text-base sm:text-lg leading-relaxed">
-                    {heroArticle.paragraphs?.[0]?.slice(0, 140)}
+                    {heroArticle.subheadline || heroArticle.paragraphs?.[0]?.slice(0, 140)}
                   </p>
                 </div>
               </div>
