@@ -47,3 +47,20 @@ export function getArticleDisplayTime(article) {
 
   return "Recently";
 }
+
+export function formatPublishedDateTime(input) {
+  if (!input) return "Recently";
+
+  const publishedAt = input instanceof Date ? input : new Date(input);
+  if (Number.isNaN(publishedAt.getTime())) return "Recently";
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Calcutta"
+  }).format(publishedAt);
+}

@@ -93,13 +93,12 @@ export default function NewArticle() {
       return;
     }
 
-    const slug =
-      title
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "-") +
-      "-" +
-      Date.now();
+    const slug = title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
 
     try {
       const res = await fetch(`${API_BASE}/articles`, {

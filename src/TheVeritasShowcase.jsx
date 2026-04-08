@@ -4,7 +4,7 @@ import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } 
 import AdSlot from "./components/AdSlot";
 import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
-import { AD_SLOT_HOME_INLINE } from "./lib/env";
+import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
 import { getArticleDisplayTime } from "./utils/time";
 
 export default function TheVeritasShowcase({
@@ -106,11 +106,13 @@ export default function TheVeritasShowcase({
         <header className="max-w-6xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
           <Link to={`/article/${heroArticle.slug}`}>
             <div className="relative min-h-[430px] sm:min-h-[470px] md:h-96 rounded-2xl overflow-hidden cursor-pointer">
-              <div
-                className="absolute inset-0 bg-cover bg-center"
-                style={{
-                  backgroundImage: `url(${heroArticle.hero_image || "https://via.placeholder.com/1200x600"})`
-                }}
+              <img
+                src={heroArticle.hero_image || "https://via.placeholder.com/1200x600"}
+                alt={heroArticle.title || "Top story"}
+                className="absolute inset-0 h-full w-full object-cover"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
 
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent p-5 sm:p-6 flex items-end">
@@ -122,7 +124,7 @@ export default function TheVeritasShowcase({
                     {heroArticle.is_breaking ? "BREAKING" : "TOP STORY"}
                   </div>
 
-                  <h1 className="text-4xl sm:text-5xl md:text-5xl font-serif font-bold leading-[0.98] mt-2 break-words">
+                  <h1 className="text-[2.55rem] sm:text-[3.15rem] md:text-[3.3rem] font-serif font-bold leading-[1.01] mt-2 break-words">
                     {heroArticle.title || "Loading..."}
                   </h1>
 
@@ -178,7 +180,7 @@ export default function TheVeritasShowcase({
                     <div className="min-w-0">
                       <Link
                         to={`/article/${article.slug}`}
-                        className="leading-tight font-medium hover:underline block break-words"
+                        className="leading-[1.65] font-medium hover:underline block break-words"
                       >
                         {article.title}
                       </Link>
@@ -188,6 +190,12 @@ export default function TheVeritasShowcase({
                 ))}
               </ul>
             </div>
+
+            <AdSlot
+              slot={AD_SLOT_HOME_SIDEBAR}
+              label="Sponsored"
+              className="mt-5 min-h-[220px]"
+            />
           </section>
         )}
 
@@ -215,7 +223,7 @@ export default function TheVeritasShowcase({
                     {featuredArticle.title}
                   </Link>
 
-                  <p className="text-neutral-300 mt-2 text-sm">
+                  <p className="text-neutral-300 mt-2 text-sm leading-[1.65]">
                     {featuredArticle.paragraphs?.[0]?.slice(0, 120)}
                   </p>
                 </div>
@@ -247,7 +255,7 @@ export default function TheVeritasShowcase({
                         {article.title}
                       </Link>
 
-                      <p className="text-sm text-neutral-400 mt-2">
+                      <p className="text-sm text-neutral-400 mt-2 leading-[1.7]">
                         {article.paragraphs?.[0]?.slice(0, 90)}
                       </p>
                       <div className="mt-3">

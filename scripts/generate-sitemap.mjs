@@ -7,6 +7,10 @@ const API_BASE =
   "https://veritas-backend-dktb.onrender.com";
 const OUTPUT_PATH = new URL("../public/sitemap.xml", import.meta.url);
 
+function cleanArticleSlug(slug) {
+  return String(slug || "").trim().replace(/-\d{10,}$/, "");
+}
+
 function xmlEscape(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -53,16 +57,21 @@ const staticRoutes = [
 ];
 
 const articles = await fetchArticles();
-const articleRoutes = articles
-  .filter((article) => article?.slug)
-  .map((article) =>
-    routeEntry(
-      `/article/${article.slug}`,
-      "daily",
-      "0.7",
-      article.published_at ? new Date(article.published_at).toISOString() : undefined
-    )
-  );
+const articleRoutes = Array.from(
+  new Map(
+    articles
+      .filter((article) => article?.slug)
+      .map((article) => [
+        cleanArticleSlug(article.slug),
+        routeEntry(
+          `/article/${cleanArticleSlug(article.slug)}`,
+          "daily",
+          "0.7",
+          article.published_at ? new Date(article.published_at).toISOString() : undefined
+        )
+      ])
+  ).values()
+);
 
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',

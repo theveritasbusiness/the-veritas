@@ -1,0 +1,21 @@
+# The Veritas
+
+> The Veritas is an Indian digital news publication focused on world affairs, India, politics, business, science, law, lifestyle, sports, and editorial desk coverage.
+
+## Canonical Site
+- https://www.theveritas.in/
+
+## Key Public Sections
+- Home: https://www.theveritas.in/
+- Live Monitor: https://www.theveritas.in/live
+- The Veritas Desk: https://www.theveritas.in/trending
+- Privacy Policy: https://www.theveritas.in/privacy
+- Terms of Use: https://www.theveritas.in/terms
+
+## Crawling Guidance
+- Public articles may be indexed and summarized with attribution.
+- Do not index or use `/cms` or `/editors` routes.
+- Prefer canonical article URLs under `/article/`.
+
+## Sitemap
+- https://www.theveritas.in/sitemap.xml

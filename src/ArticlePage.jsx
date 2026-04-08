@@ -3,8 +3,8 @@ import { Link, useParams } from "./lib/router";
 import { fetchArticleBySlug, fetchArticles } from "./api";
 import AdSlot from "./components/AdSlot";
 import Seo from "./components/Seo";
-import { AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
-import { getArticleDisplayTime } from "./utils/time";
+import { AD_SLOT_ARTICLE_INLINE, AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
+import { formatPublishedDateTime, getArticleDisplayTime } from "./utils/time";
 
 export default function ArticlePage({
   initialArticle = null,
@@ -49,6 +49,65 @@ export default function ArticlePage({
     return <div className="text-white p-6">Loading...</div>;
   }
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://www.theveritas.in/"
+      },
+      article.category
+        ? {
+            "@type": "ListItem",
+            position: 2,
+            name: article.category,
+            item: `https://www.theveritas.in/?category=${encodeURIComponent(article.category)}`
+          }
+        : null,
+      {
+        "@type": "ListItem",
+        position: article.category ? 3 : 2,
+        name: article.title,
+        item: `https://www.theveritas.in/article/${article.slug}`
+      }
+    ].filter(Boolean)
+  };
+
+  const renderedBlocks = (article.content_blocks || []).filter(Boolean);
+  const paragraphIndexes = renderedBlocks.reduce((acc, block, index) => {
+    if (block.type !== "subheading" && !(block.type === "image" && !block.text)) {
+      const text =
+        typeof block.text === "string"
+          ? block.text
+          : JSON.stringify(block.text || "");
+
+      if (block.type === "paragraph" || (!block.type && text)) {
+        acc.push(index);
+      }
+    }
+    return acc;
+  }, []);
+
+  const adInsertionIndexes = new Set();
+  if (paragraphIndexes.length > 1) {
+    const firstInsertion = paragraphIndexes[0];
+    const lastParagraphIndex = paragraphIndexes[paragraphIndexes.length - 1];
+
+    if (firstInsertion !== lastParagraphIndex) {
+      adInsertionIndexes.add(firstInsertion);
+    }
+
+    for (let paragraphNumber = 3; paragraphNumber < paragraphIndexes.length; paragraphNumber += 2) {
+      const blockIndex = paragraphIndexes[paragraphNumber - 1];
+      if (blockIndex !== lastParagraphIndex) {
+        adInsertionIndexes.add(blockIndex);
+      }
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-6 sm:py-10 grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 overflow-x-hidden">
       <Seo
@@ -61,6 +120,7 @@ export default function ArticlePage({
         path={`/article/${article.slug}`}
         image={article.hero_image || undefined}
         type="article"
+        structuredData={breadcrumbSchema}
       />
       <div className="md:col-span-8 min-w-0">
         <div className="text-sm uppercase tracking-wide mb-2" style={{ color: "var(--veritas-red)" }}>
@@ -77,7 +137,7 @@ export default function ArticlePage({
 
         <div className="border-b w-16 my-4" style={{ borderColor: "var(--veritas-red)" }}></div>
         <div className="text-sm text-neutral-500 mt-3">
-          By {article.author_name?.trim() || "The Veritas Desk"} | {getArticleDisplayTime(article)}
+          By {article.author_name?.trim() || "The Veritas Desk"} | {formatPublishedDateTime(article.published_at)}
         </div>
 
         <img
@@ -95,7 +155,7 @@ export default function ArticlePage({
         <div className="border-t my-6" style={{ borderColor: "var(--veritas-red)" }}></div>
 
         <div className="space-y-5 sm:space-y-6 text-[17px] sm:text-[18px] leading-[1.9] text-white font-serif break-words">
-          {(article.content_blocks || []).map((block, i) => {
+          {renderedBlocks.map((block, i) => {
             if (!block) return null;
 
             const text =
@@ -133,16 +193,25 @@ export default function ArticlePage({
             if (!text) return null;
 
             return (
-              <p
-                key={i}
-                className={
-                  i === 0
-                    ? "first-letter:text-5xl first-letter:font-bold first-letter:mr-2 first-letter:float-left"
-                    : ""
-                }
-              >
-                {text}
-              </p>
+              <React.Fragment key={i}>
+                <p
+                  className={
+                    i === 0
+                      ? "first-letter:text-5xl first-letter:font-bold first-letter:mr-2 first-letter:float-left"
+                      : ""
+                  }
+                >
+                  {text}
+                </p>
+
+                {adInsertionIndexes.has(i) ? (
+                  <AdSlot
+                    slot={AD_SLOT_ARTICLE_INLINE}
+                    label="Advertisement"
+                    className="my-2 min-h-[180px]"
+                  />
+                ) : null}
+              </React.Fragment>
             );
           })}
         </div>

@@ -2,6 +2,27 @@ import Head from "next/head";
 import Script from "next/script";
 import "../src/index.css";
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "The Veritas",
+  url: "https://www.theveritas.in/",
+  logo: "https://www.theveritas.in/LOGO.jpeg",
+  email: "theveritasbusiness@gmail.com",
+  sameAs: ["https://www.instagram.com/theveritas.in/"]
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "The Veritas",
+  url: "https://www.theveritas.in/",
+  publisher: {
+    "@type": "Organization",
+    name: "The Veritas"
+  }
+};
+
 export default function VeritasApp({ Component, pageProps }) {
   return (
     <>
@@ -38,6 +59,26 @@ export default function VeritasApp({ Component, pageProps }) {
         <link rel="icon" href="/LOGO.jpeg?v=2" />
         <link rel="shortcut icon" href="/LOGO.jpeg?v=2" />
         <link rel="apple-touch-icon" href="/LOGO.jpeg?v=2" />
+        {process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? (
+          <meta
+            name="google-site-verification"
+            content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION}
+          />
+        ) : null}
+        {process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ? (
+          <meta
+            name="msvalidate.01"
+            content={process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION}
+          />
+        ) : null}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <link
           rel="stylesheet"
           href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"

@@ -10,11 +10,15 @@ export default function Seo({
   path = "/",
   image = DEFAULT_IMAGE,
   type = "website",
-  robots = "index,follow"
+  robots = "index,follow",
+  structuredData = []
 }) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
   const canonical = new URL(path, SITE_URL).toString();
   const resolvedImage = image || DEFAULT_IMAGE;
+  const schemas = Array.isArray(structuredData)
+    ? structuredData.filter(Boolean)
+    : [structuredData].filter(Boolean);
 
   return (
     <Head>
@@ -32,6 +36,13 @@ export default function Seo({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={resolvedImage} />
       <link rel="canonical" href={canonical} />
+      {schemas.map((schema, index) => (
+        <script
+          key={`schema-${index}`}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
     </Head>
   );
 }

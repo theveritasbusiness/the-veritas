@@ -2,6 +2,10 @@ import Layout from "../../src/components/Layout";
 import ArticlePage from "../../src/ArticlePage";
 import { API_BASE } from "../../src/lib/env";
 
+function cleanArticleSlug(slug) {
+  return String(slug || "").trim().replace(/-\d{10,}$/, "");
+}
+
 export default function ArticleRoute(props) {
   return (
     <Layout>
@@ -32,6 +36,27 @@ export async function getServerSideProps({ params }) {
       latestRes.ok ? latestRes.json() : []
     ]);
 
+    const normalizedIncomingSlug = cleanArticleSlug(slug);
+    const normalizedArticleSlug = cleanArticleSlug(initialArticle?.slug);
+
+    if (normalizedArticleSlug && normalizedArticleSlug !== slug) {
+      return {
+        redirect: {
+          destination: `/article/${normalizedArticleSlug}`,
+          permanent: true
+        }
+      };
+    }
+
+    if (normalizedIncomingSlug && normalizedIncomingSlug !== slug) {
+      return {
+        redirect: {
+          destination: `/article/${normalizedIncomingSlug}`,
+          permanent: true
+        }
+      };
+    }
+
     return {
       props: {
         initialArticle: initialArticle || null,
@@ -40,12 +65,6 @@ export async function getServerSideProps({ params }) {
       }
     };
   } catch {
-    return {
-      props: {
-        initialArticle: null,
-        initialLatest: [],
-        initialError: "Failed to load article"
-      }
-    };
+    return { notFound: true };
   }
 }
