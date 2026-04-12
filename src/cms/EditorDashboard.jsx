@@ -72,6 +72,7 @@ export default function EditorDashboard() {
               <div className="text-sm text-neutral-400">
                 {article.status}
                 {article.approved ? " | approved" : " | pending approval"}
+                {article.is_editorial ? " | editorial" : ""}
               </div>
             </div>
 

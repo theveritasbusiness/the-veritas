@@ -11,9 +11,14 @@ export default function Seo({
   image = DEFAULT_IMAGE,
   type = "website",
   robots = "index,follow",
-  structuredData = []
+  structuredData = [],
+  absoluteTitle = false
 }) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+  const fullTitle = absoluteTitle
+    ? (title || SITE_NAME)
+    : title
+      ? `${title} | ${SITE_NAME}`
+      : SITE_NAME;
   const canonical = new URL(path, SITE_URL).toString();
   const resolvedImage = image || DEFAULT_IMAGE;
   const schemas = Array.isArray(structuredData)

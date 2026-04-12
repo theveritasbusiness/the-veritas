@@ -23,4 +23,4 @@ export const AD_SLOT_ARTICLE_SIDEBAR =
   process.env.NEXT_PUBLIC_AD_SLOT_ARTICLE_SIDEBAR || "8191960213";
 
 export const LIVE_MONITOR_URL =
-  process.env.NEXT_PUBLIC_LIVE_MONITOR_URL || "/live/";
+  process.env.NEXT_PUBLIC_LIVE_MONITOR_URL || "https://live.theveritas.in/";

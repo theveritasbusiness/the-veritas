@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "./lib/router";
 import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } from "./api";
 import AdSlot from "./components/AdSlot";
@@ -6,6 +6,20 @@ import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
 import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
 import { getArticleDisplayTime } from "./utils/time";
+
+function EditorialBadge({ className = "" }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white backdrop-blur ${className}`.trim()}
+    >
+      <span
+        className="h-2 w-2 rounded-full"
+        style={{ backgroundColor: "var(--veritas-red)" }}
+      />
+      Editorial
+    </span>
+  );
+}
 
 export default function TheVeritasShowcase({
   initialArticles = [],
@@ -18,7 +32,9 @@ export default function TheVeritasShowcase({
     initialArticles.length === 0 && initialBreaking.length === 0 && !initialLoadError
   );
   const [loadError, setLoadError] = useState(initialLoadError);
+  const [heroIndex, setHeroIndex] = useState(0);
   const [searchParams] = useSearchParams();
+  const touchStartX = useRef(null);
 
   const searchQuery = searchParams.get("search") || "";
   const selectedCategory = searchParams.get("category");
@@ -44,16 +60,26 @@ export default function TheVeritasShowcase({
   });
 
   const sliderArticles = finalArticles.filter((article) => article.show_on_slider === true);
-  const heroArticle = sliderArticles[0] || finalArticles[0] || null;
-  const featuredArticle = finalArticles.length > 1 ? finalArticles[1] : null;
+  const heroSlides = useMemo(() => {
+    if (sliderArticles.length > 0) {
+      return sliderArticles;
+    }
+
+    return finalArticles[0] ? [finalArticles[0]] : [];
+  }, [finalArticles, sliderArticles]);
+  const heroArticle = heroSlides[heroIndex] || heroSlides[0] || null;
+  const secondaryArticles = finalArticles.filter((article) => article.slug !== heroArticle?.slug);
+  const featuredArticle = secondaryArticles[0] || null;
   const shorts = [
     {
+      type: "instagram",
       href: "https://www.instagram.com/reel/DUllbZmEjM4/",
       embed: "https://www.instagram.com/reel/DUllbZmEjM4/embed"
     },
     {
-      href: "https://www.instagram.com/reel/DU6IJd1DaoR/",
-      embed: "https://www.instagram.com/reel/DU6IJd1DaoR/embed"
+      type: "youtube",
+      href: "https://www.youtube.com/shorts/h9919flODY8",
+      embed: "https://www.youtube.com/embed/h9919flODY8"
     }
   ];
 
@@ -93,48 +119,151 @@ export default function TheVeritasShowcase({
     loadData();
   }, []);
 
+  useEffect(() => {
+    if (heroIndex > heroSlides.length - 1) {
+      setHeroIndex(0);
+    }
+  }, [heroIndex, heroSlides.length]);
+
+  useEffect(() => {
+    if (heroSlides.length <= 1) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setHeroIndex((currentIndex) => (currentIndex + 1) % heroSlides.length);
+    }, 6500);
+
+    return () => window.clearInterval(intervalId);
+  }, [heroSlides.length]);
+
+  function goToHeroSlide(index) {
+    if (heroSlides.length === 0) {
+      return;
+    }
+
+    const normalizedIndex = (index + heroSlides.length) % heroSlides.length;
+    setHeroIndex(normalizedIndex);
+  }
+
+  function handleHeroTouchStart(event) {
+    touchStartX.current = event.touches?.[0]?.clientX ?? null;
+  }
+
+  function handleHeroTouchEnd(event) {
+    if (touchStartX.current == null) {
+      return;
+    }
+
+    const touchEndX = event.changedTouches?.[0]?.clientX ?? touchStartX.current;
+    const deltaX = touchEndX - touchStartX.current;
+    touchStartX.current = null;
+
+    if (Math.abs(deltaX) < 45 || heroSlides.length <= 1) {
+      return;
+    }
+
+    if (deltaX < 0) {
+      goToHeroSlide(heroIndex + 1);
+      return;
+    }
+
+    goToHeroSlide(heroIndex - 1);
+  }
+
   return (
     <div className="min-h-screen bg-black text-white antialiased font-sans overflow-x-hidden">
       <Seo
-        title="Home"
-        description="The Veritas brings breaking news, world coverage, India reporting, politics, business, science, legal affairs, lifestyle, sports, and live editorial tracking in one sharp newsroom."
+        title="The Veritas – Where the truth speaks itself"
+        description="The Veritas brings latest business, analysis, market news, politics, sports, lifestyle, entertainment and trending stories to the world."
         path="/"
+        absoluteTitle
       />
       <MarketTickerTape />
 
       {heroArticle && (
         <header className="max-w-6xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
-          <Link to={`/article/${heroArticle.slug}`}>
-            <div className="relative min-h-[430px] sm:min-h-[470px] md:h-96 rounded-2xl overflow-hidden cursor-pointer">
-              <img
-                src={heroArticle.hero_image || "https://via.placeholder.com/1200x600"}
-                alt={heroArticle.title || "Top story"}
-                className="absolute inset-0 h-full w-full object-cover"
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-              />
+          <div
+            className="relative"
+            onTouchStart={handleHeroTouchStart}
+            onTouchEnd={handleHeroTouchEnd}
+          >
+            <Link to={`/article/${heroArticle.slug}`}>
+              <div className="relative min-h-[430px] sm:min-h-[470px] md:h-96 rounded-2xl overflow-hidden cursor-pointer">
+                <img
+                  src={heroArticle.hero_image || "https://via.placeholder.com/1200x600"}
+                  alt={heroArticle.title || "Top story"}
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent p-5 sm:p-6 flex items-end">
-                <div className="max-w-3xl">
-                  <div
-                    className="font-semibold text-sm sm:text-base"
-                    style={{ color: "var(--veritas-red)" }}
-                  >
-                    {heroArticle.is_breaking ? "BREAKING" : "TOP STORY"}
+                {heroArticle.is_editorial ? (
+                  <div className="absolute right-4 top-4 z-[1]">
+                    <EditorialBadge />
                   </div>
+                ) : null}
 
-                  <h1 className="text-[2.55rem] sm:text-[3.15rem] md:text-[3.3rem] font-serif font-bold leading-[1.01] mt-2 break-words">
-                    {heroArticle.title || "Loading..."}
-                  </h1>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent p-5 sm:p-6 flex items-end">
+                  <div className="max-w-3xl">
+                    <div
+                      className="font-semibold text-sm sm:text-base"
+                      style={{ color: "var(--veritas-red)" }}
+                    >
+                      {heroArticle.is_breaking ? "BREAKING" : "TOP STORY"}
+                    </div>
 
-                  <p className="text-neutral-300 mt-3 max-w-2xl text-base sm:text-lg leading-relaxed">
-                    {heroArticle.subheadline || heroArticle.paragraphs?.[0]?.slice(0, 140)}
-                  </p>
+                    <h1 className="text-[2.55rem] sm:text-[3.15rem] md:text-[3.3rem] font-serif font-bold leading-[1.01] mt-2 break-words">
+                      {heroArticle.title || "Loading..."}
+                    </h1>
+
+                    <p className="text-neutral-300 mt-3 max-w-2xl text-base sm:text-lg leading-relaxed">
+                      {heroArticle.subheadline || heroArticle.paragraphs?.[0]?.slice(0, 140)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+
+            {heroSlides.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => goToHeroSlide(heroIndex - 1)}
+                  className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/20 bg-black/55 px-3 py-2 text-white backdrop-blur transition hover:bg-black/75"
+                  aria-label="Previous hero article"
+                >
+                  ‹
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => goToHeroSlide(heroIndex + 1)}
+                  className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/20 bg-black/55 px-3 py-2 text-white backdrop-blur transition hover:bg-black/75"
+                  aria-label="Next hero article"
+                >
+                  ›
+                </button>
+
+                <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                  {heroSlides.map((article, index) => (
+                    <button
+                      key={article.id || article.slug || index}
+                      type="button"
+                      onClick={() => goToHeroSlide(index)}
+                      aria-label={`Go to hero article ${index + 1}`}
+                      className={`h-2.5 rounded-full transition-all ${
+                        index === heroIndex
+                          ? "w-8 bg-[var(--veritas-red)]"
+                          : "w-2.5 bg-white/45 hover:bg-white/70"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </header>
       )}
 
@@ -169,7 +298,7 @@ export default function TheVeritasShowcase({
             <div className="bg-neutral-900 border border-neutral-800 p-4 sm:p-5 rounded-2xl">
               <h3 className="font-serif text-[2rem] sm:text-2xl mb-3 border-b pb-3">Latest News</h3>
               <ul className="space-y-3 text-sm">
-                {finalArticles.slice(1, 6).map((article) => (
+                {secondaryArticles.slice(0, 5).map((article) => (
                   <li
                     key={article.id}
                     className="flex items-start gap-3 hover:bg-neutral-800 p-2 rounded-xl transition-all"
@@ -239,12 +368,17 @@ export default function TheVeritasShowcase({
             <div>
               <h3 className="font-serif text-xl mb-4">More Stories</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                {finalArticles.slice(2, 5).map((article) => (
+                {secondaryArticles.slice(1, 4).map((article) => (
                   <div
                     key={article.id}
                     className="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 hover:scale-[1.01] transition-transform shadow-sm min-w-0"
                   >
                     <div className="p-4">
+                      {article.is_editorial ? (
+                        <div className="mb-3">
+                          <EditorialBadge />
+                        </div>
+                      ) : null}
                       <div className="text-xs font-semibold" style={{ color: "var(--veritas-red)" }}>
                         {article.category}
                       </div>
@@ -289,10 +423,11 @@ export default function TheVeritasShowcase({
                     >
                       <iframe
                         src={short.embed}
-                        title={`Instagram reel ${short.href}`}
+                        title={`${short.type === "youtube" ? "YouTube short" : "Instagram reel"} ${short.href}`}
                         className="absolute inset-0 h-full w-full"
                         loading="lazy"
                         allowTransparency={true}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         allowFullScreen
                       />
                     </div>

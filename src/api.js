@@ -114,8 +114,8 @@ export function authHeaders() {
   };
 }
 
-export function getCloudinaryUploadUrl() {
-  return `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+export function getCloudinaryUploadUrl(resourceType = "image") {
+  return `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
 }
 
 export function loadCachedArticles() {

@@ -16,6 +16,7 @@ const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "The Veritas",
+  alternateName: "The Veritas",
   url: "https://www.theveritas.in/",
   publisher: {
     "@type": "Organization",
@@ -38,22 +39,22 @@ export default function VeritasApp({ Component, pageProps }) {
         />
         <meta
           name="description"
-          content="The Veritas covers breaking news, geopolitics, India, politics, legal affairs, entertainment, sports, and live desk tracking."
+          content="The Veritas brings latest business, analysis, market news, politics, sports, lifestyle, entertainment and trending stories to the world."
         />
         <meta property="og:site_name" content="The Veritas" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="The Veritas" />
+        <meta property="og:title" content="The Veritas – Where the truth speaks itself" />
         <meta
           property="og:description"
-          content="The Veritas covers breaking news, geopolitics, India, politics, legal affairs, entertainment, sports, and live desk tracking."
+          content="The Veritas brings latest business, analysis, market news, politics, sports, lifestyle, entertainment and trending stories to the world."
         />
         <meta property="og:url" content="https://www.theveritas.in/" />
         <meta property="og:image" content="https://www.theveritas.in/LOGO.jpeg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="The Veritas" />
+        <meta name="twitter:title" content="The Veritas – Where the truth speaks itself" />
         <meta
           name="twitter:description"
-          content="The Veritas covers breaking news, geopolitics, India, politics, legal affairs, entertainment, sports, and live desk tracking."
+          content="The Veritas brings latest business, analysis, market news, politics, sports, lifestyle, entertainment and trending stories to the world."
         />
         <meta name="twitter:image" content="https://www.theveritas.in/LOGO.jpeg" />
         <link rel="icon" href="/LOGO.jpeg?v=2" />

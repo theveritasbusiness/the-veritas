@@ -334,6 +334,7 @@ router.post("/", requireAuth, async (req, res) => {
       bibliography,
       is_breaking,
       show_on_slider,
+      is_editorial,
       content_blocks
     } = req.body;
 
@@ -346,7 +347,8 @@ router.post("/", requireAuth, async (req, res) => {
     const content = blocks.map((block) => block.text).join("\n\n");
     const contentBlocksJSON = JSON.stringify(blocks);
 
-    const columns = await ensureArticleColumn("author_name", "TEXT");
+    let columns = await ensureArticleColumn("author_name", "TEXT");
+    columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
     const insertColumns = [
       "title",
       "subheadline",
@@ -361,6 +363,7 @@ router.post("/", requireAuth, async (req, res) => {
       "content",
       "content_blocks",
       "show_on_slider",
+      "is_editorial",
       "approved",
       "status",
       "published_at"
@@ -379,6 +382,7 @@ router.post("/", requireAuth, async (req, res) => {
       content,
       contentBlocksJSON,
       show_on_slider || false,
+      is_editorial || false,
       true,
       "published",
       new Date()
@@ -432,6 +436,7 @@ router.put("/:id", requireAuth, async (req, res) => {
       bibliography,
       is_breaking,
       show_on_slider,
+      is_editorial,
       content_blocks
     } = req.body;
 
@@ -444,7 +449,8 @@ router.put("/:id", requireAuth, async (req, res) => {
     const content = blocks.map((block) => block.text).join("\n\n");
     const contentBlocksJSON = JSON.stringify(blocks);
 
-    const columns = await ensureArticleColumn("author_name", "TEXT");
+    let columns = await ensureArticleColumn("author_name", "TEXT");
+    columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
     const updateEntries = [
       ["title", title],
       ["subheadline", subheadline],
@@ -457,7 +463,8 @@ router.put("/:id", requireAuth, async (req, res) => {
       ["is_breaking", is_breaking || false],
       ["content", content],
       ["content_blocks", contentBlocksJSON],
-      ["show_on_slider", show_on_slider ?? false]
+      ["show_on_slider", show_on_slider ?? false],
+      ["is_editorial", is_editorial ?? false]
     ];
 
     if (hasColumn(columns, "author_name")) {

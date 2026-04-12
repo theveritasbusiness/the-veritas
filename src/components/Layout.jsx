@@ -306,11 +306,16 @@ export default function Layout({ children }) {
   }
 
   .live-cta {
-    min-width: 96px;
-    padding: 0.68rem 0.9rem;
-    letter-spacing: 0.14em;
-    gap: 8px;
-    font-size: 0.76rem;
+    min-width: 82px;
+    padding: 0.58rem 0.78rem;
+    letter-spacing: 0.12em;
+    gap: 7px;
+    font-size: 0.72rem;
+  }
+
+  .live-cta-dot {
+    width: 8px;
+    height: 8px;
   }
 }
       `}</style>

@@ -6,6 +6,15 @@ import Seo from "./components/Seo";
 import { AD_SLOT_ARTICLE_INLINE, AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
 import { formatPublishedDateTime, getArticleDisplayTime } from "./utils/time";
 
+function EditorialBadge() {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white backdrop-blur">
+      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: "var(--veritas-red)" }} />
+      Editorial
+    </span>
+  );
+}
+
 export default function ArticlePage({
   initialArticle = null,
   initialLatest = [],
@@ -49,6 +58,11 @@ export default function ArticlePage({
     return <div className="text-white p-6">Loading...</div>;
   }
 
+  const articleDescription =
+    article.paragraphs?.find((paragraph) => typeof paragraph === "string" && paragraph.trim())?.slice(0, 155) ||
+    article.subheadline?.trim() ||
+    `${article.title} on The Veritas.`;
+
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -76,9 +90,36 @@ export default function ArticlePage({
     ].filter(Boolean)
   };
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    description: articleDescription,
+    image: article.hero_image ? [article.hero_image] : undefined,
+    datePublished: article.published_at || undefined,
+    dateModified: article.updated_at || article.published_at || undefined,
+    articleSection: article.category || undefined,
+    mainEntityOfPage: `https://www.theveritas.in/article/${article.slug}`,
+    author: {
+      "@type": "Person",
+      name: article.author_name?.trim() || "The Veritas Desk"
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "The Veritas",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://www.theveritas.in/LOGO.jpeg"
+      }
+    }
+  };
+
   const renderedBlocks = (article.content_blocks || []).filter(Boolean);
   const paragraphIndexes = renderedBlocks.reduce((acc, block, index) => {
-    if (block.type !== "subheading" && !(block.type === "image" && !block.text)) {
+    if (
+      block.type !== "subheading" &&
+      !((block.type === "image" || block.type === "video") && !block.text)
+    ) {
       const text =
         typeof block.text === "string"
           ? block.text
@@ -112,19 +153,18 @@ export default function ArticlePage({
     <div className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-6 sm:py-10 grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 overflow-x-hidden">
       <Seo
         title={article.title}
-        description={
-          article.subheadline ||
-          article.paragraphs?.[0]?.slice(0, 155) ||
-          `${article.title} on The Veritas.`
-        }
+        description={articleDescription}
         path={`/article/${article.slug}`}
         image={article.hero_image || undefined}
         type="article"
-        structuredData={breadcrumbSchema}
+        structuredData={[breadcrumbSchema, articleSchema]}
       />
       <div className="md:col-span-8 min-w-0">
-        <div className="text-sm uppercase tracking-wide mb-2" style={{ color: "var(--veritas-red)" }}>
-          {article.category}
+        <div className="mb-2 flex items-start justify-between gap-3">
+          <div className="text-sm uppercase tracking-wide" style={{ color: "var(--veritas-red)" }}>
+            {article.category}
+          </div>
+          {article.is_editorial ? <EditorialBadge /> : null}
         </div>
 
         <h1 className="text-[2.3rem] sm:text-5xl md:text-7xl font-serif font-bold leading-[1.02] tracking-tight break-words">
@@ -187,6 +227,73 @@ export default function ArticlePage({
                     </figcaption>
                   )}
                 </figure>
+              );
+            }
+
+            if (block.type === "video" && text) {
+              return (
+                <figure key={i} className="my-8 space-y-3">
+                  <video
+                    src={text}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="w-full rounded-2xl bg-black shadow-lg max-h-[560px]"
+                  />
+                  {block.caption && (
+                    <figcaption className="text-sm text-neutral-400 leading-relaxed">
+                      {block.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              );
+            }
+
+            if (block.type === "table") {
+              const headers = Array.isArray(block.headers) ? block.headers : [];
+              const rows = Array.isArray(block.rows) ? block.rows : [];
+
+              if (headers.length === 0 && rows.length === 0) {
+                return null;
+              }
+
+              return (
+                <div key={i} className="my-8 overflow-x-auto">
+                  {block.title ? (
+                    <div className="mb-3 text-lg font-semibold text-white">{block.title}</div>
+                  ) : null}
+                  <table className="w-full min-w-[520px] border-collapse border border-white text-sm sm:text-base">
+                    {headers.length > 0 ? (
+                      <thead>
+                        <tr>
+                          {headers.map((header, headerIndex) => (
+                            <th
+                              key={headerIndex}
+                              className="border border-white px-4 py-3 text-left font-semibold text-white"
+                              style={{ backgroundColor: "var(--veritas-red)" }}
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                    ) : null}
+                    <tbody>
+                      {rows.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {row.map((cell, cellIndex) => (
+                            <td
+                              key={cellIndex}
+                              className="border border-white px-4 py-3 align-top text-white"
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               );
             }
 
