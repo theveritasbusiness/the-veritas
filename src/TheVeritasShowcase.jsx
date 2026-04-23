@@ -5,7 +5,7 @@ import AdSlot from "./components/AdSlot";
 import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
 import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
-import { getCardImageUrl, getHeroImageUrl } from "./utils/cloudinary";
+import { getCardImageUrl, getHeroImageUrl, getImageObjectPosition } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
 
 function EditorialBadge({ className = "" }) {
@@ -195,6 +195,7 @@ export default function TheVeritasShowcase({
                   src={getHeroImageUrl(heroArticle.hero_image, heroArticle.hero_focus) || "https://via.placeholder.com/1200x600"}
                   alt={heroArticle.title || "Top story"}
                   className="absolute inset-0 h-full w-full object-cover"
+                  style={{ objectPosition: getImageObjectPosition(heroArticle.hero_focus) }}
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
@@ -336,6 +337,7 @@ export default function TheVeritasShowcase({
                 <img
                   src={getCardImageUrl(featuredArticle.hero_image, featuredArticle.hero_focus) || ""}
                   className="rounded-xl object-cover h-44 sm:h-full w-full"
+                  style={{ objectPosition: getImageObjectPosition(featuredArticle.hero_focus) }}
                   alt={featuredArticle.title}
                   loading="lazy"
                   decoding="async"
@@ -379,6 +381,7 @@ export default function TheVeritasShowcase({
                         src={getCardImageUrl(article.hero_image, article.hero_focus)}
                         alt={article.title}
                         className="hidden md:block h-full w-full object-cover"
+                        style={{ objectPosition: getImageObjectPosition(article.hero_focus) }}
                         loading="lazy"
                         decoding="async"
                       />

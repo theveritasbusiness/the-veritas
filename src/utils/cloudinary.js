@@ -1,5 +1,3 @@
-const CLOUDINARY_REGEX = /\/upload\/(?:v\d+\/)?(.+)$/i;
-
 export const HERO_FOCUS_OPTIONS = [
   { value: "auto", label: "Auto" },
   { value: "north", label: "Top" },
@@ -13,73 +11,35 @@ export const HERO_FOCUS_OPTIONS = [
   { value: "south_east", label: "Bottom Right" }
 ];
 
-function isCloudinaryUrl(url) {
-  return typeof url === "string" && url.includes("/res.cloudinary.com/");
+export function getCloudinaryImageUrl(url) {
+  return url;
 }
 
-function injectTransformation(url, transformation) {
-  if (!isCloudinaryUrl(url)) {
-    return url;
-  }
+export function getImageObjectPosition(focus = "auto") {
+  const focusMap = {
+    auto: "center center",
+    center: "center center",
+    north: "center top",
+    south: "center bottom",
+    east: "right center",
+    west: "left center",
+    north_west: "left top",
+    north_east: "right top",
+    south_west: "left bottom",
+    south_east: "right bottom"
+  };
 
-  return url.replace("/upload/", `/upload/${transformation}/`);
-}
-
-function buildTransformation(parts) {
-  return parts.filter(Boolean).join(",");
-}
-
-export function getCloudinaryImageUrl(url, options = {}) {
-  if (!isCloudinaryUrl(url)) {
-    return url;
-  }
-
-  const {
-    width,
-    height,
-    crop = "fill",
-    gravity = "auto",
-    quality = "auto:good",
-    format = "auto",
-    dpr = "auto"
-  } = options;
-
-  const transformation = buildTransformation([
-    width ? `w_${width}` : "",
-    height ? `h_${height}` : "",
-    crop ? `c_${crop}` : "",
-    gravity ? `g_${gravity}` : "",
-    quality ? `q_${quality}` : "",
-    format ? `f_${format}` : "",
-    dpr ? `dpr_${dpr}` : ""
-  ]);
-
-  return injectTransformation(url, transformation);
+  return focusMap[focus] || "center center";
 }
 
 export function getHeroImageUrl(url, focus = "auto") {
-  return getCloudinaryImageUrl(url, {
-    width: 1600,
-    height: 900,
-    crop: "fill",
-    gravity: focus || "auto"
-  });
+  return getCloudinaryImageUrl(url, focus);
 }
 
 export function getCardImageUrl(url, focus = "auto") {
-  return getCloudinaryImageUrl(url, {
-    width: 720,
-    height: 720,
-    crop: "fill",
-    gravity: focus || "auto"
-  });
+  return getCloudinaryImageUrl(url, focus);
 }
 
 export function getStoryImageUrl(url) {
-  return getCloudinaryImageUrl(url, {
-    width: 1400,
-    crop: "limit",
-    gravity: "auto"
-  });
+  return getCloudinaryImageUrl(url);
 }
-

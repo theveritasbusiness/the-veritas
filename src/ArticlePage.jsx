@@ -5,7 +5,7 @@ import AdSlot from "./components/AdSlot";
 import Seo from "./components/Seo";
 import { AD_SLOT_ARTICLE_INLINE, AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
 import { getAuthorProfile } from "./content/authors";
-import { getStoryImageUrl } from "./utils/cloudinary";
+import { getImageObjectPosition, getStoryImageUrl } from "./utils/cloudinary";
 import { formatPublishedDateTime, getArticleDisplayTime } from "./utils/time";
 
 function EditorialBadge() {
@@ -202,6 +202,7 @@ export default function ArticlePage({
         <img
           src={getStoryImageUrl(article.hero_image)}
           className="my-6 sm:my-8 rounded-2xl w-full object-cover shadow-lg max-h-[520px]"
+          style={{ objectPosition: getImageObjectPosition(article.hero_focus) }}
           alt={article.hero_caption || article.title}
           loading="eager"
           decoding="async"
@@ -237,6 +238,7 @@ export default function ArticlePage({
                     src={getStoryImageUrl(text)}
                     alt={block.caption || `${article.title} inline visual ${i + 1}`}
                     className="w-full rounded-2xl object-cover shadow-lg max-h-[560px]"
+                    style={{ objectPosition: getImageObjectPosition(article.hero_focus) }}
                     loading="lazy"
                     decoding="async"
                   />

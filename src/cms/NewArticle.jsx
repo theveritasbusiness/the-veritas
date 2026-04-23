@@ -6,7 +6,7 @@ import {
   authHeaders,
   getCloudinaryUploadUrl
 } from "../api";
-import { HERO_FOCUS_OPTIONS, getCardImageUrl, getHeroImageUrl } from "../utils/cloudinary";
+import { HERO_FOCUS_OPTIONS, getCardImageUrl, getHeroImageUrl, getImageObjectPosition } from "../utils/cloudinary";
 
 export default function NewArticle() {
   const [title, setTitle] = useState("");
@@ -238,6 +238,7 @@ export default function NewArticle() {
               <img
                 src={getHeroImageUrl(heroImage, heroFocus)}
                 className="w-full aspect-[16/9] object-cover rounded"
+                style={{ objectPosition: getImageObjectPosition(heroFocus) }}
                 alt="Hero crop preview"
               />
             </div>
@@ -246,6 +247,7 @@ export default function NewArticle() {
               <img
                 src={getCardImageUrl(heroImage, heroFocus)}
                 className="w-full aspect-square object-cover rounded"
+                style={{ objectPosition: getImageObjectPosition(heroFocus) }}
                 alt="Card crop preview"
               />
             </div>

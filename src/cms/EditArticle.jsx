@@ -7,7 +7,7 @@ import {
   fetchAdminArticle,
   getCloudinaryUploadUrl
 } from "../api";
-import { HERO_FOCUS_OPTIONS, getCardImageUrl, getHeroImageUrl } from "../utils/cloudinary";
+import { HERO_FOCUS_OPTIONS, getCardImageUrl, getHeroImageUrl, getImageObjectPosition } from "../utils/cloudinary";
 
 export default function EditArticle() {
   const { id } = useParams();
@@ -270,6 +270,7 @@ export default function EditArticle() {
                 <img
                   src={getHeroImageUrl(article.hero_image, article.hero_focus || "auto")}
                   className="w-full aspect-[16/9] object-cover rounded"
+                  style={{ objectPosition: getImageObjectPosition(article.hero_focus || "auto") }}
                   alt="Hero crop preview"
                 />
               </div>
@@ -278,6 +279,7 @@ export default function EditArticle() {
                 <img
                   src={getCardImageUrl(article.hero_image, article.hero_focus || "auto")}
                   className="w-full aspect-square object-cover rounded"
+                  style={{ objectPosition: getImageObjectPosition(article.hero_focus || "auto") }}
                   alt="Card crop preview"
                 />
               </div>
