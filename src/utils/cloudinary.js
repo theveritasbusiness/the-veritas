@@ -15,6 +15,30 @@ export function getCloudinaryImageUrl(url) {
   return url;
 }
 
+export function normalizeHeroCrop(crop = {}, focus = "auto") {
+  const defaultsByFocus = {
+    auto: { x: 50, y: 50, zoom: 1 },
+    center: { x: 50, y: 50, zoom: 1 },
+    north: { x: 50, y: 20, zoom: 1 },
+    south: { x: 50, y: 80, zoom: 1 },
+    east: { x: 80, y: 50, zoom: 1 },
+    west: { x: 20, y: 50, zoom: 1 },
+    north_west: { x: 20, y: 20, zoom: 1 },
+    north_east: { x: 80, y: 20, zoom: 1 },
+    south_west: { x: 20, y: 80, zoom: 1 },
+    south_east: { x: 80, y: 80, zoom: 1 }
+  };
+
+  const base = defaultsByFocus[focus] || defaultsByFocus.auto;
+  const x = Number.isFinite(Number(crop?.x)) ? Math.min(100, Math.max(0, Number(crop.x))) : base.x;
+  const y = Number.isFinite(Number(crop?.y)) ? Math.min(100, Math.max(0, Number(crop.y))) : base.y;
+  const zoom = Number.isFinite(Number(crop?.zoom))
+    ? Math.min(2.2, Math.max(1, Number(crop.zoom)))
+    : base.zoom;
+
+  return { x, y, zoom };
+}
+
 export function getImageObjectPosition(focus = "auto") {
   const focusMap = {
     auto: "center center",
@@ -30,6 +54,14 @@ export function getImageObjectPosition(focus = "auto") {
   };
 
   return focusMap[focus] || "center center";
+}
+
+export function getImagePresentation(focus = "auto", crop = null) {
+  const normalizedCrop = normalizeHeroCrop(crop, focus);
+  return {
+    objectPosition: `${normalizedCrop.x}% ${normalizedCrop.y}%`,
+    transform: `scale(${normalizedCrop.zoom})`
+  };
 }
 
 export function getHeroImageUrl(url, focus = "auto") {

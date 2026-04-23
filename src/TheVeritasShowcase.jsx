@@ -347,7 +347,7 @@ export default function TheVeritasShowcase({
               <article className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-[140px,1fr] md:grid-cols-3 gap-4">
                 <img
                   src={getCardImageUrl(featuredArticle.hero_image, featuredArticle.hero_focus) || ""}
-                  className="rounded-xl object-cover h-44 sm:h-full w-full"
+                  className="rounded-xl object-cover h-44 sm:h-full md:h-[240px] w-full"
                   style={{ objectPosition: getImageObjectPosition(featuredArticle.hero_focus) }}
                   alt={featuredArticle.title}
                   loading="lazy"
@@ -367,7 +367,7 @@ export default function TheVeritasShowcase({
                   </Link>
 
                   <p className="text-neutral-300 mt-2 text-sm leading-[1.65]">
-                    {featuredArticle.paragraphs?.[0]?.slice(0, 120)}
+                    {featuredArticle.subheadline || featuredArticle.paragraphs?.[0]?.slice(0, 120)}
                   </p>
                 </div>
               </article>
@@ -385,20 +385,20 @@ export default function TheVeritasShowcase({
                 {secondaryArticles.slice(1, 4).map((article) => (
                   <div
                     key={article.id}
-                    className="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 hover:scale-[1.01] transition-transform shadow-sm min-w-0 md:grid md:grid-cols-[220px,1fr]"
+                    className="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 hover:scale-[1.01] transition-transform shadow-sm min-w-0 md:grid md:grid-cols-[240px,1fr] md:min-h-[240px]"
                   >
                     {article.hero_image ? (
                       <img
                         src={getCardImageUrl(article.hero_image, article.hero_focus)}
                         alt={article.title}
-                        className="hidden md:block h-full w-full object-cover"
+                        className="hidden md:block h-full min-h-[240px] w-full object-cover"
                         style={{ objectPosition: getImageObjectPosition(article.hero_focus) }}
                         loading="lazy"
                         decoding="async"
                       />
                     ) : null}
 
-                    <div className="p-4 md:p-5">
+                    <div className="p-4 md:p-5 flex flex-col justify-between min-h-[240px]">
                       {article.is_editorial ? (
                         <div className="mb-3">
                           <EditorialBadge />
@@ -409,13 +409,27 @@ export default function TheVeritasShowcase({
                       </div>
                       <Link
                         to={`/article/${article.slug}`}
-                        className="font-bold mt-2 block hover:underline break-words"
+                        className="font-bold mt-2 block hover:underline break-words text-[1.05rem] leading-[1.45]"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden"
+                        }}
                       >
                         {article.title}
                       </Link>
 
-                      <p className="text-sm text-neutral-400 mt-2 leading-[1.7]">
-                        {article.paragraphs?.[0]?.slice(0, 90)}
+                      <p
+                        className="text-sm text-neutral-400 mt-2 leading-[1.7]"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 4,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden"
+                        }}
+                      >
+                        {article.subheadline || article.paragraphs?.[0]?.slice(0, 90)}
                       </p>
                       <div className="mt-3">
                         <span className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</span>

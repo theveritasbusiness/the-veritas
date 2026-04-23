@@ -61,8 +61,8 @@ export default function ArticlePage({
   }
 
   const articleDescription =
-    article.paragraphs?.find((paragraph) => typeof paragraph === "string" && paragraph.trim())?.slice(0, 155) ||
     article.subheadline?.trim() ||
+    article.paragraphs?.find((paragraph) => typeof paragraph === "string" && paragraph.trim())?.slice(0, 155) ||
     `${article.title} on The Veritas.`;
   const articleKeywords = [
     article.category,

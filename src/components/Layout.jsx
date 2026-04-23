@@ -7,13 +7,13 @@ const categories = [
   "World",
   "India",
   "The Veritas Desk",
-  "About Us",
   "Politics",
   "Business",
   "Science",
   "Legal",
   "Lifestyle",
-  "Sports"
+  "Sports",
+  "About Us"
 ];
 
 export default function Layout({ children }) {

@@ -7,7 +7,8 @@ import {
   fetchAdminArticle,
   getCloudinaryUploadUrl
 } from "../api";
-import { HERO_FOCUS_OPTIONS, getCardImageUrl, getHeroImageUrl, getImageObjectPosition } from "../utils/cloudinary";
+import HeroImageEditor from "../components/HeroImageEditor";
+import { HERO_FOCUS_OPTIONS, normalizeHeroCrop } from "../utils/cloudinary";
 
 export default function EditArticle() {
   const { id } = useParams();
