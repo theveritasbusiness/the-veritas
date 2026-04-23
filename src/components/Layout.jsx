@@ -7,6 +7,7 @@ const categories = [
   "World",
   "India",
   "The Veritas Desk",
+  "About Us",
   "Politics",
   "Business",
   "Science",
@@ -142,6 +143,8 @@ export default function Layout({ children }) {
                       navigate("/");
                     } else if (item === "The Veritas Desk") {
                       navigate("/trending");
+                    } else if (item === "About Us") {
+                      navigate("/about");
                     } else {
                       navigate(`/?category=${item}`);
                     }

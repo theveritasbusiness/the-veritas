@@ -179,7 +179,7 @@ export default function ArticlePage({
           {article.is_editorial ? <EditorialBadge /> : null}
         </div>
 
-        <h1 className="text-[2.3rem] sm:text-5xl md:text-[3.9rem] lg:text-[4.5rem] xl:text-[5rem] font-serif font-bold leading-[1.02] tracking-tight break-words">
+        <h1 className="text-[2.3rem] sm:text-5xl md:text-[3.2rem] lg:text-[3.75rem] xl:text-[4.1rem] font-serif font-bold leading-[1.02] tracking-tight break-words">
           {article.title}
         </h1>
 

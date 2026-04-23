@@ -190,16 +190,27 @@ export default function TheVeritasShowcase({
             onTouchEnd={handleHeroTouchEnd}
           >
             <Link to={`/article/${heroArticle.slug}`}>
-              <div className="relative min-h-[430px] sm:min-h-[470px] md:h-96 rounded-2xl overflow-hidden cursor-pointer">
-                <img
-                  src={getHeroImageUrl(heroArticle.hero_image, heroArticle.hero_focus) || "https://via.placeholder.com/1200x600"}
-                  alt={heroArticle.title || "Top story"}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  style={{ objectPosition: getImageObjectPosition(heroArticle.hero_focus) }}
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
-                />
+                <div className="relative min-h-[430px] sm:min-h-[470px] md:h-96 rounded-2xl overflow-hidden cursor-pointer">
+                  <img
+                    src={getHeroImageUrl(heroArticle.hero_image, heroArticle.hero_focus) || "https://via.placeholder.com/1200x600"}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 h-full w-full object-cover scale-[1.04] blur-sm opacity-45"
+                    style={{ objectPosition: getImageObjectPosition(heroArticle.hero_focus) }}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                  />
+
+                  <img
+                    src={getHeroImageUrl(heroArticle.hero_image, heroArticle.hero_focus) || "https://via.placeholder.com/1200x600"}
+                    alt={heroArticle.title || "Top story"}
+                    className="absolute inset-0 h-full w-full object-contain"
+                    style={{ objectPosition: getImageObjectPosition(heroArticle.hero_focus) }}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                  />
 
                 {heroArticle.is_editorial ? (
                   <div className="absolute right-4 top-4 z-[1]">
@@ -216,9 +227,9 @@ export default function TheVeritasShowcase({
                       {heroArticle.is_breaking ? "BREAKING" : "TOP STORY"}
                     </div>
 
-                    <h1 className="text-[2.55rem] sm:text-[3.15rem] md:text-[3.3rem] font-serif font-bold leading-[1.01] mt-2 break-words">
-                      {heroArticle.title || "Loading..."}
-                    </h1>
+                      <h1 className="text-[2.4rem] sm:text-[2.95rem] md:text-[2.8rem] lg:text-[3.5rem] xl:text-[4rem] font-serif font-bold leading-[1.01] mt-2 break-words">
+                        {heroArticle.title || "Loading..."}
+                      </h1>
 
                     <p className="text-neutral-300 mt-3 max-w-2xl text-base sm:text-lg leading-relaxed">
                       {heroArticle.subheadline || heroArticle.paragraphs?.[0]?.slice(0, 140)}
