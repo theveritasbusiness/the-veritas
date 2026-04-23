@@ -328,6 +328,7 @@ router.post("/", requireAuth, async (req, res) => {
       category,
       hero_image,
       hero_caption,
+      hero_focus,
       author_name,
       hashtags,
       paragraphs,
@@ -348,6 +349,7 @@ router.post("/", requireAuth, async (req, res) => {
     const contentBlocksJSON = JSON.stringify(blocks);
 
     let columns = await ensureArticleColumn("author_name", "TEXT");
+    columns = await ensureArticleColumn("hero_focus", "TEXT DEFAULT 'auto'");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
     const insertColumns = [
       "title",
@@ -356,6 +358,7 @@ router.post("/", requireAuth, async (req, res) => {
       "category",
       "hero_image",
       "hero_caption",
+      "hero_focus",
       "hashtags",
       "paragraphs",
       "bibliography",
@@ -375,6 +378,7 @@ router.post("/", requireAuth, async (req, res) => {
       category,
       hero_image,
       hero_caption,
+      hero_focus || "auto",
       hashtags || [],
       safeParagraphs,
       bibliography,
@@ -430,6 +434,7 @@ router.put("/:id", requireAuth, async (req, res) => {
       category,
       hero_image,
       hero_caption,
+      hero_focus,
       author_name,
       hashtags,
       paragraphs,
@@ -450,6 +455,7 @@ router.put("/:id", requireAuth, async (req, res) => {
     const contentBlocksJSON = JSON.stringify(blocks);
 
     let columns = await ensureArticleColumn("author_name", "TEXT");
+    columns = await ensureArticleColumn("hero_focus", "TEXT DEFAULT 'auto'");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
     const updateEntries = [
       ["title", title],
@@ -457,6 +463,7 @@ router.put("/:id", requireAuth, async (req, res) => {
       ["category", category],
       ["hero_image", hero_image],
       ["hero_caption", hero_caption],
+      ["hero_focus", hero_focus || "auto"],
       ["hashtags", hashtags || []],
       ["paragraphs", safeParagraphs],
       ["bibliography", bibliography],

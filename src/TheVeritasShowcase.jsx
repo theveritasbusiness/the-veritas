@@ -5,6 +5,7 @@ import AdSlot from "./components/AdSlot";
 import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
 import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
+import { getCardImageUrl, getHeroImageUrl } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
 
 function EditorialBadge({ className = "" }) {
@@ -191,7 +192,7 @@ export default function TheVeritasShowcase({
             <Link to={`/article/${heroArticle.slug}`}>
               <div className="relative min-h-[430px] sm:min-h-[470px] md:h-96 rounded-2xl overflow-hidden cursor-pointer">
                 <img
-                  src={heroArticle.hero_image || "https://via.placeholder.com/1200x600"}
+                  src={getHeroImageUrl(heroArticle.hero_image, heroArticle.hero_focus) || "https://via.placeholder.com/1200x600"}
                   alt={heroArticle.title || "Top story"}
                   className="absolute inset-0 h-full w-full object-cover"
                   loading="eager"
@@ -333,7 +334,7 @@ export default function TheVeritasShowcase({
             {featuredArticle && (
               <article className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 grid grid-cols-1 sm:grid-cols-[140px,1fr] md:grid-cols-3 gap-4">
                 <img
-                  src={featuredArticle.hero_image || ""}
+                  src={getCardImageUrl(featuredArticle.hero_image, featuredArticle.hero_focus) || ""}
                   className="rounded-xl object-cover h-44 sm:h-full w-full"
                   alt={featuredArticle.title}
                   loading="lazy"
@@ -367,13 +368,23 @@ export default function TheVeritasShowcase({
 
             <div>
               <h3 className="font-serif text-xl mb-4">More Stories</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-4 sm:gap-6">
                 {secondaryArticles.slice(1, 4).map((article) => (
                   <div
                     key={article.id}
-                    className="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 hover:scale-[1.01] transition-transform shadow-sm min-w-0"
+                    className="rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-800 hover:scale-[1.01] transition-transform shadow-sm min-w-0 md:grid md:grid-cols-[220px,1fr]"
                   >
-                    <div className="p-4">
+                    {article.hero_image ? (
+                      <img
+                        src={getCardImageUrl(article.hero_image, article.hero_focus)}
+                        alt={article.title}
+                        className="hidden md:block h-full w-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : null}
+
+                    <div className="p-4 md:p-5">
                       {article.is_editorial ? (
                         <div className="mb-3">
                           <EditorialBadge />

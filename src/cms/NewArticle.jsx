@@ -6,6 +6,7 @@ import {
   authHeaders,
   getCloudinaryUploadUrl
 } from "../api";
+import { HERO_FOCUS_OPTIONS, getCardImageUrl, getHeroImageUrl } from "../utils/cloudinary";
 
 export default function NewArticle() {
   const [title, setTitle] = useState("");
@@ -14,6 +15,7 @@ export default function NewArticle() {
   const [heroImage, setHeroImage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [heroCaption, setHeroCaption] = useState("");
+  const [heroFocus, setHeroFocus] = useState("auto");
   const [authorName, setAuthorName] = useState("");
   const [hashtags, setHashtags] = useState("");
   const [bibliography, setBibliography] = useState("");
@@ -172,6 +174,7 @@ export default function NewArticle() {
           category,
           hero_image: heroImage,
           hero_caption: heroCaption,
+          hero_focus: heroFocus,
           author_name: authorName.trim(),
           hashtags: hashtags ? hashtags.split(",").map((item) => item.trim()).filter(Boolean) : [],
           content_blocks: nonEmptyBlocks,
@@ -209,6 +212,45 @@ export default function NewArticle() {
         {uploading && <div className="text-sm text-neutral-400">Uploading image...</div>}
 
         {heroImage && <img src={heroImage} className="w-full h-48 object-cover rounded mt-2" alt="Uploaded hero" />}
+
+        {heroImage && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm text-neutral-300">Hero image crop focus</label>
+              <select
+                value={heroFocus}
+                onChange={(e) => setHeroFocus(e.target.value)}
+                className="w-full p-2 bg-black border"
+              >
+                {HERO_FOCUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="text-xs text-neutral-400 leading-relaxed">
+              Pick the focus that should stay visible when the same image is cropped for hero,
+              cards, and side placements.
+            </div>
+            <div>
+              <div className="mb-2 text-sm text-neutral-300">Hero preview</div>
+              <img
+                src={getHeroImageUrl(heroImage, heroFocus)}
+                className="w-full aspect-[16/9] object-cover rounded"
+                alt="Hero crop preview"
+              />
+            </div>
+            <div>
+              <div className="mb-2 text-sm text-neutral-300">Card preview</div>
+              <img
+                src={getCardImageUrl(heroImage, heroFocus)}
+                className="w-full aspect-square object-cover rounded"
+                alt="Card crop preview"
+              />
+            </div>
+          </div>
+        )}
 
         <input placeholder="Hero Caption" className="w-full p-2 bg-black border" onChange={(e) => setHeroCaption(e.target.value)} />
         <input placeholder="Byline / Author Name" className="w-full p-2 bg-black border" onChange={(e) => setAuthorName(e.target.value)} />

@@ -4,6 +4,8 @@ import { fetchArticleBySlug, fetchArticles } from "./api";
 import AdSlot from "./components/AdSlot";
 import Seo from "./components/Seo";
 import { AD_SLOT_ARTICLE_INLINE, AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
+import { getAuthorProfile } from "./content/authors";
+import { getStoryImageUrl } from "./utils/cloudinary";
 import { formatPublishedDateTime, getArticleDisplayTime } from "./utils/time";
 
 function EditorialBadge() {
@@ -62,6 +64,13 @@ export default function ArticlePage({
     article.paragraphs?.find((paragraph) => typeof paragraph === "string" && paragraph.trim())?.slice(0, 155) ||
     article.subheadline?.trim() ||
     `${article.title} on The Veritas.`;
+  const articleKeywords = [
+    article.category,
+    ...(Array.isArray(article.hashtags) ? article.hashtags : [])
+  ]
+    .filter(Boolean)
+    .map((item) => String(item).trim())
+    .filter(Boolean);
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -115,6 +124,7 @@ export default function ArticlePage({
   };
 
   const renderedBlocks = (article.content_blocks || []).filter(Boolean);
+  const authorProfile = getAuthorProfile(article.author_name || "The Veritas Desk");
   const paragraphIndexes = renderedBlocks.reduce((acc, block, index) => {
     if (
       block.type !== "subheading" &&
@@ -158,6 +168,8 @@ export default function ArticlePage({
         image={article.hero_image || undefined}
         type="article"
         structuredData={[breadcrumbSchema, articleSchema]}
+        keywords={articleKeywords}
+        tags={Array.isArray(article.hashtags) ? article.hashtags : []}
       />
       <div className="md:col-span-8 min-w-0">
         <div className="mb-2 flex items-start justify-between gap-3">
@@ -167,7 +179,7 @@ export default function ArticlePage({
           {article.is_editorial ? <EditorialBadge /> : null}
         </div>
 
-        <h1 className="text-[2.3rem] sm:text-5xl md:text-7xl font-serif font-bold leading-[1.02] tracking-tight break-words">
+        <h1 className="text-[2.3rem] sm:text-5xl md:text-[3.9rem] lg:text-[4.5rem] xl:text-[5rem] font-serif font-bold leading-[1.02] tracking-tight break-words">
           {article.title}
         </h1>
 
@@ -177,11 +189,18 @@ export default function ArticlePage({
 
         <div className="border-b w-16 my-4" style={{ borderColor: "var(--veritas-red)" }}></div>
         <div className="text-sm text-neutral-500 mt-3">
-          By {article.author_name?.trim() || "The Veritas Desk"} | {formatPublishedDateTime(article.published_at)}
+          By{" "}
+          <Link
+            to={`/authors/${authorProfile.slug}`}
+            className="text-white transition hover:text-[var(--veritas-red)]"
+          >
+            {article.author_name?.trim() || "The Veritas Desk"}
+          </Link>{" "}
+          | {formatPublishedDateTime(article.published_at)}
         </div>
 
         <img
-          src={article.hero_image}
+          src={getStoryImageUrl(article.hero_image)}
           className="my-6 sm:my-8 rounded-2xl w-full object-cover shadow-lg max-h-[520px]"
           alt={article.hero_caption || article.title}
           loading="eager"
@@ -215,7 +234,7 @@ export default function ArticlePage({
               return (
                 <figure key={i} className="my-8 space-y-3">
                   <img
-                    src={text}
+                    src={getStoryImageUrl(text)}
                     alt={block.caption || `${article.title} inline visual ${i + 1}`}
                     className="w-full rounded-2xl object-cover shadow-lg max-h-[560px]"
                     loading="lazy"

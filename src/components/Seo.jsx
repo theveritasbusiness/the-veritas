@@ -12,7 +12,9 @@ export default function Seo({
   type = "website",
   robots = "index,follow",
   structuredData = [],
-  absoluteTitle = false
+  absoluteTitle = false,
+  keywords = [],
+  tags = []
 }) {
   const fullTitle = absoluteTitle
     ? (title || SITE_NAME)
@@ -21,6 +23,18 @@ export default function Seo({
       : SITE_NAME;
   const canonical = new URL(path, SITE_URL).toString();
   const resolvedImage = image || DEFAULT_IMAGE;
+  const keywordList = Array.isArray(keywords)
+    ? keywords.filter(Boolean)
+    : String(keywords || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+  const tagList = Array.isArray(tags)
+    ? tags.filter(Boolean)
+    : String(tags || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
   const schemas = Array.isArray(structuredData)
     ? structuredData.filter(Boolean)
     : [structuredData].filter(Boolean);
@@ -29,6 +43,9 @@ export default function Seo({
     <Head>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      {keywordList.length > 0 ? (
+        <meta name="keywords" content={keywordList.join(", ")} />
+      ) : null}
       <meta name="robots" content={robots} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
@@ -36,6 +53,9 @@ export default function Seo({
       <meta property="og:url" content={canonical} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:image" content={resolvedImage} />
+      {tagList.map((tag) => (
+        <meta key={`article-tag-${tag}`} property="article:tag" content={tag} />
+      ))}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />

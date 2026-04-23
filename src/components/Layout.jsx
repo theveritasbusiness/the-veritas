@@ -135,7 +135,7 @@ export default function Layout({ children }) {
               return (
                 <li
                   key={item}
-                  className="cursor-pointer transition-colors text-sm text-white/90 hover:text-[var(--veritas-red)]"
+                  className="cursor-pointer transition-colors text-sm text-white/90 hover:text-[var(--veritas-red)] font-serif"
                   style={{ color: isActive ? "var(--veritas-red)" : undefined }}
                   onClick={() => {
                     if (item === "Home") {
@@ -159,6 +159,7 @@ export default function Layout({ children }) {
 
       <footer className="border-t border-neutral-800 mt-10 py-6 text-center text-sm text-neutral-400 px-4">
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+          <Link to="/about">About Us</Link>
           <Link to="/privacy">Privacy Policy</Link>
           <Link to="/terms">Terms & Conditions</Link>
         </div>

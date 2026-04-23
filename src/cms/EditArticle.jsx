@@ -7,6 +7,7 @@ import {
   fetchAdminArticle,
   getCloudinaryUploadUrl
 } from "../api";
+import { HERO_FOCUS_OPTIONS, getCardImageUrl, getHeroImageUrl } from "../utils/cloudinary";
 
 export default function EditArticle() {
   const { id } = useParams();
@@ -173,6 +174,7 @@ export default function EditArticle() {
           category: article.category,
           hero_image: article.hero_image,
           hero_caption: article.hero_caption || "",
+          hero_focus: article.hero_focus || "auto",
           author_name: article.author_name || "",
           hashtags: article.hashtags || [],
           content_blocks: nonEmptyBlocks,
@@ -238,11 +240,49 @@ export default function EditArticle() {
         {uploading && <div className="text-sm text-neutral-400">Uploading image...</div>}
 
         {article.hero_image && (
-          <img
-            src={article.hero_image}
-            className="w-full h-40 object-cover rounded mt-2"
-            alt="Current hero"
-          />
+          <div className="space-y-4">
+            <img
+              src={article.hero_image}
+              className="w-full h-40 object-cover rounded mt-2"
+              alt="Current hero"
+            />
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm text-neutral-300">Hero image crop focus</label>
+                <select
+                  value={article.hero_focus || "auto"}
+                  onChange={(e) => setArticle({ ...article, hero_focus: e.target.value })}
+                  className="w-full p-2 bg-black border"
+                >
+                  {HERO_FOCUS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="text-xs text-neutral-400 leading-relaxed">
+                Adjust which area Cloudinary should prioritize when this image is cropped for
+                hero and card layouts.
+              </div>
+              <div>
+                <div className="mb-2 text-sm text-neutral-300">Hero preview</div>
+                <img
+                  src={getHeroImageUrl(article.hero_image, article.hero_focus || "auto")}
+                  className="w-full aspect-[16/9] object-cover rounded"
+                  alt="Hero crop preview"
+                />
+              </div>
+              <div>
+                <div className="mb-2 text-sm text-neutral-300">Card preview</div>
+                <img
+                  src={getCardImageUrl(article.hero_image, article.hero_focus || "auto")}
+                  className="w-full aspect-square object-cover rounded"
+                  alt="Card crop preview"
+                />
+              </div>
+            </div>
+          </div>
         )}
 
         <input
