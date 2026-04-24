@@ -175,11 +175,17 @@ export default function TheVeritasShowcase({
   return (
     <div className="min-h-screen bg-black text-white antialiased font-sans overflow-x-hidden">
       <Seo
-        title="The Veritas – Where the truth speaks itself"
-        description="The Veritas brings latest business, analysis, market news, politics, sports, lifestyle, entertainment and trending stories to the world."
-        path="/"
-        absoluteTitle
-      />
+  title={heroArticle 
+    ? `${heroArticle.title} – The Veritas` 
+    : "The Veritas – Where the truth speaks itself"
+  }
+  description={heroArticle 
+    ? (heroArticle.subheadline || heroArticle.paragraphs?.[0]?.slice(0, 155)) 
+    : "The Veritas brings latest business, analysis, market news, politics, sports, lifestyle, entertainment and trending stories to the world."
+  }
+  path={heroArticle ? `/article/${heroArticle.slug}` : "/"}
+  absoluteTitle={!heroArticle}
+/>
       <MarketTickerTape />
 
       {heroArticle && (

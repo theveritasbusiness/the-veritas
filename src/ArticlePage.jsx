@@ -162,15 +162,15 @@ export default function ArticlePage({
   return (
     <div className="max-w-6xl mx-auto w-full px-3 sm:px-4 py-6 sm:py-10 grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 overflow-x-hidden">
       <Seo
-        title={article.title}
-        description={articleDescription}
-        path={`/article/${article.slug}`}
-        image={article.hero_image || undefined}
-        type="article"
-        structuredData={[breadcrumbSchema, articleSchema]}
-        keywords={articleKeywords}
-        tags={Array.isArray(article.hashtags) ? article.hashtags : []}
-      />
+  title={`${article.title} | The Veritas`}
+  description={articleDescription}
+  path={`/article/${article.slug}`}
+  image={article.hero_image || undefined}
+  type="article"
+  structuredData={[breadcrumbSchema, articleSchema]}
+  keywords={articleKeywords}
+  tags={Array.isArray(article.hashtags) ? article.hashtags : []}
+/>
       <div className="md:col-span-8 min-w-0">
         <div className="mb-2 flex items-start justify-between gap-3">
           <div className="text-sm uppercase tracking-wide" style={{ color: "var(--veritas-red)" }}>

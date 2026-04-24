@@ -7,13 +7,13 @@ const HOME_DESCRIPTION =
 
 const organizationSchema = {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": "NewsMediaOrganization",
   name: "The Veritas",
   url: "https://www.theveritas.in/",
   logo: "https://www.theveritas.in/LOGO.jpeg",
   description: HOME_DESCRIPTION,
   email: "theveritasbusiness@gmail.com",
-  sameAs: ["https://www.instagram.com/theveritas.in/"]
+  sameAs: ["https://www.instagram.com/thedailyveritas/"]
 };
 
 const websiteSchema = {
@@ -26,8 +26,13 @@ const websiteSchema = {
   publisher: {
     "@type": "Organization",
     name: "The Veritas"
+  },
+  "potentialAction": {
+  "@type": "SearchAction",
+  "target": "https://www.theveritas.in/?search={search_term_string}",
+  "query-input": "required name=search_term_string"
+}
   }
-};
 
 export default function VeritasApp({ Component, pageProps }) {
   return (
@@ -36,18 +41,12 @@ export default function VeritasApp({ Component, pageProps }) {
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="google-adsense-account" content="ca-pub-9106312967186703" />
-        <meta name="description" content={HOME_DESCRIPTION} />
         <meta name="application-name" content="The Veritas" />
         <meta itemProp="name" content="The Veritas" />
         <meta property="og:site_name" content="The Veritas" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="The Veritas – Where the truth speaks itself" />
-        <meta property="og:description" content={HOME_DESCRIPTION} />
-        <meta property="og:url" content="https://www.theveritas.in/" />
         <meta property="og:image" content="https://www.theveritas.in/LOGO.jpeg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="The Veritas – Where the truth speaks itself" />
-        <meta name="twitter:description" content={HOME_DESCRIPTION} />
         <meta name="twitter:image" content="https://www.theveritas.in/LOGO.jpeg" />
         <link rel="icon" href="/LOGO.jpeg?v=2" />
         <link rel="shortcut icon" href="/LOGO.jpeg?v=2" />
