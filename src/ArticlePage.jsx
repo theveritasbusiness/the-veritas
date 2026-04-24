@@ -7,6 +7,7 @@ import { AD_SLOT_ARTICLE_INLINE, AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
 import { getAuthorProfile } from "./content/authors";
 import { getImageObjectPosition, getStoryImageUrl } from "./utils/cloudinary";
 import { formatPublishedDateTime, getArticleDisplayTime } from "./utils/time";
+import Script from "next/script";
 
 function EditorialBadge() {
   return (
@@ -171,6 +172,24 @@ export default function ArticlePage({
   keywords={articleKeywords}
   tags={Array.isArray(article.hashtags) ? article.hashtags : []}
 />
+<Script
+  async
+  src="https://news.google.com/swg/js/v1/swg-basic.js"
+  strategy="afterInteractive"
+/>
+
+<Script id="swg-init" strategy="afterInteractive">
+  {`
+    (self.SWG_BASIC = self.SWG_BASIC || []).push(basicSubscriptions => {
+      basicSubscriptions.init({
+        type: "NewsArticle",
+        isPartOfType: ["Product"],
+        isPartOfProductId: "CAow96zGDA:openaccess",
+        clientOptions: { theme: "light", lang: "en" },
+      });
+    });
+  `}
+</Script>
       <div className="md:col-span-8 min-w-0">
         <div className="mb-2 flex items-start justify-between gap-3">
           <div className="text-sm uppercase tracking-wide" style={{ color: "var(--veritas-red)" }}>
