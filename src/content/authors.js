@@ -34,7 +34,7 @@ const KNOWN_AUTHORS = {
     role: "News Presenter and Editor",
     linkedin: "https://www.linkedin.com/in/nitanshu-jain-9392853b5/",
     bio: "Nitanshu Jain presents and shapes The Veritas reporting with a focus on clarity, delivery, and audience-facing journalism across fast-moving stories.",
-    image: null
+    image: "/Nitanshu.png"
   },
   [slugifyAuthor("The Veritas Bureau")]: {
     name: "The Veritas Bureau",
