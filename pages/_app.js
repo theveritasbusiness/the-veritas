@@ -3,7 +3,7 @@ import Script from "next/script";
 import "../src/index.css";
 
 const HOME_DESCRIPTION =
-  "The Veritas is a fearless voice for truth and justice. In an age of misinformation, we practice unbiased, fact-checked, and responsible journalism. We uncover hidden realities, amplify marginalized voices, and hold power to account going beyond headlines to report stories that truly impact society. The Veritas is not just a media house; it is a movement where truth speaks and justice prevails. Industry";
+  "The Veritas is a fearless voice for truth and justice. In an age of misinformation, we practice unbiased, fact-checked, and responsible journalism. We uncover hidden realities, amplify marginalized voices, and hold power to account going beyond headlines to report stories that truly impact society. The Veritas is not just a media house; it is a movement where truth speaks and justice prevails.";
 
 const organizationSchema = {
   "@context": "https://schema.org",
@@ -28,13 +28,16 @@ const websiteSchema = {
     name: "The Veritas"
   },
   "potentialAction": {
-  "@type": "SearchAction",
-  "target": "https://www.theveritas.in/?search={search_term_string}",
-  "query-input": "required name=search_term_string"
-}
+    "@type": "SearchAction",
+    "target": "https://www.theveritas.in/?search={search_term_string}",
+    "query-input": "required name=search_term_string"
   }
+};
 
 export default function VeritasApp({ Component, pageProps }) {
+  // Pull canonical from pageProps if it exists (passed from Seo component)
+  const canonical = pageProps?.canonical || null;
+
   return (
     <>
       <Head>
@@ -48,21 +51,28 @@ export default function VeritasApp({ Component, pageProps }) {
         <meta property="og:image" content="https://www.theveritas.in/LOGO.jpeg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="https://www.theveritas.in/LOGO.jpeg" />
+        <meta name="twitter:site" content="@thedailyveritas" />
+        
+        {/* FIXED: Added defensive check and fallback for the home page */}
+        <link rel="canonical" href={canonical || "https://www.theveritas.in/"} />
+        
         <link rel="icon" href="/LOGO.jpeg?v=2" />
         <link rel="shortcut icon" href="/LOGO.jpeg?v=2" />
         <link rel="apple-touch-icon" href="/LOGO.jpeg?v=2" />
-        {process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? (
+        
+        {process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && (
           <meta
             name="google-site-verification"
             content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION}
           />
-        ) : null}
-        {process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ? (
+        )}
+        {process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION && (
           <meta
             name="msvalidate.01"
             content={process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION}
           />
-        ) : null}
+        )}
+        
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
@@ -79,14 +89,13 @@ export default function VeritasApp({ Component, pageProps }) {
         />
       </Head>
 
+      {/* Scripts are fine using afterInteractive */}
       <Script
-        async
         strategy="afterInteractive"
         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9106312967186703"
         crossOrigin="anonymous"
       />
       <Script
-        async
         strategy="afterInteractive"
         src="https://www.googletagmanager.com/gtag/js?id=G-CGB4JKXZ8J"
       />

@@ -22,6 +22,28 @@ export function getAuthorInitials(name = "") {
 }
 
 const KNOWN_AUTHORS = {
+  [slugifyAuthor("Kavye Singhal")]: {
+    name: "Kavye Singhal",
+    role: "Founder and Chief Executive Officer",
+    linkedin: "https://www.linkedin.com/in/kavye-singhal-40237a403/",
+    bio: "Kavye Singhal is the Founder and Chief Executive Officer of The Veritas, leading the organization with a vision for impactful journalism.",
+    image: null
+  },
+  [slugifyAuthor("Soumyadeep Mondal")]: {
+    name: "Soumyadeep Mondal",
+    role: "Co-founder and Chief Administrative Officer",
+    linkedin: "https://www.linkedin.com/in/soumyadeep-mondal-01a21b3a5/",
+    bio: "Soumyadeep Mondal is the Co-founder and Chief Administrative Officer of The Veritas, managing the organization's operations and administrative functions.",
+    image: "/Soumyadeep.jpeg"
+  },
+  [slugifyAuthor("Sidharth Sharma")]: {
+    name: "Sidharth Sharma",
+    role: "Chief Technology Officer",
+    linkedin: "https://www.linkedin.com/in/sidharth-sharma-9392853b5/",
+    bio: "Sidharth Sharma is the Chief Technology Officer of The Veritas, driving the organization's digital innovation and technical strategy.",
+    image: null
+
+  },
   [slugifyAuthor("Tavisha Kaushik")]: {
     name: "Tavisha Kaushik",
     role: "Editor-in-Chief",

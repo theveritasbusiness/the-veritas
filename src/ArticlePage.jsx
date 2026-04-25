@@ -27,8 +27,12 @@ export default function ArticlePage({
   const [article, setArticle] = useState(initialArticle);
   const [latest, setLatest] = useState(initialLatest);
   const [error, setError] = useState(initialError);
+  
+  // FIXED: Added hydration guard to prevent Error #418, #423, #425
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     if (!slug) return;
 
     async function loadPage() {
@@ -116,6 +120,7 @@ export default function ArticlePage({
         title={`${article.title} | The Veritas`}
         description={articleDescription}
         path={`/article/${article.slug}`}
+        canonical={`https://www.theveritas.in/article/${article.slug}`}
         image={article.hero_image || undefined}
         type="article"
         structuredData={[breadcrumbSchema, articleSchema]}
@@ -123,28 +128,33 @@ export default function ArticlePage({
         tags={Array.isArray(article.hashtags) ? article.hashtags : []}
       />
 
-      <Script 
-        src="https://news.google.com/swg/js/v1/swg-basic.js" 
-        strategy="afterInteractive" 
-      />
-      <Script id="swg-init" strategy="afterInteractive">
-        {`
-          window.addEventListener('load', function () {
-            if (!window.SWG_BASIC) return;
+      {/* FIXED: Wrapped scripts in isMounted check to clear console errors and enable RRM */}
+      {isMounted && (
+        <>
+          <Script 
+            src="https://news.google.com/swg/js/v1/swg-basic.js" 
+            strategy="afterInteractive" 
+          />
+          <Script id="swg-init" strategy="afterInteractive">
+            {`
+              window.addEventListener('load', function () {
+                if (!window.SWG_BASIC) return;
 
-            window.SWG_BASIC.push(function (basicSubscriptions) {
-              if (!basicSubscriptions) return;
+                window.SWG_BASIC.push(function (basicSubscriptions) {
+                  if (!basicSubscriptions) return;
 
-              basicSubscriptions.init({
-                type: "NewsArticle",
-                isPartOfType: ["Product"],
-                isPartOfProductId: "CAow96zGDA:openaccess",
-                clientOptions: { theme: "light", lang: "en" },
+                  basicSubscriptions.init({
+                    type: "NewsArticle",
+                    isPartOfType: ["Product"],
+                    isPartOfProductId: "CAow96zGDA:openaccess",
+                    clientOptions: { theme: "light", lang: "en" },
+                  });
+                });
               });
-            });
-          });
-        `}
-      </Script>
+            `}
+          </Script>
+        </>
+      )}
 
       <div className="md:col-span-8 min-w-0">
         <div className="mb-2 flex items-start justify-between gap-3">
