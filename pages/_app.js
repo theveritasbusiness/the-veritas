@@ -35,8 +35,8 @@ const websiteSchema = {
 };
 
 export default function VeritasApp({ Component, pageProps }) {
-  // Pull canonical from pageProps if it exists (passed from Seo component)
-  const canonical = pageProps?.canonical || null;
+  // Define canonical safely from pageProps or default to home
+  const canonicalUrl = pageProps?.canonical || "https://www.theveritas.in/";
 
   return (
     <>

@@ -27,8 +27,6 @@ export default function ArticlePage({
   const [article, setArticle] = useState(initialArticle);
   const [latest, setLatest] = useState(initialLatest);
   const [error, setError] = useState(initialError);
-  
-  // FIXED: Added hydration guard to prevent Error #418, #423, #425
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -128,32 +126,24 @@ export default function ArticlePage({
         tags={Array.isArray(article.hashtags) ? article.hashtags : []}
       />
 
-      {/* FIXED: Wrapped scripts in isMounted check to clear console errors and enable RRM */}
+      {/* FIXED SCRIPT BLOCK: Consolidated into one tag with lazyOnload to stop hydration crashes */}
       {isMounted && (
-        <>
-          <Script 
-            src="https://news.google.com/swg/js/v1/swg-basic.js" 
-            strategy="afterInteractive" 
-          />
-          <Script id="swg-init" strategy="afterInteractive">
-            {`
-              window.addEventListener('load', function () {
-                if (!window.SWG_BASIC) return;
-
-                window.SWG_BASIC.push(function (basicSubscriptions) {
-                  if (!basicSubscriptions) return;
-
-                  basicSubscriptions.init({
-                    type: "NewsArticle",
-                    isPartOfType: ["Product"],
-                    isPartOfProductId: "CAow96zGDA:openaccess",
-                    clientOptions: { theme: "light", lang: "en" },
-                  });
-                });
+        <Script 
+          src="https://news.google.com/swg/js/v1/swg-basic.js" 
+          strategy="lazyOnload" 
+          onLoad={() => {
+            if (!window.SWG_BASIC) return;
+            window.SWG_BASIC.push(function (basicSubscriptions) {
+              if (!basicSubscriptions) return;
+              basicSubscriptions.init({
+                type: "NewsArticle",
+                isPartOfType: ["Product"],
+                isPartOfProductId: "CAow96zGDA:openaccess",
+                clientOptions: { theme: "light", lang: "en" },
               });
-            `}
-          </Script>
-        </>
+            });
+          }}
+        />
       )}
 
       <div className="md:col-span-8 min-w-0">

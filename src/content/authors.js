@@ -109,6 +109,9 @@ export function collectAuthorProfiles(articles = []) {
   }
 
   const preferredOrder = [
+    slugifyAuthor("Kavye Singhal"),
+    slugifyAuthor("Soumyadeep Mondal"),
+    slugifyAuthor("Sidharth Sharma"),
     slugifyAuthor("Tavisha Kaushik"),
     slugifyAuthor("Nitanshu Jain"),
     slugifyAuthor("The Veritas Bureau"),
