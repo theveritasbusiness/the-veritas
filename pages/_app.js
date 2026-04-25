@@ -54,7 +54,7 @@ export default function VeritasApp({ Component, pageProps }) {
         <meta name="twitter:site" content="@thedailyveritas" />
         
         {/* FIXED: Added defensive check and fallback for the home page */}
-        <link rel="canonical" href={canonical || "https://www.theveritas.in/"} />
+        <link rel="canonical" href={canonicalUrl} />
         
         <link rel="icon" href="/LOGO.jpeg?v=2" />
         <link rel="shortcut icon" href="/LOGO.jpeg?v=2" />
