@@ -128,11 +128,20 @@ function isPublishedArticle(article, columns) {
 
 function normalizeArticle(article, columns) {
   const cleanSlug = cleanArticleSlug(article.slug);
+  let heroCrop = article.hero_crop;
+  if (typeof heroCrop === "string") {
+    try {
+      heroCrop = JSON.parse(heroCrop);
+    } catch {
+      heroCrop = null;
+    }
+  }
   return {
     ...article,
     slug: cleanSlug || article.slug,
     raw_slug: article.slug,
     author_name: article.author_name || "The Veritas Desk",
+    hero_crop: heroCrop,
     content_blocks: parseContentBlocks(article),
     published_ago: hasColumn(columns, "published_at")
       ? computePublishedAgo(article.published_at)
@@ -235,7 +244,18 @@ router.get("/breaking", async (req, res) => {
 router.get("/admin", requireAuth, async (req, res) => {
   try {
     const columns = await getArticleColumns();
-    const result = await pool.query("SELECT * FROM articles");
+    const selectColumns = [
+      "id",
+      "title",
+      hasColumn(columns, "slug") ? "slug" : null,
+      hasColumn(columns, "status") ? "status" : null,
+      hasColumn(columns, "approved") ? "approved" : null,
+      hasColumn(columns, "is_editorial") ? "is_editorial" : null,
+      hasColumn(columns, "published_at") ? "published_at" : null,
+      hasColumn(columns, "priority") ? "priority" : null
+    ].filter(Boolean);
+
+    const result = await pool.query(`SELECT ${selectColumns.join(", ")} FROM articles`);
     res.json(result.rows.sort((a, b) => compareArticles(a, b, columns)).map((article) => normalizeArticle(article, columns)));
   } catch (err) {
     let columns;
@@ -329,6 +349,7 @@ router.post("/", requireAuth, async (req, res) => {
       hero_image,
       hero_caption,
       hero_focus,
+      hero_crop,
       author_name,
       hashtags,
       paragraphs,
@@ -350,6 +371,7 @@ router.post("/", requireAuth, async (req, res) => {
 
     let columns = await ensureArticleColumn("author_name", "TEXT");
     columns = await ensureArticleColumn("hero_focus", "TEXT DEFAULT 'auto'");
+    columns = await ensureArticleColumn("hero_crop", "TEXT");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
     const insertColumns = [
       "title",
@@ -359,6 +381,7 @@ router.post("/", requireAuth, async (req, res) => {
       "hero_image",
       "hero_caption",
       "hero_focus",
+      "hero_crop",
       "hashtags",
       "paragraphs",
       "bibliography",
@@ -379,6 +402,7 @@ router.post("/", requireAuth, async (req, res) => {
       hero_image,
       hero_caption,
       hero_focus || "auto",
+      hero_crop ? JSON.stringify(hero_crop) : null,
       hashtags || [],
       safeParagraphs,
       bibliography,
@@ -435,6 +459,7 @@ router.put("/:id", requireAuth, async (req, res) => {
       hero_image,
       hero_caption,
       hero_focus,
+      hero_crop,
       author_name,
       hashtags,
       paragraphs,
@@ -456,6 +481,7 @@ router.put("/:id", requireAuth, async (req, res) => {
 
     let columns = await ensureArticleColumn("author_name", "TEXT");
     columns = await ensureArticleColumn("hero_focus", "TEXT DEFAULT 'auto'");
+    columns = await ensureArticleColumn("hero_crop", "TEXT");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
     const updateEntries = [
       ["title", title],
@@ -464,6 +490,7 @@ router.put("/:id", requireAuth, async (req, res) => {
       ["hero_image", hero_image],
       ["hero_caption", hero_caption],
       ["hero_focus", hero_focus || "auto"],
+      ["hero_crop", hero_crop ? JSON.stringify(hero_crop) : null],
       ["hashtags", hashtags || []],
       ["paragraphs", safeParagraphs],
       ["bibliography", bibliography],

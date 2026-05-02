@@ -10,6 +10,80 @@ import {
 import HeroImageEditor from "../components/HeroImageEditor";
 import { HERO_FOCUS_OPTIONS, normalizeHeroCrop } from "../utils/cloudinary";
 
+function normalizeEditorBlock(block) {
+  if (typeof block === "string") {
+    return { type: "paragraph", text: block };
+  }
+
+  if (!block || typeof block !== "object") {
+    return { type: "paragraph", text: "" };
+  }
+
+  if (block.type === "image" || block.type === "video") {
+    return {
+      type: block.type,
+      text: typeof block.text === "string" ? block.text : "",
+      caption: typeof block.caption === "string" ? block.caption : ""
+    };
+  }
+
+  if (block.type === "table") {
+    const headers = Array.isArray(block.headers) && block.headers.length > 0
+      ? block.headers.map((header) => (typeof header === "string" ? header : ""))
+      : ["Column 1", "Column 2", "Column 3"];
+
+    const rows = Array.isArray(block.rows) && block.rows.length > 0
+      ? block.rows.map((row) =>
+          Array.isArray(row)
+            ? headers.map((_, index) => (typeof row[index] === "string" ? row[index] : ""))
+            : headers.map(() => "")
+        )
+      : [headers.map(() => ""), headers.map(() => "")];
+
+    return {
+      type: "table",
+      title: typeof block.title === "string" ? block.title : "",
+      headers,
+      rows
+    };
+  }
+
+  if (block.type === "subheading") {
+    return {
+      type: "subheading",
+      text: typeof block.text === "string" ? block.text : ""
+    };
+  }
+
+  return {
+    type: "paragraph",
+    text: typeof block.text === "string" ? block.text : ""
+  };
+}
+
+function normalizeEditorArticle(article) {
+  return {
+    ...article,
+    title: typeof article?.title === "string" ? article.title : "",
+    subheadline: typeof article?.subheadline === "string" ? article.subheadline : "",
+    category: typeof article?.category === "string" ? article.category : "",
+    hero_image: typeof article?.hero_image === "string" ? article.hero_image : "",
+    hero_caption: typeof article?.hero_caption === "string" ? article.hero_caption : "",
+    hero_focus: typeof article?.hero_focus === "string" ? article.hero_focus : "auto",
+    hero_crop: normalizeHeroCrop(article?.hero_crop, article?.hero_focus || "auto"),
+    author_name: typeof article?.author_name === "string" ? article.author_name : "",
+    hashtags: Array.isArray(article?.hashtags)
+      ? article.hashtags.join(", ")
+      : typeof article?.hashtags === "string"
+        ? article.hashtags
+        : "",
+    bibliography: typeof article?.bibliography === "string" ? article.bibliography : "",
+    is_breaking: Boolean(article?.is_breaking),
+    show_on_slider: Boolean(article?.show_on_slider),
+    is_editorial: Boolean(article?.is_editorial)
+  };
+}
+
 export default function EditArticle() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -39,8 +113,12 @@ export default function EditArticle() {
     async function loadArticle() {
       try {
         const found = await fetchAdminArticle(id);
-        setArticle(found);
-        setContentBlocks(found.content_blocks || []);
+        setArticle(normalizeEditorArticle(found));
+        setContentBlocks(
+          Array.isArray(found?.content_blocks) && found.content_blocks.length > 0
+            ? found.content_blocks.map(normalizeEditorBlock)
+            : [{ type: "paragraph", text: "" }]
+        );
         setError("");
       } catch (err) {
         setError(err.message);
@@ -51,53 +129,23 @@ export default function EditArticle() {
     return undefined;
   }, [id]);
 
-  async function uploadImage(file) {
-    if (!file) return;
+  async function uploadAsset(file, resourceType = "image") {
+    if (!file) return null;
 
     setUploading(true);
-
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
     try {
-      const res = await fetch(getCloudinaryUploadUrl(), {
+      const res = await fetch(getCloudinaryUploadUrl(resourceType), {
         method: "POST",
         body: formData
       });
       const data = await res.json();
 
       if (!res.ok || !data.secure_url) {
-        throw new Error(data.error?.message || "Image upload failed");
-      }
-
-      return data.secure_url;
-    } catch (err) {
-      alert(err.message);
-      return null;
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  async function uploadVideo(file) {
-    if (!file) return;
-
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-    try {
-      const res = await fetch(getCloudinaryUploadUrl("video"), {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-
-      if (!res.ok || !data.secure_url) {
-        throw new Error(data.error?.message || "Video upload failed");
+        throw new Error(data.error?.message || `${resourceType} upload failed`);
       }
 
       return data.secure_url;
@@ -110,8 +158,7 @@ export default function EditArticle() {
   }
 
   async function handleImageUpload(file) {
-    const imageUrl = await uploadImage(file);
-
+    const imageUrl = await uploadAsset(file, "image");
     if (imageUrl) {
       setArticle((prev) => ({
         ...prev,
@@ -121,24 +168,16 @@ export default function EditArticle() {
   }
 
   async function handleInlineImageUpload(file) {
-    const imageUrl = await uploadImage(file);
-
+    const imageUrl = await uploadAsset(file, "image");
     if (imageUrl) {
-      setContentBlocks((prev) => [
-        ...prev,
-        { type: "image", text: imageUrl, caption: "" }
-      ]);
+      setContentBlocks((prev) => [...prev, { type: "image", text: imageUrl, caption: "" }]);
     }
   }
 
   async function handleInlineVideoUpload(file) {
-    const videoUrl = await uploadVideo(file);
-
+    const videoUrl = await uploadAsset(file, "video");
     if (videoUrl) {
-      setContentBlocks((prev) => [
-        ...prev,
-        { type: "video", text: videoUrl, caption: "" }
-      ]);
+      setContentBlocks((prev) => [...prev, { type: "video", text: videoUrl, caption: "" }]);
     }
   }
 
@@ -149,20 +188,21 @@ export default function EditArticle() {
     }
 
     const nonEmptyBlocks = contentBlocks.filter((block) => {
-        if (block.type === "image" || block.type === "video") {
-          return block.text?.trim();
-        }
-
-        if (block.type === "table") {
-          return (
-            (block.title || "").trim() ||
-            block.headers?.some((header) => header?.trim()) ||
-            block.rows?.some((row) => row?.some((cell) => cell?.trim()))
-          );
-        }
-
+      if (block.type === "image" || block.type === "video") {
         return block.text?.trim();
-      });
+      }
+
+      if (block.type === "table") {
+        return (
+          (block.title || "").trim() ||
+          block.headers?.some((header) => header?.trim()) ||
+          block.rows?.some((row) => row?.some((cell) => cell?.trim()))
+        );
+      }
+
+      return block.text?.trim();
+    });
+
     const paragraphBlocks = nonEmptyBlocks.filter((block) => block.type === "paragraph");
 
     try {
@@ -176,8 +216,11 @@ export default function EditArticle() {
           hero_image: article.hero_image,
           hero_caption: article.hero_caption || "",
           hero_focus: article.hero_focus || "auto",
+          hero_crop: article.hero_crop || null,
           author_name: article.author_name || "",
-          hashtags: article.hashtags || [],
+          hashtags: article.hashtags
+            ? article.hashtags.split(",").map((item) => item.trim()).filter(Boolean)
+            : [],
           content_blocks: nonEmptyBlocks,
           paragraphs: paragraphBlocks.map((block) => block.text),
           bibliography: article.bibliography,
@@ -234,11 +277,11 @@ export default function EditArticle() {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => handleImageUpload(e.target.files[0])}
+          onChange={(e) => handleImageUpload(e.target.files?.[0])}
           className="w-full p-2 bg-black border"
         />
 
-        {uploading && <div className="text-sm text-neutral-400">Uploading image...</div>}
+        {uploading && <div className="text-sm text-neutral-400">Uploading asset...</div>}
 
         {article.hero_image && (
           <div className="space-y-4">
@@ -247,44 +290,26 @@ export default function EditArticle() {
               className="w-full h-40 object-cover rounded mt-2"
               alt="Current hero"
             />
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm text-neutral-300">Hero image crop focus</label>
-                <select
-                  value={article.hero_focus || "auto"}
-                  onChange={(e) => setArticle({ ...article, hero_focus: e.target.value })}
-                  className="w-full p-2 bg-black border"
-                >
-                  {HERO_FOCUS_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="text-xs text-neutral-400 leading-relaxed">
-                Adjust which area Cloudinary should prioritize when this image is cropped for
-                hero and card layouts.
-              </div>
-              <div>
-                <div className="mb-2 text-sm text-neutral-300">Hero preview</div>
-                <img
-                  src={getHeroImageUrl(article.hero_image, article.hero_focus || "auto")}
-                  className="w-full aspect-[16/9] object-cover rounded"
-                  style={{ objectPosition: getImageObjectPosition(article.hero_focus || "auto") }}
-                  alt="Hero crop preview"
-                />
-              </div>
-              <div>
-                <div className="mb-2 text-sm text-neutral-300">Card preview</div>
-                <img
-                  src={getCardImageUrl(article.hero_image, article.hero_focus || "auto")}
-                  className="w-full aspect-square object-cover rounded"
-                  style={{ objectPosition: getImageObjectPosition(article.hero_focus || "auto") }}
-                  alt="Card crop preview"
-                />
-              </div>
+            <div>
+              <label className="mb-2 block text-sm text-neutral-300">Default image focus</label>
+              <select
+                value={article.hero_focus || "auto"}
+                onChange={(e) => setArticle({ ...article, hero_focus: e.target.value })}
+                className="w-full p-2 bg-black border"
+              >
+                {HERO_FOCUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
+            <HeroImageEditor
+              imageUrl={article.hero_image}
+              value={article.hero_crop || normalizeHeroCrop({}, article.hero_focus || "auto")}
+              onChange={(nextCrop) => setArticle({ ...article, hero_crop: nextCrop })}
+              focus={article.hero_focus || "auto"}
+            />
           </div>
         )}
 
@@ -300,6 +325,13 @@ export default function EditArticle() {
           onChange={(e) => setArticle({ ...article, author_name: e.target.value })}
           className="w-full p-2 bg-black border"
           placeholder="Byline / Author Name"
+        />
+
+        <input
+          value={article.hashtags || ""}
+          onChange={(e) => setArticle({ ...article, hashtags: e.target.value })}
+          className="w-full p-2 bg-black border"
+          placeholder="Hashtags (comma separated)"
         />
 
         <textarea
@@ -567,10 +599,7 @@ export default function EditArticle() {
           Editorial
         </label>
 
-        <button
-          onClick={updateArticle}
-          className="bg-yellow-500 text-black py-2 rounded w-full"
-        >
+        <button onClick={updateArticle} className="bg-yellow-500 text-black py-2 rounded w-full">
           Update Article
         </button>
       </div>

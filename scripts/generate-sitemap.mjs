@@ -11,6 +11,15 @@ function cleanArticleSlug(slug) {
   return String(slug || "").trim().replace(/-\d{10,}$/, "");
 }
 
+function slugifyAuthor(name = "") {
+  return String(name || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
 function xmlEscape(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -52,6 +61,7 @@ const staticRoutes = [
   routeEntry("/", "hourly", "1.0"),
   routeEntry("/live", "hourly", "0.9"),
   routeEntry("/trending", "hourly", "0.8"),
+  routeEntry("/about", "weekly", "0.7"),
   routeEntry("/privacy", "monthly", "0.4"),
   routeEntry("/terms", "monthly", "0.4")
 ];
@@ -73,13 +83,23 @@ const articleRoutes = Array.from(
   ).values()
 );
 
+const authorRoutes = Array.from(
+  new Set(
+    articles
+      .map((article) => slugifyAuthor(article?.author_name || ""))
+      .filter(Boolean)
+      .map((slug) => routeEntry(`/authors/${slug}`, "weekly", "0.5"))
+  )
+);
+
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ...staticRoutes,
   ...articleRoutes,
+  ...authorRoutes,
   "</urlset>"
 ].join("\n");
 
 await writeFile(OUTPUT_PATH, sitemap, "utf8");
-console.log(`Generated sitemap with ${staticRoutes.length + articleRoutes.length} URLs.`);
+console.log(`Generated sitemap with ${staticRoutes.length + articleRoutes.length + authorRoutes.length} URLs.`);

@@ -8,6 +8,7 @@ export default function Seo({
   title,
   description,
   path = "/",
+  canonical,
   image = DEFAULT_IMAGE,
   type = "website",
   robots = "index,follow",
@@ -21,7 +22,7 @@ export default function Seo({
     : title
       ? `${title} | ${SITE_NAME}`
       : SITE_NAME;
-  const canonical = new URL(path, SITE_URL).toString();
+  const canonicalUrl = canonical || new URL(path, SITE_URL).toString();
   const resolvedImage = image || DEFAULT_IMAGE;
   const keywordList = Array.isArray(keywords)
     ? keywords.filter(Boolean)
@@ -50,7 +51,7 @@ export default function Seo({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:type" content={type} />
-      <meta property="og:url" content={canonical} />
+      <meta property="og:url" content={canonicalUrl} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:image" content={resolvedImage} />
       {tagList.map((tag) => (
@@ -60,7 +61,7 @@ export default function Seo({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={resolvedImage} />
-      <link rel="canonical" href={canonical} />
+      <link rel="canonical" href={canonicalUrl} />
       {schemas.map((schema, index) => (
         <script
           key={`schema-${index}`}

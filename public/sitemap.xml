@@ -16,6 +16,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.theveritas.in/about</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.theveritas.in/privacy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
@@ -24,6 +29,78 @@
     <loc>https://www.theveritas.in/terms</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/994-lpg-hike-squeezes-the-street-food-economy</loc>
+    <lastmod>2026-05-01T12:21:37.611Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/indias-gst-hits-record-243-lakh-crore-in-april-2026</loc>
+    <lastmod>2026-05-01T12:13:38.356Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/its-time-for-koh-i-noor-to-be-returned</loc>
+    <lastmod>2026-05-01T12:10:41.210Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/supreme-court-hate-speech-rooted-in-us-vs-them-thinking</loc>
+    <lastmod>2026-04-30T20:34:25.036Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/bengaluru-rains-kill-9-in-wall-collapse-electrocutions</loc>
+    <lastmod>2026-04-30T20:27:50.692Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/exit-polls-2026-bjp-leads-bengal-dmk-set-for-tamil-nadu</loc>
+    <lastmod>2026-04-30T20:23:28.653Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/ndmc-could-have-recovered-106374-crore-in-a-judgement-by-j-yashwant</loc>
+    <lastmod>2026-04-29T14:03:02.623Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/india-new-zealand-sign-landmark-free-trade-agreement</loc>
+    <lastmod>2026-04-29T13:55:47.361Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/gunman-detained-after-security-breach-at-trump-state-dinner</loc>
+    <lastmod>2026-04-26T14:06:34.731Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/israel-lebanon-ceasefire-extended-by-three-weeks</loc>
+    <lastmod>2026-04-25T16:43:18.260Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/opposition-moves-to-remove-cec-gyanesh-kumar</loc>
+    <lastmod>2026-04-25T16:13:29.946Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/iran-snubs-us-envoys-in-islamabad-talks-stall</loc>
+    <lastmod>2026-04-25T15:47:29.493Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.theveritas.in/article/bengal-tamil-nadu-log-historic-voter-turnouts-in-2026-polls</loc>
@@ -198,5 +275,25 @@
     <lastmod>2026-02-25T07:19:29.800Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/authors/the-veritas-bureau</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/authors/nitanshu-jain</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/authors/tavisha-kaushik</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/authors/the-veritas-desk</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>

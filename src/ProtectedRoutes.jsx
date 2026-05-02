@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate } from "./lib/router";
 
 function hasValidEditorToken() {
@@ -29,10 +29,18 @@ function hasValidEditorToken() {
 }
 
 export default function ProtectedRoute({ children }) {
-  const isValid = hasValidEditorToken();
+  const [isValid, setIsValid] = useState(null);
+
+  useEffect(() => {
+    setIsValid(hasValidEditorToken());
+  }, []);
 
   if (isValid === null) {
-    return null;
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-sm uppercase tracking-[0.22em] text-neutral-400">Checking editor access...</div>
+      </div>
+    );
   }
 
   if (!isValid) {

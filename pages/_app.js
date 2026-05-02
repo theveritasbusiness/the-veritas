@@ -26,11 +26,6 @@ const websiteSchema = {
   publisher: {
     "@type": "Organization",
     name: "The Veritas"
-  },
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://www.theveritas.in/?search={search_term_string}",
-    "query-input": "required name=search_term_string"
   }
 };
 
