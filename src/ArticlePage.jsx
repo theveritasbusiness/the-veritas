@@ -211,6 +211,9 @@ export default function ArticlePage({
           alt={article.hero_caption || article.title}
           loading="eager"
         />
+        {article.hero_caption ? (
+          <div className="-mt-2 mb-6 text-sm leading-6 text-neutral-400 sm:mb-8">{article.hero_caption}</div>
+        ) : null}
 
         <div className="space-y-5 break-words font-serif text-[17px] leading-[1.9] text-white sm:space-y-6 sm:text-[18px]">
           {renderedBlocks.map((block, index) => {
@@ -240,6 +243,89 @@ export default function ArticlePage({
               );
             }
 
+            if (block.type === "video" && text) {
+              return (
+                <figure key={index} className="my-8 space-y-3">
+                  <video
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="w-full rounded-2xl bg-black shadow-lg"
+                  >
+                    <source src={text} />
+                    Your browser does not support embedded video playback.
+                  </video>
+                  {block.caption ? (
+                    <figcaption className="text-sm text-neutral-400">{block.caption}</figcaption>
+                  ) : null}
+                </figure>
+              );
+            }
+
+            if (block.type === "source" && (text || block.href)) {
+              const href = typeof block.href === "string" ? block.href.trim() : "";
+              const label = text || href;
+              return (
+                <div key={index} className="my-6 rounded-2xl border border-white/15 bg-neutral-950/90 p-4">
+                  <div className="text-[11px] uppercase tracking-[0.24em] text-[var(--veritas-red)]">Source</div>
+                  <div className="mt-2 text-sm leading-7 text-neutral-200">
+                    {href ? (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline decoration-white/30 underline-offset-4 transition hover:text-white"
+                      >
+                        {label}
+                      </a>
+                    ) : (
+                      label
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            if (block.type === "table") {
+              const headers = Array.isArray(block.headers) ? block.headers : [];
+              const rows = Array.isArray(block.rows) ? block.rows : [];
+              return (
+                <div key={index} className="my-8 overflow-x-auto rounded-2xl border border-white/15 bg-black">
+                  {block.title ? (
+                    <div className="border-b border-white/15 px-4 py-3 font-semibold text-white">{block.title}</div>
+                  ) : null}
+                  <table className="w-full border-collapse text-sm text-white">
+                    {headers.length > 0 ? (
+                      <thead>
+                        <tr>
+                          {headers.map((header, headerIndex) => (
+                            <th
+                              key={headerIndex}
+                              className="border border-white px-4 py-3 text-left font-semibold text-white"
+                              style={{ backgroundColor: "var(--veritas-red)" }}
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                    ) : null}
+                    <tbody>
+                      {rows.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {(Array.isArray(row) ? row : []).map((cell, cellIndex) => (
+                            <td key={cellIndex} className="border border-white px-4 py-3 align-top text-white">
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            }
+
             if (!text) return null;
 
             return (
@@ -260,6 +346,15 @@ export default function ArticlePage({
             );
           })}
         </div>
+
+        {article.bibliography ? (
+          <section className="mt-10 rounded-2xl border border-white/15 bg-neutral-950/80 p-5 sm:p-6">
+            <div className="text-xs uppercase tracking-[0.24em] text-[var(--veritas-red)]">Bibliography</div>
+            <div className="mt-3 whitespace-pre-line text-sm leading-8 text-neutral-300">
+              {article.bibliography}
+            </div>
+          </section>
+        ) : null}
       </div>
 
       <div className="h-fit min-w-0 space-y-5 sm:space-y-6 md:sticky md:top-24 md:col-span-4">

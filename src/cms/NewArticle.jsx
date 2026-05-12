@@ -36,6 +36,14 @@ export default function NewArticle() {
     };
   }
 
+  function createSourceBlock() {
+    return {
+      type: "source",
+      text: "",
+      href: ""
+    };
+  }
+
   function updateContentBlock(index, nextBlock) {
     setContentBlocks((prev) => prev.map((block, blockIndex) => (blockIndex === index ? nextBlock : block)));
   }
@@ -295,12 +303,14 @@ export default function NewArticle() {
               <div className="rounded border border-neutral-700 bg-black/60 p-3 space-y-3">
                 {block.text && (
                   <video
-                    src={block.text}
                     controls
                     playsInline
                     preload="metadata"
                     className="w-full max-h-72 rounded bg-black"
-                  />
+                  >
+                    <source src={block.text} />
+                    Your browser does not support embedded video playback.
+                  </video>
                 )}
                 <input
                   className="w-full p-2 bg-black border"
@@ -309,6 +319,30 @@ export default function NewArticle() {
                   onChange={(e) => {
                     const copy = [...contentBlocks];
                     copy[i].caption = e.target.value;
+                    setContentBlocks(copy);
+                  }}
+                />
+              </div>
+            ) : block.type === "source" ? (
+              <div className="rounded border border-white/15 bg-neutral-950 p-4 space-y-3">
+                <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">Source</div>
+                <input
+                  className="w-full p-2 bg-black border"
+                  placeholder="Source text..."
+                  value={block.text || ""}
+                  onChange={(e) => {
+                    const copy = [...contentBlocks];
+                    copy[i].text = e.target.value;
+                    setContentBlocks(copy);
+                  }}
+                />
+                <input
+                  className="w-full p-2 bg-black border"
+                  placeholder="Source URL..."
+                  value={block.href || ""}
+                  onChange={(e) => {
+                    const copy = [...contentBlocks];
+                    copy[i].href = e.target.value;
                     setContentBlocks(copy);
                   }}
                 />
@@ -476,6 +510,14 @@ export default function NewArticle() {
             className="bg-neutral-700 px-4 py-2 rounded"
           >
             + Table
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createSourceBlock()])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + Source
           </button>
         </div>
 

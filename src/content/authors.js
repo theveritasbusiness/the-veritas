@@ -74,6 +74,16 @@ const KNOWN_AUTHORS = {
   }
 };
 
+const DEFAULT_PROFILE_ORDER = [
+  slugifyAuthor("Kavye Singhal"),
+  slugifyAuthor("Soumyadeep Mondal"),
+  slugifyAuthor("Sidharth Sharma"),
+  slugifyAuthor("Tavisha Kaushik"),
+  slugifyAuthor("Nitanshu Jain"),
+  slugifyAuthor("The Veritas Bureau"),
+  slugifyAuthor("The Veritas Desk")
+];
+
 export function getAuthorProfile(name = "") {
   const cleanName = String(name || "").trim() || "The Veritas Desk";
   const slug = slugifyAuthor(cleanName);
@@ -108,19 +118,9 @@ export function collectAuthorProfiles(articles = []) {
     }
   }
 
-  const preferredOrder = [
-    slugifyAuthor("Kavye Singhal"),
-    slugifyAuthor("Soumyadeep Mondal"),
-    slugifyAuthor("Sidharth Sharma"),
-    slugifyAuthor("Tavisha Kaushik"),
-    slugifyAuthor("Nitanshu Jain"),
-    slugifyAuthor("The Veritas Bureau"),
-    slugifyAuthor("The Veritas Desk")
-  ];
-
   return Array.from(seen.values()).sort((a, b) => {
-    const orderA = preferredOrder.indexOf(a.slug);
-    const orderB = preferredOrder.indexOf(b.slug);
+    const orderA = DEFAULT_PROFILE_ORDER.indexOf(a.slug);
+    const orderB = DEFAULT_PROFILE_ORDER.indexOf(b.slug);
 
     if (orderA !== -1 || orderB !== -1) {
       return (orderA === -1 ? 999 : orderA) - (orderB === -1 ? 999 : orderB);
@@ -128,4 +128,17 @@ export function collectAuthorProfiles(articles = []) {
 
     return a.name.localeCompare(b.name);
   });
+}
+
+export function getFeaturedTeamProfiles() {
+  return DEFAULT_PROFILE_ORDER.map((slug) => {
+    const profile = KNOWN_AUTHORS[slug];
+    return profile
+      ? {
+          slug,
+          initials: getAuthorInitials(profile.name),
+          ...profile
+        }
+      : null;
+  }).filter(Boolean);
 }

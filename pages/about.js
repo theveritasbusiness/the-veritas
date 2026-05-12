@@ -2,7 +2,7 @@ import Layout from "../src/components/Layout";
 import Seo from "../src/components/Seo";
 import { Link } from "../src/lib/router";
 import { API_BASE } from "../src/lib/env";
-import { collectAuthorProfiles } from "../src/content/authors";
+import { collectAuthorProfiles, getFeaturedTeamProfiles } from "../src/content/authors";
 
 function TeamAvatar({ profile }) {
   if (profile.image) {
@@ -214,10 +214,19 @@ export async function getStaticProps() {
   try {
     const response = await fetch(`${API_BASE}/articles`);
     const articles = response.ok ? await response.json() : [];
+    const articleAuthors = collectAuthorProfiles(Array.isArray(articles) ? articles : []);
+    const featuredAuthors = getFeaturedTeamProfiles();
+    const authorMap = new Map();
+
+    [...featuredAuthors, ...articleAuthors].forEach((profile) => {
+      if (!authorMap.has(profile.slug)) {
+        authorMap.set(profile.slug, profile);
+      }
+    });
 
     return {
       props: {
-        authors: collectAuthorProfiles(Array.isArray(articles) ? articles : []),
+        authors: Array.from(authorMap.values()),
         articleCount: Array.isArray(articles) ? articles.length : 0
       },
       revalidate: 60
@@ -225,7 +234,7 @@ export async function getStaticProps() {
   } catch {
     return {
       props: {
-        authors: collectAuthorProfiles([]),
+        authors: getFeaturedTeamProfiles(),
         articleCount: 0
       },
       revalidate: 60
