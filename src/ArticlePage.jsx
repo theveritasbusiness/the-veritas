@@ -5,6 +5,7 @@ import { fetchArticleBySlug, fetchArticles } from "./api";
 import AdSlot from "./components/AdSlot";
 import Seo from "./components/Seo";
 import { AD_SLOT_ARTICLE_INLINE, AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
+import { getCategoryPath } from "./content/categories";
 import { getAuthorProfile } from "./content/authors";
 import { getImagePresentation, getStoryImageUrl } from "./utils/cloudinary";
 import { formatPublishedDateTime } from "./utils/time";
@@ -16,6 +17,13 @@ function EditorialBadge() {
       Editorial
     </span>
   );
+}
+
+function titleFromSlug(slug = "") {
+  return String(slug || "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .trim();
 }
 
 export default function ArticlePage({
@@ -71,8 +79,25 @@ export default function ArticlePage({
   if (error) return <div className="p-6 text-white">{error}</div>;
   if (!article) return <div className="p-6 text-white">Loading...</div>;
 
+  const articleTitle = article.title?.trim() || titleFromSlug(article.slug || slug);
   const authorProfile = getAuthorProfile(article.author_name || "The Veritas Desk");
-  const articleDescription = article.subheadline?.trim() || `${article.title} on The Veritas.`;
+  const isDeskAuthor = /(bureau|desk)$/i.test(authorProfile.name || "");
+  const articleAuthorSchema = isDeskAuthor
+    ? {
+        "@type": "Organization",
+        name: article.author_name?.trim() || "The Veritas Desk",
+        url: `https://www.theveritas.in/authors/${authorProfile.slug}`
+      }
+    : {
+        "@type": "Person",
+        name: article.author_name?.trim() || "The Veritas Desk",
+        url: `https://www.theveritas.in/authors/${authorProfile.slug}`,
+        sameAs: authorProfile.linkedin || undefined
+      };
+  const articleDescription =
+    article.subheadline?.trim() ||
+    article.paragraphs?.find((paragraph) => typeof paragraph === "string" && paragraph.trim())?.trim()?.slice(0, 180) ||
+    `${articleTitle} on The Veritas.`;
   const articleKeywords = [
     article.category,
     ...(Array.isArray(article.hashtags) ? article.hashtags : [])
@@ -91,13 +116,13 @@ export default function ArticlePage({
             "@type": "ListItem",
             position: 2,
             name: article.category,
-            item: `https://www.theveritas.in/?category=${encodeURIComponent(article.category)}`
+            item: `https://www.theveritas.in${getCategoryPath(article.category)}`
           }
         : null,
       {
         "@type": "ListItem",
         position: article.category ? 3 : 2,
-        name: article.title,
+        name: articleTitle,
         item: `https://www.theveritas.in/article/${article.slug}`
       }
     ].filter(Boolean)
@@ -106,18 +131,14 @@ export default function ArticlePage({
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    headline: article.title,
+    headline: articleTitle,
     description: articleDescription,
     image: article.hero_image ? [getStoryImageUrl(article.hero_image)] : undefined,
     datePublished: article.published_at || undefined,
     dateModified: article.updated_at || article.published_at || undefined,
     articleSection: article.category || undefined,
     mainEntityOfPage: `https://www.theveritas.in/article/${article.slug}`,
-    author: {
-      "@type": "Person",
-      name: article.author_name?.trim() || "The Veritas Desk",
-      url: `https://www.theveritas.in/authors/${authorProfile.slug}`
-    },
+    author: articleAuthorSchema,
     publisher: {
       "@type": "Organization",
       name: "The Veritas",
@@ -148,7 +169,7 @@ export default function ArticlePage({
   return (
     <div className="mx-auto grid max-w-6xl w-full grid-cols-1 gap-6 overflow-x-hidden px-3 py-6 sm:gap-10 sm:px-4 sm:py-10 md:grid-cols-12">
       <Seo
-        title={article.title}
+        title={articleTitle}
         description={articleDescription}
         path={`/article/${article.slug}`}
         canonical={`https://www.theveritas.in/article/${article.slug}`}
@@ -187,7 +208,7 @@ export default function ArticlePage({
         </div>
 
         <h1 className="break-words font-serif text-[2.3rem] font-bold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.2rem] lg:text-[3.75rem] xl:text-[4.1rem]">
-          {article.title}
+          {articleTitle}
         </h1>
         <p className="mt-3 text-base italic leading-relaxed text-neutral-400 sm:text-lg">
           {article.subheadline}
@@ -208,7 +229,7 @@ export default function ArticlePage({
           src={getStoryImageUrl(article.hero_image)}
           className="my-6 max-h-[520px] w-full rounded-2xl object-cover shadow-lg sm:my-8"
           style={getImagePresentation(article.hero_focus, article.hero_crop)}
-          alt={article.hero_caption || article.title}
+          alt={article.hero_caption || articleTitle}
           loading="eager"
         />
         {article.hero_caption ? (
@@ -364,7 +385,7 @@ export default function ArticlePage({
             {latest.map((item) => (
               <li key={item.id} className="flex gap-3">
                 <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
-                  ◆
+                  &#9670;
                 </div>
                 <Link
                   to={`/article/${item.slug}`}

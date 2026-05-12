@@ -8,7 +8,7 @@ import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
 
-const HOME_TITLE = "The Veritas – Where the truth speaks itself";
+const HOME_TITLE = "The Veritas - Where the truth speaks itself";
 const HOME_DESCRIPTION =
   "The Veritas is a fearless voice for truth and justice. In an age of misinformation, we practice unbiased, fact-checked, and responsible journalism. We uncover hidden realities, amplify marginalized voices, and hold power to account going beyond headlines to report stories that truly impact society. The Veritas is not just a media house; it is a movement where truth speaks and justice prevails. Industry";
 
@@ -26,7 +26,11 @@ function EditorialBadge({ className = "" }) {
 export default function TheVeritasShowcase({
   initialArticles = [],
   initialBreaking = [],
-  initialLoadError = ""
+  initialLoadError = "",
+  forcedCategory = "",
+  pageTitle = HOME_TITLE,
+  pageDescription = HOME_DESCRIPTION,
+  pageCanonical = "https://www.theveritas.in/"
 }) {
   const [articles, setArticles] = useState(initialArticles);
   const [breaking, setBreaking] = useState(initialBreaking);
@@ -39,9 +43,9 @@ export default function TheVeritasShowcase({
   const touchStartX = useRef(null);
 
   const searchQuery = searchParams.get("search") || "";
-  const selectedCategory = searchParams.get("category");
+  const selectedCategory = forcedCategory || searchParams.get("category");
   const isFilteredHomeView =
-    Boolean(searchQuery) || Boolean(selectedCategory && selectedCategory !== "Home");
+    !forcedCategory && (Boolean(searchQuery) || Boolean(selectedCategory && selectedCategory !== "Home"));
 
   const searchedArticles = articles.filter((article) => {
     const query = searchQuery.toLowerCase();
@@ -149,12 +153,12 @@ export default function TheVeritasShowcase({
   }
 
   return (
-    <div className="min-h-screen bg-black text-white antialiased font-sans overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden bg-black font-sans text-white antialiased">
       <Seo
-        title={HOME_TITLE}
-        description={HOME_DESCRIPTION}
+        title={pageTitle}
+        description={pageDescription}
         path="/"
-        canonical="https://www.theveritas.in/"
+        canonical={pageCanonical}
         robots={isFilteredHomeView ? "noindex,follow" : "index,follow"}
         absoluteTitle
       />
@@ -218,7 +222,7 @@ export default function TheVeritasShowcase({
                   className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/20 bg-black/55 px-3 py-2 text-white backdrop-blur transition hover:bg-black/75"
                   aria-label="Previous hero article"
                 >
-                  ‹
+                  &#8249;
                 </button>
 
                 <button
@@ -227,7 +231,7 @@ export default function TheVeritasShowcase({
                   className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/20 bg-black/55 px-3 py-2 text-white backdrop-blur transition hover:bg-black/75"
                   aria-label="Next hero article"
                 >
-                  ›
+                  &#8250;
                 </button>
 
                 <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
@@ -256,7 +260,7 @@ export default function TheVeritasShowcase({
               <h2 className="font-serif text-3xl text-white">No articles found.</h2>
               <p className="mt-3 text-sm leading-relaxed text-neutral-400 sm:text-base">
                 {loadError
-                  ? "We’re reconnecting to the latest story feed. Please check back in a moment."
+                  ? "We're reconnecting to the latest story feed. Please check back in a moment."
                   : "The latest article feed is empty right now. Please check back shortly."}
               </p>
             </div>
@@ -286,7 +290,7 @@ export default function TheVeritasShowcase({
                     className="flex items-start gap-3 rounded-xl p-2 transition-all hover:bg-neutral-800"
                   >
                     <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
-                      ◆
+                      &#9670;
                     </div>
                     <div className="min-w-0">
                       <Link

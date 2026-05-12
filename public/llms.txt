@@ -7,7 +7,7 @@
 
 ## Key Public Sections
 - Home: https://www.theveritas.in/
-- Live Monitor: https://www.theveritas.in/live
+- Live Monitor: https://live.theveritas.in/
 - The Veritas Desk: https://www.theveritas.in/trending
 - Privacy Policy: https://www.theveritas.in/privacy
 - Terms of Use: https://www.theveritas.in/terms

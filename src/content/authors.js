@@ -24,14 +24,14 @@ export function getAuthorInitials(name = "") {
 const KNOWN_AUTHORS = {
   [slugifyAuthor("Kavye Singhal")]: {
     name: "Kavye Singhal",
-    role: "Founder and Chief Executive Officer",
+    role: "Founder and     Chief Executive Officer",
     linkedin: "https://www.linkedin.com/in/kavye-singhal-40237a403/",
     bio: "Kavye Singhal is the Founder and Chief Executive Officer of The Veritas, leading the organization with a vision for impactful journalism.",
     image: null
   },
   [slugifyAuthor("Soumyadeep Mondal")]: {
     name: "Soumyadeep Mondal",
-    role: "Co-founder and Chief Administrative Officer",
+    role: "Co-founder and    Chief Administrative Officer",
     linkedin: "https://www.linkedin.com/in/soumyadeep-mondal-01a21b3a5/",
     bio: "Soumyadeep Mondal is the Co-founder and Chief Administrative Officer of The Veritas, managing the organization's operations and administrative functions.",
     image: "/Soumyadeep.jpeg"
@@ -39,16 +39,15 @@ const KNOWN_AUTHORS = {
   [slugifyAuthor("Sidharth Sharma")]: {
     name: "Sidharth Sharma",
     role: "Chief Technology Officer",
-    linkedin: "https://www.linkedin.com/in/sidharth-sharma-9392853b5/",
+    linkedin: "https://www.linkedin.com/in/siddy-kahanikaar/",
     bio: "Sidharth Sharma is the Chief Technology Officer of The Veritas, driving the organization's digital innovation and technical strategy.",
     image: null
-
   },
   [slugifyAuthor("Tavisha Kaushik")]: {
     name: "Tavisha Kaushik",
     role: "Editor-in-Chief",
     linkedin: "https://www.linkedin.com/in/tavisha-kaushik-975a91315/",
-    bio: "Tavisha Kaushik leads The Veritas newsroom with a sharp editorial eye, overseeing the publication’s news direction, editorial standards, and long-form coverage priorities.",
+    bio: "Tavisha Kaushik leads The Veritas newsroom with a sharp editorial eye, overseeing the publication's news direction, editorial standards, and long-form coverage priorities.",
     image: "/Tavisha.jpeg"
   },
   [slugifyAuthor("Nitanshu Jain")]: {
@@ -77,8 +76,8 @@ const KNOWN_AUTHORS = {
 const DEFAULT_PROFILE_ORDER = [
   slugifyAuthor("Kavye Singhal"),
   slugifyAuthor("Soumyadeep Mondal"),
-  slugifyAuthor("Sidharth Sharma"),
   slugifyAuthor("Tavisha Kaushik"),
+  slugifyAuthor("Sidharth Sharma"),
   slugifyAuthor("Nitanshu Jain"),
   slugifyAuthor("The Veritas Bureau"),
   slugifyAuthor("The Veritas Desk")

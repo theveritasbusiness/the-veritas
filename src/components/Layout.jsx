@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate, useSearchParams } from "../lib/router";
 import { LIVE_MONITOR_URL } from "../api";
+import { getCategoryPath } from "../content/categories";
 
 const categories = [
   "Home",
@@ -131,6 +132,10 @@ export default function Layout({ children }) {
               const isActive =
                 (item === "Home" && !selectedCategory && !isTrendingRoute) ||
                 (item === "The Veritas Desk" && isTrendingRoute) ||
+                (item !== "Home" &&
+                  item !== "The Veritas Desk" &&
+                  item !== "About Us" &&
+                  location.pathname === getCategoryPath(item)) ||
                 selectedCategory === item;
 
               return (
@@ -146,7 +151,7 @@ export default function Layout({ children }) {
                     } else if (item === "About Us") {
                       navigate("/about");
                     } else {
-                      navigate(`/?category=${item}`);
+                      navigate(getCategoryPath(item));
                     }
                   }}
                 >

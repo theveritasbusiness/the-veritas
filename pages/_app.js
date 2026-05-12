@@ -30,9 +30,6 @@ const websiteSchema = {
 };
 
 export default function VeritasApp({ Component, pageProps }) {
-  // Define canonical safely from pageProps or default to home
-  const canonicalUrl = pageProps?.canonical || "https://www.theveritas.in/";
-
   return (
     <>
       <Head>
@@ -47,10 +44,6 @@ export default function VeritasApp({ Component, pageProps }) {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="https://www.theveritas.in/LOGO.jpeg" />
         <meta name="twitter:site" content="@thedailyveritas" />
-        
-        {/* FIXED: Added defensive check and fallback for the home page */}
-        <link rel="canonical" href={canonicalUrl} />
-        
         <link rel="icon" href="/LOGO.jpeg?v=2" />
         <link rel="shortcut icon" href="/LOGO.jpeg?v=2" />
         <link rel="apple-touch-icon" href="/LOGO.jpeg?v=2" />

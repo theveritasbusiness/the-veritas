@@ -6,11 +6,6 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.theveritas.in/live</loc>
-    <changefreq>hourly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.theveritas.in/trending</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
@@ -29,6 +24,238 @@
     <loc>https://www.theveritas.in/terms</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/world</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/india</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/politics</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/business</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/science</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/legal</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/lifestyle</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/sports</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/hormuz-blockade-casts-a-long-shadow-on-worlds-food-chains</loc>
+    <lastmod>2026-05-11T11:25:42.071Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/us-federal-court-voids-trumps-sweeping-blanket-tariff-order</loc>
+    <lastmod>2026-05-11T11:18:24.105Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/crstea-stuns-worlds-top-seed-in-gritty-three-set-victory</loc>
+    <lastmod>2026-05-11T11:11:39.703Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/dubois-falls-twice-yet-rises-to-claim-heavyweight-crown</loc>
+    <lastmod>2026-05-11T11:04:26.557Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/bengals-reckoning-murder-protests-and-a-new-order</loc>
+    <lastmod>2026-05-11T10:56:28.310Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/trump-orders-ufo-files-declassified-ending-decades-of-secrecy</loc>
+    <lastmod>2026-05-09T08:15:33.345Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/bjp-leaders-aide-shot-dead-in-bengals-post-poll-shadow</loc>
+    <lastmod>2026-05-08T03:54:03.472Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/trumps-2026-drug-strategy-targets-cartels-and-recovery</loc>
+    <lastmod>2026-05-07T17:25:18.804Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/congress-eyes-1-billion-in-public-funds-for-trump-ballroom</loc>
+    <lastmod>2026-05-07T16:56:59.339Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/nsa-doval-in-riyadh-to-secure-indias-energy-lifeline</loc>
+    <lastmod>2026-05-07T16:47:25.817Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/ted-turner-cnns-visionary-founder-dies-at-87</loc>
+    <lastmod>2026-05-07T16:35:22.610Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/iiss-warns-2025-war-may-have-lowered-nuclear-threshold</loc>
+    <lastmod>2026-05-07T16:18:01.374Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/pakistan-commemorates-one-year-since-operation-sindoor</loc>
+    <lastmod>2026-05-07T16:08:11.815Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/tvk-wins-108-seats-tamil-nadu-hangs-on-congress-support</loc>
+    <lastmod>2026-05-07T15:58:41.056Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/bengal-and-tamil-nadu-polls-reshape-indias-political-map</loc>
+    <lastmod>2026-05-07T15:47:50.900Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/oil-plunges-15-global-equities-surge-to-record-highs</loc>
+    <lastmod>2026-05-07T15:39:43.189Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/iran-weighs-us-peace-blueprint-amid-nuclear-talks</loc>
+    <lastmod>2026-05-07T11:08:50.048Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/6003-crore-push-india-enters-global-quantum-race</loc>
+    <lastmod>2026-05-05T16:14:14.933Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/lpg-shortage-exposes-indias-dangerous-import-dependence</loc>
+    <lastmod>2026-05-05T16:07:37.162Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/six-year-old-assault-sparks-debate-on-indias-safety-framework</loc>
+    <lastmod>2026-05-05T15:51:29.370Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/four-day-water-outage-highlights-delhis-fragile-pipeline-network</loc>
+    <lastmod>2026-05-05T15:43:47.783Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/india-shocked-33-boys-abused-in-chitrakoot-case</loc>
+    <lastmod>2026-05-05T15:35:45.417Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/sentinelese-tribe-isolation-rights-and-legal-protection-debate</loc>
+    <lastmod>2026-05-05T15:25:09.231Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/high-productivity-low-debate-parliament-winter-session-scrutinized</loc>
+    <lastmod>2026-05-05T15:12:33.559Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/ayushman-bharat-vs-reality-crisis-outside-aiims-delhi</loc>
+    <lastmod>2026-05-05T15:00:36.362Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/how-chinas-kill-line-exposes-us-economic-vulnerability</loc>
+    <lastmod>2026-05-05T13:30:20.046Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/325-lakh-crore-and-114-rafales-indias-largest-ever-fighter-aircraft-deal</loc>
+    <lastmod>2026-05-05T13:17:28.099Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/tejas-mk1a-held-under-crisis-engine-delays-more</loc>
+    <lastmod>2026-05-05T12:38:48.893Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/ndas-assam-hat-trick-himanta-holds-jalukbari</loc>
+    <lastmod>2026-05-04T15:34:27.040Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/udf-sweeps-kerala-pinarayi-quits-as-cm</loc>
+    <lastmod>2026-05-04T15:28:34.088Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/vijays-tvk-leads-tamil-nadu-dmk-trails</loc>
+    <lastmod>2026-05-04T15:13:39.274Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/article/bjp-storms-west-bengal-crosses-200-seat-mark</loc>
+    <lastmod>2026-05-04T14:48:31.773Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.theveritas.in/article/994-lpg-hike-squeezes-the-street-food-economy</loc>
@@ -277,12 +504,12 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.theveritas.in/authors/the-veritas-bureau</loc>
+    <loc>https://www.theveritas.in/authors/kavye-singhal</loc>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.theveritas.in/authors/nitanshu-jain</loc>
+    <loc>https://www.theveritas.in/authors/soumyadeep-mondal</loc>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -292,7 +519,32 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://www.theveritas.in/authors/sidharth-sharma</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/authors/nitanshu-jain</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/authors/the-veritas-bureau</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://www.theveritas.in/authors/the-veritas-desk</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/authors/tavisha-kausik</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.theveritas.in/authors/the-veritas-original</loc>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>

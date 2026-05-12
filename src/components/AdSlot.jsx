@@ -1,37 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { ADSENSE_CLIENT } from "../lib/env";
 
-let adsenseScriptPromise = null;
-
-function loadAdSenseScript() {
-  if (!ADSENSE_CLIENT || typeof document === "undefined") {
-    return Promise.resolve(false);
-  }
-
-  if (adsenseScriptPromise) {
-    return adsenseScriptPromise;
-  }
-
-  const existingScript = document.querySelector('script[data-veritas-adsense="true"]');
-  if (existingScript) {
-    adsenseScriptPromise = Promise.resolve(true);
-    return adsenseScriptPromise;
-  }
-
-  adsenseScriptPromise = new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.async = true;
-    script.crossOrigin = "anonymous";
-    script.dataset.veritasAdsense = "true";
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.head.appendChild(script);
-  });
-
-  return adsenseScriptPromise;
-}
-
 export default function AdSlot({
   slot = "",
   label = "Advertisement",
@@ -44,12 +13,21 @@ export default function AdSlot({
 
   useEffect(() => {
     let cancelled = false;
+    let observer;
+    let retryTimeout;
+    let retryCount = 0;
 
-    async function initAd() {
+    function initAd() {
       if (!ADSENSE_CLIENT || !slot || !adRef.current) return;
+      if (typeof window === "undefined" || cancelled || !adRef.current) return;
 
-      const loaded = await loadAdSenseScript();
-      if (!loaded || cancelled || !adRef.current) return;
+      if (!window.adsbygoogle) {
+        if (retryCount < 6) {
+          retryCount += 1;
+          retryTimeout = window.setTimeout(initAd, 500);
+        }
+        return;
+      }
 
       try {
         if (!adRef.current.dataset.adLoaded) {
@@ -61,9 +39,29 @@ export default function AdSlot({
       }
     }
 
-    initAd();
+    if (typeof IntersectionObserver === "undefined") {
+      initAd();
+    } else if (adRef.current) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (entry?.isIntersecting) {
+            initAd();
+            observer?.disconnect();
+          }
+        },
+        { rootMargin: "200px 0px" }
+      );
+
+      observer.observe(adRef.current);
+    }
+
     return () => {
       cancelled = true;
+      observer?.disconnect();
+      if (retryTimeout) {
+        window.clearTimeout(retryTimeout);
+      }
     };
   }, [slot]);
 

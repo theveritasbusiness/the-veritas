@@ -6,6 +6,16 @@ const API_BASE =
   process.env.VITE_API_BASE ||
   "https://veritas-backend-dktb.onrender.com";
 const OUTPUT_PATH = new URL("../public/sitemap.xml", import.meta.url);
+const CATEGORY_SLUGS = ["world", "india", "politics", "business", "science", "legal", "lifestyle", "sports"];
+const FEATURED_AUTHOR_SLUGS = [
+  "kavye-singhal",
+  "soumyadeep-mondal",
+  "tavisha-kaushik",
+  "sidharth-sharma",
+  "nitanshu-jain",
+  "the-veritas-bureau",
+  "the-veritas-desk"
+];
 
 function cleanArticleSlug(slug) {
   return String(slug || "").trim().replace(/-\d{10,}$/, "");
@@ -59,12 +69,13 @@ async function fetchArticles() {
 
 const staticRoutes = [
   routeEntry("/", "hourly", "1.0"),
-  routeEntry("/live", "hourly", "0.9"),
   routeEntry("/trending", "hourly", "0.8"),
   routeEntry("/about", "weekly", "0.7"),
   routeEntry("/privacy", "monthly", "0.4"),
   routeEntry("/terms", "monthly", "0.4")
 ];
+
+const categoryRoutes = CATEGORY_SLUGS.map((slug) => routeEntry(`/${slug}`, "daily", "0.7"));
 
 const articles = await fetchArticles();
 const articleRoutes = Array.from(
@@ -85,8 +96,7 @@ const articleRoutes = Array.from(
 
 const authorRoutes = Array.from(
   new Set(
-    articles
-      .map((article) => slugifyAuthor(article?.author_name || ""))
+    [...FEATURED_AUTHOR_SLUGS, ...articles.map((article) => slugifyAuthor(article?.author_name || ""))]
       .filter(Boolean)
       .map((slug) => routeEntry(`/authors/${slug}`, "weekly", "0.5"))
   )
@@ -96,10 +106,13 @@ const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ...staticRoutes,
+  ...categoryRoutes,
   ...articleRoutes,
   ...authorRoutes,
   "</urlset>"
 ].join("\n");
 
 await writeFile(OUTPUT_PATH, sitemap, "utf8");
-console.log(`Generated sitemap with ${staticRoutes.length + articleRoutes.length + authorRoutes.length} URLs.`);
+console.log(
+  `Generated sitemap with ${staticRoutes.length + categoryRoutes.length + articleRoutes.length + authorRoutes.length} URLs.`
+);
