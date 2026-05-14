@@ -7,6 +7,7 @@ import Seo from "./components/Seo";
 import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
+import ElectionResultsSection from "./ElectionResultsSection";
 
 const HOME_TITLE = "The Veritas - Where the truth speaks itself";
 const HOME_DESCRIPTION =
@@ -447,6 +448,8 @@ export default function TheVeritasShowcase({
           </aside>
         )}
       </main>
+
+      <ElectionResultsSection />
 
       <style>{`
         .veritas-loader {

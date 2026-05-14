@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import articleRoutes from "./routes/articles.js";
 import editorRoutes from "./routes/editors.js";
+import electionRoutes from "./routes/electionRoutes.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use(express.json());
 
 app.use("/articles", articleRoutes);
 app.use("/editors", editorRoutes);
+app.use("/api/elections", electionRoutes);
 
 app.get("/", (req, res) => {
   res.send("Veritas backend running");
