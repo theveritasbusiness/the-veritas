@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 
 const API_BASE = "https://veritas-backend-dktb.onrender.com";
 
-// Party color map — add/edit as needed
 const PARTY_COLORS = {
   "Dravida Munnetra Kazhagam": "#E63946",
   "DMK": "#E63946",
@@ -31,7 +30,6 @@ function getPartyColor(party) {
   for (const key of Object.keys(PARTY_COLORS)) {
     if (party.toLowerCase().includes(key.toLowerCase())) return PARTY_COLORS[key];
   }
-  // deterministic fallback color from party name
   let hash = 0;
   for (let i = 0; i < party.length; i++) hash = party.charCodeAt(i) + ((hash << 5) - hash);
   const hue = Math.abs(hash) % 360;
@@ -56,16 +54,16 @@ function abbreviateParty(party) {
   for (const [full, short] of Object.entries(abbrs)) {
     if (party.includes(full)) return short;
   }
-  // auto-abbreviate: take first letter of each word, max 5 chars
-  return party
-    .split(/\s+/)
-    .filter((w) => w.length > 2)
-    .map((w) => w[0].toUpperCase())
-    .join("")
-    .slice(0, 5) || party.slice(0, 6).toUpperCase();
+  return (
+    party
+      .split(/\s+/)
+      .filter((w) => w.length > 2)
+      .map((w) => w[0].toUpperCase())
+      .join("")
+      .slice(0, 5) || party.slice(0, 6).toUpperCase()
+  );
 }
 
-// ── Skeleton loaders ──────────────────────────────────────────────────────────
 function SkeletonBar() {
   return (
     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", margin: "24px 0 0" }}>
@@ -76,12 +74,229 @@ function SkeletonBar() {
   );
 }
 
-function SkeletonGrid() {
+// ── Gauge Arc Component ───────────────────────────────────────────────────────
+function GaugeArc({ partySummary, winner }) {
+  const W = 560, H = 310;
+  const cx = W / 2, cy = H - 30;
+  const R = 200, innerR = 138;
+  const startAngle = -Math.PI;
+  const endAngle = 0;
+  const majorityAngle = -Math.PI / 2;
+
+  const totalSeatsArc = partySummary.reduce((s, p) => s + p.seats, 0);
+  const majorityNeeded = Math.ceil(totalSeatsArc / 2);
+
+  let cumulative = 0;
+  const segments = partySummary.map((p) => {
+    const startFrac = cumulative / totalSeatsArc;
+    cumulative += p.seats;
+    const endFrac = cumulative / totalSeatsArc;
+    return { ...p, startFrac, endFrac };
+  });
+
+  function polarToXY(angle, r) {
+    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  }
+
+  function arcPath(startFrac, endFrac, outerR = R, inR = innerR) {
+    const a1 = startAngle + startFrac * Math.PI;
+    const a2 = startAngle + endFrac * Math.PI;
+    const gap = 0.013;
+    const ag1 = a1 + gap / 2;
+    const ag2 = a2 - gap / 2;
+    if (ag2 <= ag1) return "";
+    const o = polarToXY(ag1, outerR);
+    const p = polarToXY(ag2, outerR);
+    const i = polarToXY(ag2, inR);
+    const j = polarToXY(ag1, inR);
+    const large = ag2 - ag1 > Math.PI ? 1 : 0;
+    return `M ${o.x} ${o.y} A ${outerR} ${outerR} 0 ${large} 1 ${p.x} ${p.y} L ${i.x} ${i.y} A ${inR} ${inR} 0 ${large} 0 ${j.x} ${j.y} Z`;
+  }
+
+  const mOuter = polarToXY(majorityAngle, R + 18);
+  const mInner = polarToXY(majorityAngle, innerR - 18);
+  const leftPt = polarToXY(startAngle, R + 22);
+  const rightPt = polarToXY(endAngle, R + 22);
+
+  const winnerColor = winner ? getPartyColor(winner.party) : "#cc0000";
+  const hasMajority = winner && winner.seats >= majorityNeeded;
+
   return (
-    <div className="er-grid">
-      {Array.from({ length: 18 }).map((_, i) => (
-        <div key={i} className="er-skeleton er-skeleton-card" />
-      ))}
+    <div className="er-gauge-wrap">
+      <svg
+        className="er-gauge-svg"
+        viewBox={`0 0 ${W} ${H}`}
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {/* Outer glow ring (background track) */}
+        <path d={arcPath(0, 1, R + 2, innerR - 2)} fill="#161616" />
+        <path d={arcPath(0, 1)} fill="#1c1c1c" />
+
+        {/* Subtle tick marks */}
+        {Array.from({ length: 21 }).map((_, i) => {
+          const frac = i / 20;
+          const angle = startAngle + frac * Math.PI;
+          const isMainTick = i % 5 === 0;
+          const oPt = polarToXY(angle, R + (isMainTick ? 10 : 6));
+          const iPt = polarToXY(angle, R + 2);
+          return (
+            <line
+              key={i}
+              x1={iPt.x} y1={iPt.y}
+              x2={oPt.x} y2={oPt.y}
+              stroke={isMainTick ? "#2e2e2e" : "#222"}
+              strokeWidth={isMainTick ? 1.5 : 1}
+            />
+          );
+        })}
+
+        {/* Party segments */}
+        {segments.map((p) => (
+          <path
+            key={p.party}
+            d={arcPath(p.startFrac, p.endFrac)}
+            fill={getPartyColor(p.party)}
+            opacity="0.93"
+          >
+            <title>{p.party}: {p.seats} seats</title>
+          </path>
+        ))}
+
+        {/* Winner segment glow highlight (thin outer highlight arc) */}
+        {winner && segments[0] && (
+          <path
+            d={arcPath(segments[0].startFrac, segments[0].endFrac, R + 4, R + 1)}
+            fill={winnerColor}
+            opacity="0.35"
+          />
+        )}
+
+        {/* Majority dashed line */}
+        <line
+          x1={mInner.x} y1={mInner.y}
+          x2={mOuter.x} y2={mOuter.y}
+          stroke="#3a3a3a"
+          strokeWidth="1.5"
+          strokeDasharray="4 3"
+        />
+        {/* Majority dot at top */}
+        <circle
+          cx={polarToXY(majorityAngle, R + 2).x}
+          cy={polarToXY(majorityAngle, R + 2).y}
+          r="3"
+          fill="#333"
+        />
+
+        {/* Majority label */}
+        <text
+          x={cx}
+          y={cy - R - 30}
+          textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace"
+          fontSize="9"
+          fill="#444"
+          letterSpacing="0.1em"
+        >
+          MAJORITY
+        </text>
+        <text
+          x={cx}
+          y={cy - R - 18}
+          textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace"
+          fontSize="11"
+          fill="#555"
+          fontWeight="600"
+        >
+          {majorityNeeded}
+        </text>
+
+        {/* 0 label (left) */}
+        <text
+          x={leftPt.x - 6}
+          y={leftPt.y + 4}
+          textAnchor="end"
+          fontFamily="'IBM Plex Mono', monospace"
+          fontSize="10"
+          fill="#444"
+        >
+          0
+        </text>
+
+        {/* Total label (right) */}
+        <text
+          x={rightPt.x + 6}
+          y={rightPt.y + 4}
+          textAnchor="start"
+          fontFamily="'IBM Plex Mono', monospace"
+          fontSize="10"
+          fill="#444"
+        >
+          {totalSeatsArc}
+        </text>
+
+        {/* Center: leading seats count */}
+        <text
+          x={cx}
+          y={cy - 52}
+          textAnchor="middle"
+          fontFamily="'Playfair Display', serif"
+          fontSize="48"
+          fontWeight="900"
+          fill={winnerColor}
+        >
+          {winner?.seats ?? "—"}
+        </text>
+
+        {/* Center: label */}
+        <text
+          x={cx}
+          y={cy - 28}
+          textAnchor="middle"
+          fontFamily="'IBM Plex Sans', sans-serif"
+          fontSize="11"
+          fill="#777"
+          letterSpacing="0.04em"
+        >
+          {winner
+            ? `${abbreviateParty(winner.party)} · ${hasMajority ? "MAJORITY" : "LEADING"}`
+            : "NO DATA"}
+        </text>
+
+        {/* Center: seats label */}
+        <text
+          x={cx}
+          y={cy - 12}
+          textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace"
+          fontSize="9"
+          fill="#444"
+          letterSpacing="0.12em"
+        >
+          SEATS WON
+        </text>
+      </svg>
+
+      {/* Majority status pill */}
+      <div
+        className="er-gauge-status"
+        style={{
+          borderColor: hasMajority ? winnerColor + "66" : "#2a2a2a",
+          background: hasMajority ? winnerColor + "11" : "#111",
+        }}
+      >
+        <span
+          className="er-gauge-status-dot"
+          style={{ background: hasMajority ? winnerColor : "#444" }}
+        />
+        <span style={{ color: hasMajority ? "#ccc" : "#555" }}>
+          {hasMajority
+            ? `${winner.party} wins majority with ${winner.seats} seats`
+            : winner
+            ? `${winner.party} leads — ${majorityNeeded - winner.seats} seats short of majority`
+            : "Results loading…"}
+        </span>
+      </div>
     </div>
   );
 }
@@ -98,7 +313,6 @@ export default function ElectionResultsSection() {
   const [searchQuery, setSearchQuery] = useState("");
   const gridRef = useRef(null);
 
-  // Fetch available states on mount
   useEffect(() => {
     fetch(`${API_BASE}/api/elections/states`)
       .then((r) => r.json())
@@ -114,7 +328,6 @@ export default function ElectionResultsSection() {
       .finally(() => setLoadingStates(false));
   }, []);
 
-  // Fetch results when state changes
   useEffect(() => {
     if (!selectedState) return;
     setLoadingResults(true);
@@ -132,14 +345,17 @@ export default function ElectionResultsSection() {
       .finally(() => setLoadingResults(false));
   }, [selectedState]);
 
-  const filteredConstituencies = data?.constituencies?.filter(
-    (c) =>
-      c.ac_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.candidate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.party.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredConstituencies =
+    data?.constituencies?.filter(
+      (c) =>
+        c.ac_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.candidate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.party.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
 
-  const displayedConstituencies = showAll ? filteredConstituencies : filteredConstituencies.slice(0, 9);
+  const displayedConstituencies = showAll
+    ? filteredConstituencies
+    : filteredConstituencies.slice(0, 9);
 
   const totalSeats = data?.totalConstituencies || 0;
   const winner = data?.partySummary?.[0];
@@ -147,7 +363,7 @@ export default function ElectionResultsSection() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
         .er-section {
           background: #0a0a0a;
@@ -230,11 +446,8 @@ export default function ElectionResultsSection() {
           letter-spacing: -0.02em;
         }
 
-        .er-title span {
-          color: #cc0000;
-        }
+        .er-title span { color: #cc0000; }
 
-        /* State Dropdown */
         .er-dropdown-wrap {
           display: flex;
           flex-direction: column;
@@ -274,11 +487,49 @@ export default function ElectionResultsSection() {
           outline: none;
         }
 
-        /* Divider */
         .er-divider {
           height: 1px;
           background: linear-gradient(90deg, #1e1e1e, #2a2a2a 50%, #1e1e1e);
           margin-bottom: 28px;
+        }
+
+        /* ── Gauge ── */
+        .er-gauge-wrap {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 28px;
+          position: relative;
+        }
+
+        .er-gauge-svg {
+          width: 100%;
+          max-width: 520px;
+          overflow: visible;
+          filter: drop-shadow(0 0 32px rgba(0,0,0,0.8));
+        }
+
+        .er-gauge-status {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          border: 1px solid #2a2a2a;
+          border-radius: 20px;
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 11px;
+          color: #666;
+          letter-spacing: 0.04em;
+          margin-top: -8px;
+          transition: all 0.3s;
+        }
+
+        .er-gauge-status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          flex-shrink: 0;
+          animation: er-pulse 2s infinite;
         }
 
         /* Majority banner */
@@ -324,27 +575,13 @@ export default function ElectionResultsSection() {
           margin-left: 4px;
         }
 
-        /* Party tally bar */
-        .er-tally-bar {
-          display: flex;
-          height: 8px;
-          border-radius: 4px;
-          overflow: hidden;
-          margin-bottom: 20px;
-          gap: 1px;
-        }
-
-        .er-tally-segment {
-          height: 100%;
-          transition: flex 0.6s ease;
-        }
-
         /* Party chips */
         .er-parties {
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
           margin-bottom: 32px;
+          justify-content: center;
         }
 
         .er-party-chip {
@@ -427,15 +664,9 @@ export default function ElectionResultsSection() {
           color: #fff;
         }
 
-        .er-toggle-btn svg {
-          transition: transform 0.3s ease;
-        }
+        .er-toggle-btn svg { transition: transform 0.3s ease; }
+        .er-toggle-btn.open svg { transform: rotate(180deg); }
 
-        .er-toggle-btn.open svg {
-          transform: rotate(180deg);
-        }
-
-        /* Search */
         .er-search {
           background: #111;
           border: 1px solid #2a2a2a;
@@ -451,11 +682,7 @@ export default function ElectionResultsSection() {
           transition: border-color 0.2s;
         }
 
-        .er-search:focus {
-          outline: none;
-          border-color: #444;
-        }
-
+        .er-search:focus { outline: none; border-color: #444; }
         .er-search::placeholder { color: #444; }
 
         /* Grid */
@@ -505,9 +732,7 @@ export default function ElectionResultsSection() {
           background: var(--card-color, #333);
         }
 
-        .er-card:hover {
-          background: #141414;
-        }
+        .er-card:hover { background: #141414; }
 
         .er-card-no {
           font-family: 'IBM Plex Mono', monospace;
@@ -556,7 +781,6 @@ export default function ElectionResultsSection() {
           color: #555;
         }
 
-        /* Show more button */
         .er-show-more {
           display: block;
           width: 100%;
@@ -574,12 +798,8 @@ export default function ElectionResultsSection() {
           transition: color 0.2s, border-color 0.2s;
         }
 
-        .er-show-more:hover {
-          color: #fff;
-          border-color: #444;
-        }
+        .er-show-more:hover { color: #fff; border-color: #444; }
 
-        /* Error */
         .er-error {
           padding: 32px;
           text-align: center;
@@ -591,7 +811,6 @@ export default function ElectionResultsSection() {
           background: #0d0000;
         }
 
-        /* Skeleton */
         .er-skeleton {
           background: linear-gradient(90deg, #111 25%, #181818 50%, #111 75%);
           background-size: 200% 100%;
@@ -599,12 +818,10 @@ export default function ElectionResultsSection() {
           border-radius: 4px;
         }
 
-        .er-skeleton-card {
-          height: 90px;
-        }
+        .er-skeleton-card { height: 90px; }
 
         @keyframes er-shimmer {
-          0% { background-position: 200% 0; }
+          0%   { background-position: 200% 0; }
           100% { background-position: -200% 0; }
         }
 
@@ -624,6 +841,7 @@ export default function ElectionResultsSection() {
           .er-details-toggle { flex-direction: column; align-items: flex-start; }
           .er-search { width: 100%; }
           .er-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+          .er-gauge-svg { max-width: 100%; }
         }
       `}</style>
 
@@ -658,22 +876,20 @@ export default function ElectionResultsSection() {
 
           <div className="er-divider" />
 
-          {/* Error state */}
           {error && <div className="er-error">⚠ {error}</div>}
 
-          {/* Loading skeleton */}
           {(loadingStates || loadingResults) && !error && (
             <>
               <SkeletonBar />
-              <div style={{ marginTop: 16 }}>
-                <SkeletonBar />
-              </div>
+              <div style={{ marginTop: 16 }}><SkeletonBar /></div>
             </>
           )}
 
-          {/* Results loaded */}
           {data && !loadingResults && (
             <>
+              {/* Gauge Arc */}
+              <GaugeArc partySummary={data.partySummary} winner={winner} />
+
               {/* Majority banner */}
               {winner && (
                 <div
@@ -691,29 +907,11 @@ export default function ElectionResultsSection() {
                 </div>
               )}
 
-              {/* Proportional tally bar */}
-              <div className="er-tally-bar">
-                {data.partySummary.map((p) => (
-                  <div
-                    key={p.party}
-                    className="er-tally-segment"
-                    title={`${p.party}: ${p.seats} seats`}
-                    style={{
-                      flex: p.seats,
-                      background: getPartyColor(p.party),
-                    }}
-                  />
-                ))}
-              </div>
-
               {/* Party chips */}
               <div className="er-parties">
                 {data.partySummary.map((p) => (
                   <div key={p.party} className="er-party-chip">
-                    <div
-                      className="er-party-dot"
-                      style={{ background: getPartyColor(p.party) }}
-                    />
+                    <div className="er-party-dot" style={{ background: getPartyColor(p.party) }} />
                     <div>
                       <div className="er-party-abbr">{abbreviateParty(p.party)}</div>
                       <div className="er-party-name-full">{p.party}</div>
@@ -729,7 +927,11 @@ export default function ElectionResultsSection() {
                   className={`er-toggle-btn ${showAll ? "open" : ""}`}
                   onClick={() => {
                     setShowAll((v) => !v);
-                    if (!showAll) setTimeout(() => gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+                    if (!showAll)
+                      setTimeout(
+                        () => gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                        100
+                      );
                   }}
                 >
                   {showAll ? "Hide Constituencies" : "View All Constituencies"}
@@ -755,7 +957,15 @@ export default function ElectionResultsSection() {
               {showAll && (
                 <div ref={gridRef} className="er-grid-wrap">
                   {filteredConstituencies.length === 0 ? (
-                    <div style={{ padding: "32px", textAlign: "center", color: "#555", fontFamily: "'IBM Plex Mono', monospace", fontSize: 13 }}>
+                    <div
+                      style={{
+                        padding: "32px",
+                        textAlign: "center",
+                        color: "#555",
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: 13,
+                      }}
+                    >
                       No results match your search.
                     </div>
                   ) : (
@@ -794,10 +1004,7 @@ export default function ElectionResultsSection() {
                   )}
 
                   {!searchQuery && filteredConstituencies.length > displayedConstituencies.length && (
-                    <button
-                      className="er-show-more"
-                      onClick={() => setShowAll(true)}
-                    >
+                    <button className="er-show-more" onClick={() => setShowAll(true)}>
                       Scroll to see all {filteredConstituencies.length} constituencies ↓
                     </button>
                   )}
