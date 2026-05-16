@@ -74,17 +74,16 @@ function SkeletonBar() {
   );
 }
 
-// ── Gauge Arc Component ───────────────────────────────────────────────────────
 function GaugeArc({ partySummary, winner }) {
-  const W = 560, H = 310;
-  const cx = W / 2, cy = H - 30;
-  const R = 200, innerR = 138;
+  const W = 600, H = 330;
+  const cx = W / 2, cy = H - 40;
+  const R = 210, innerR = 148;
   const startAngle = -Math.PI;
-  const endAngle = 0;
-  const majorityAngle = -Math.PI / 2;
 
   const totalSeatsArc = partySummary.reduce((s, p) => s + p.seats, 0);
   const majorityNeeded = Math.ceil(totalSeatsArc / 2);
+  const winnerColor = winner ? getPartyColor(winner.party) : "#cc0000";
+  const hasMajority = winner && winner.seats >= majorityNeeded;
 
   let cumulative = 0;
   const segments = partySummary.map((p) => {
@@ -98,28 +97,40 @@ function GaugeArc({ partySummary, winner }) {
     return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
   }
 
-  function arcPath(startFrac, endFrac, outerR = R, inR = innerR) {
+  function arcPath(startFrac, endFrac, outerR = R, inR = innerR, gapRad = 0.018) {
     const a1 = startAngle + startFrac * Math.PI;
     const a2 = startAngle + endFrac * Math.PI;
-    const gap = 0.013;
+    const span = a2 - a1;
+    const gap = Math.min(gapRad, span * 0.3);
     const ag1 = a1 + gap / 2;
     const ag2 = a2 - gap / 2;
     if (ag2 <= ag1) return "";
-    const o = polarToXY(ag1, outerR);
-    const p = polarToXY(ag2, outerR);
-    const i = polarToXY(ag2, inR);
-    const j = polarToXY(ag1, inR);
+    const o  = polarToXY(ag1, outerR);
+    const p  = polarToXY(ag2, outerR);
+    const i  = polarToXY(ag2, inR);
+    const j  = polarToXY(ag1, inR);
     const large = ag2 - ag1 > Math.PI ? 1 : 0;
-    return `M ${o.x} ${o.y} A ${outerR} ${outerR} 0 ${large} 1 ${p.x} ${p.y} L ${i.x} ${i.y} A ${inR} ${inR} 0 ${large} 0 ${j.x} ${j.y} Z`;
+    return [
+      `M ${o.x.toFixed(2)} ${o.y.toFixed(2)}`,
+      `A ${outerR} ${outerR} 0 ${large} 1 ${p.x.toFixed(2)} ${p.y.toFixed(2)}`,
+      `L ${i.x.toFixed(2)} ${i.y.toFixed(2)}`,
+      `A ${inR} ${inR} 0 ${large} 0 ${j.x.toFixed(2)} ${j.y.toFixed(2)}`,
+      "Z",
+    ].join(" ");
   }
 
-  const mOuter = polarToXY(majorityAngle, R + 18);
-  const mInner = polarToXY(majorityAngle, innerR - 18);
-  const leftPt = polarToXY(startAngle, R + 22);
-  const rightPt = polarToXY(endAngle, R + 22);
+  // Unique gradient IDs per party
+  const gradIds = segments.map((_, i) => `seg-grad-${i}`);
 
-  const winnerColor = winner ? getPartyColor(winner.party) : "#cc0000";
-  const hasMajority = winner && winner.seats >= majorityNeeded;
+  // Majority line
+  const majAngle = -Math.PI / 2;
+  const mOuter = polarToXY(majAngle, R + 24);
+  const mInner = polarToXY(majAngle, innerR - 24);
+  const mLabelPt = polarToXY(majAngle, R + 38);
+
+  // End labels
+  const leftPt  = polarToXY(startAngle, R + 28);
+  const rightPt = polarToXY(0, R + 28);
 
   return (
     <div className="er-gauge-wrap">
@@ -128,173 +139,184 @@ function GaugeArc({ partySummary, winner }) {
         viewBox={`0 0 ${W} ${H}`}
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Outer glow ring (background track) */}
-        <path d={arcPath(0, 1, R + 2, innerR - 2)} fill="#161616" />
-        <path d={arcPath(0, 1)} fill="#1c1c1c" />
+        <defs>
+          {/* Radial gradients for each segment */}
+          {segments.map((p, i) => {
+            const color = getPartyColor(p.party);
+            return (
+              <radialGradient
+                key={gradIds[i]}
+                id={gradIds[i]}
+                cx="50%" cy="100%"
+                r="60%"
+                gradientUnits="objectBoundingBox"
+              >
+                <stop offset="0%" stopColor={color} stopOpacity="1" />
+                <stop offset="100%" stopColor={color} stopOpacity="0.7" />
+              </radialGradient>
+            );
+          })}
 
-        {/* Subtle tick marks */}
-        {Array.from({ length: 21 }).map((_, i) => {
-          const frac = i / 20;
-          const angle = startAngle + frac * Math.PI;
-          const isMainTick = i % 5 === 0;
-          const oPt = polarToXY(angle, R + (isMainTick ? 10 : 6));
-          const iPt = polarToXY(angle, R + 2);
-          return (
-            <line
-              key={i}
-              x1={iPt.x} y1={iPt.y}
-              x2={oPt.x} y2={oPt.y}
-              stroke={isMainTick ? "#2e2e2e" : "#222"}
-              strokeWidth={isMainTick ? 1.5 : 1}
-            />
-          );
-        })}
+          {/* Soft inner shadow ring */}
+          <radialGradient id="track-grad" cx="50%" cy="100%" r="55%">
+            <stop offset="0%" stopColor="#1e1e1e" />
+            <stop offset="100%" stopColor="#141414" />
+          </radialGradient>
 
-        {/* Party segments */}
-        {segments.map((p) => (
+          {/* Center glow */}
+          <radialGradient id="center-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={winnerColor} stopOpacity="0.08" />
+            <stop offset="100%" stopColor={winnerColor} stopOpacity="0" />
+          </radialGradient>
+
+          {/* Winner highlight gradient */}
+          <radialGradient id="winner-shine" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </radialGradient>
+
+          <filter id="seg-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#000" floodOpacity="0.5" />
+          </filter>
+        </defs>
+
+        {/* Background track - deep groove */}
+        <path d={arcPath(0, 1, R + 3, innerR - 3, 0)} fill="url(#track-grad)" opacity="0.6" />
+        <path d={arcPath(0, 1, R,     innerR,     0)} fill="#131313" />
+
+        {/* Subtle groove rim lines */}
+        <path
+          d={(() => {
+            const pts = Array.from({ length: 50 }, (_, k) => {
+              const a = startAngle + (k / 49) * Math.PI;
+              const pt = polarToXY(a, R);
+              return k === 0 ? `M ${pt.x} ${pt.y}` : `L ${pt.x} ${pt.y}`;
+            });
+            return pts.join(" ");
+          })()}
+          fill="none" stroke="#222" strokeWidth="0.5"
+        />
+        <path
+          d={(() => {
+            const pts = Array.from({ length: 50 }, (_, k) => {
+              const a = startAngle + (k / 49) * Math.PI;
+              const pt = polarToXY(a, innerR);
+              return k === 0 ? `M ${pt.x} ${pt.y}` : `L ${pt.x} ${pt.y}`;
+            });
+            return pts.join(" ");
+          })()}
+          fill="none" stroke="#1a1a1a" strokeWidth="0.5"
+        />
+
+        {/* Party segments — shadow pass first */}
+        {segments.map((p, i) => (
           <path
-            key={p.party}
-            d={arcPath(p.startFrac, p.endFrac)}
+            key={`shadow-${p.party}`}
+            d={arcPath(p.startFrac, p.endFrac, R + 1, innerR - 1)}
             fill={getPartyColor(p.party)}
-            opacity="0.93"
+            opacity="0.15"
+            filter="url(#soft-shadow)"
+          />
+        ))}
+
+        {/* Party segments — main fill */}
+        {segments.map((p, i) => (
+          <path
+            key={`seg-${p.party}`}
+            d={arcPath(p.startFrac, p.endFrac)}
+            fill={`url(#${gradIds[i]})`}
+            filter={i === 0 ? "url(#seg-glow)" : undefined}
           >
             <title>{p.party}: {p.seats} seats</title>
           </path>
         ))}
 
-        {/* Winner segment glow highlight (thin outer highlight arc) */}
-        {winner && segments[0] && (
+        {/* Winner segment — gloss sheen */}
+        {segments[0] && (
           <path
-            d={arcPath(segments[0].startFrac, segments[0].endFrac, R + 4, R + 1)}
-            fill={winnerColor}
-            opacity="0.35"
+            d={arcPath(segments[0].startFrac, segments[0].endFrac, R - 2, innerR + (R - innerR) * 0.45)}
+            fill="url(#winner-shine)"
+            opacity="0.6"
           />
         )}
+
+        {/* Center glow blob */}
+        <ellipse cx={cx} cy={cy} rx={70} ry={40} fill="url(#center-glow)" />
 
         {/* Majority dashed line */}
         <line
           x1={mInner.x} y1={mInner.y}
           x2={mOuter.x} y2={mOuter.y}
-          stroke="#3a3a3a"
-          strokeWidth="1.5"
-          strokeDasharray="4 3"
+          stroke="#383838"
+          strokeWidth="1"
+          strokeDasharray="3 4"
+          strokeLinecap="round"
         />
-        {/* Majority dot at top */}
-        <circle
-          cx={polarToXY(majorityAngle, R + 2).x}
-          cy={polarToXY(majorityAngle, R + 2).y}
-          r="3"
-          fill="#333"
-        />
+        {/* Majority dot */}
+        <circle cx={polarToXY(majAngle, R).x} cy={polarToXY(majAngle, R).y} r="3.5" fill="#2a2a2a" stroke="#444" strokeWidth="1" />
+        <circle cx={polarToXY(majAngle, innerR).x} cy={polarToXY(majAngle, innerR).y} r="3.5" fill="#2a2a2a" stroke="#444" strokeWidth="1" />
 
         {/* Majority label */}
-        <text
-          x={cx}
-          y={cy - R - 30}
-          textAnchor="middle"
-          fontFamily="'IBM Plex Mono', monospace"
-          fontSize="9"
-          fill="#444"
-          letterSpacing="0.1em"
-        >
+        <text x={mLabelPt.x} y={mLabelPt.y - 8} textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="8.5" fill="#3a3a3a" letterSpacing="0.12em">
           MAJORITY
         </text>
-        <text
-          x={cx}
-          y={cy - R - 18}
-          textAnchor="middle"
-          fontFamily="'IBM Plex Mono', monospace"
-          fontSize="11"
-          fill="#555"
-          fontWeight="600"
-        >
+        <text x={mLabelPt.x} y={mLabelPt.y + 4} textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="11" fill="#484848" fontWeight="600">
           {majorityNeeded}
         </text>
 
-        {/* 0 label (left) */}
-        <text
-          x={leftPt.x - 6}
-          y={leftPt.y + 4}
-          textAnchor="end"
-          fontFamily="'IBM Plex Mono', monospace"
-          fontSize="10"
-          fill="#444"
-        >
-          0
-        </text>
+        {/* 0 / total edge labels */}
+        <text x={leftPt.x - 4}  y={leftPt.y + 4} textAnchor="end"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="10" fill="#383838">0</text>
+        <text x={rightPt.x + 4} y={rightPt.y + 4} textAnchor="start"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="10" fill="#383838">{totalSeatsArc}</text>
 
-        {/* Total label (right) */}
-        <text
-          x={rightPt.x + 6}
-          y={rightPt.y + 4}
-          textAnchor="start"
-          fontFamily="'IBM Plex Mono', monospace"
-          fontSize="10"
-          fill="#444"
-        >
-          {totalSeatsArc}
-        </text>
-
-        {/* Center: leading seats count */}
-        <text
-          x={cx}
-          y={cy - 52}
-          textAnchor="middle"
-          fontFamily="'Playfair Display', serif"
-          fontSize="48"
-          fontWeight="900"
-          fill={winnerColor}
-        >
+        {/* ── Center display ── */}
+        {/* Seats number */}
+        <text x={cx} y={cy - 56} textAnchor="middle"
+          fontFamily="'Playfair Display', serif" fontSize="56" fontWeight="900"
+          fill={winnerColor} opacity="0.95">
           {winner?.seats ?? "—"}
         </text>
 
-        {/* Center: label */}
-        <text
-          x={cx}
-          y={cy - 28}
-          textAnchor="middle"
-          fontFamily="'IBM Plex Sans', sans-serif"
-          fontSize="11"
-          fill="#777"
-          letterSpacing="0.04em"
-        >
-          {winner
-            ? `${abbreviateParty(winner.party)} · ${hasMajority ? "MAJORITY" : "LEADING"}`
-            : "NO DATA"}
+        {/* Thin separator line */}
+        <line x1={cx - 32} y1={cy - 36} x2={cx + 32} y2={cy - 36}
+          stroke={winnerColor} strokeWidth="0.5" opacity="0.3" />
+
+        {/* Party abbreviation */}
+        <text x={cx} y={cy - 22} textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="10" fill="#888" letterSpacing="0.1em">
+          {winner ? abbreviateParty(winner.party) : "—"}
         </text>
 
-        {/* Center: seats label */}
-        <text
-          x={cx}
-          y={cy - 12}
-          textAnchor="middle"
-          fontFamily="'IBM Plex Mono', monospace"
-          fontSize="9"
-          fill="#444"
-          letterSpacing="0.12em"
-        >
-          SEATS WON
+        {/* Status label */}
+        <text x={cx} y={cy - 8} textAnchor="middle"
+          fontFamily="'IBM Plex Sans', sans-serif" fontSize="10" fill="#555" letterSpacing="0.06em">
+          {hasMajority ? "MAJORITY WON" : "LEADING"}
         </text>
       </svg>
 
-      {/* Majority status pill */}
-      <div
-        className="er-gauge-status"
-        style={{
-          borderColor: hasMajority ? winnerColor + "66" : "#2a2a2a",
-          background: hasMajority ? winnerColor + "11" : "#111",
-        }}
-      >
-        <span
-          className="er-gauge-status-dot"
-          style={{ background: hasMajority ? winnerColor : "#444" }}
-        />
-        <span style={{ color: hasMajority ? "#ccc" : "#555" }}>
+      {/* Status pill */}
+      <div className="er-gauge-status" style={{
+        borderColor: hasMajority ? winnerColor + "55" : "#222",
+        background:  hasMajority ? winnerColor + "0d" : "#0d0d0d",
+      }}>
+        <span className="er-gauge-status-dot" style={{ background: hasMajority ? winnerColor : "#333" }} />
+        <span style={{ color: hasMajority ? "#bbb" : "#444" }}>
           {hasMajority
-            ? `${winner.party} wins majority with ${winner.seats} seats`
+            ? `${winner.party} wins majority · ${winner.seats} seats`
             : winner
-            ? `${winner.party} leads — ${majorityNeeded - winner.seats} seats short of majority`
-            : "Results loading…"}
+            ? `${winner.party} leads · ${majorityNeeded - winner.seats} short of majority`
+            : "Awaiting results…"}
         </span>
       </div>
     </div>
@@ -493,35 +515,33 @@ export default function ElectionResultsSection() {
           margin-bottom: 28px;
         }
 
-        /* ── Gauge ── */
         .er-gauge-wrap {
           display: flex;
           flex-direction: column;
           align-items: center;
-          margin-bottom: 28px;
+          margin-bottom: 32px;
           position: relative;
         }
 
         .er-gauge-svg {
           width: 100%;
-          max-width: 520px;
+          max-width: 580px;
           overflow: visible;
-          filter: drop-shadow(0 0 32px rgba(0,0,0,0.8));
         }
 
         .er-gauge-status {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 8px 16px;
+          padding: 8px 20px;
           border: 1px solid #2a2a2a;
           border-radius: 20px;
           font-family: 'IBM Plex Mono', monospace;
           font-size: 11px;
           color: #666;
           letter-spacing: 0.04em;
-          margin-top: -8px;
-          transition: all 0.3s;
+          margin-top: -4px;
+          transition: all 0.4s ease;
         }
 
         .er-gauge-status-dot {
