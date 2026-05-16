@@ -75,235 +75,232 @@ function SkeletonBar() {
 }
 
 function GaugeArc({ partySummary, winner }) {
-  const W = 540, H = 320;
-  const cx = W / 2, cy = H - 60;
-  const R = 200;
-  const strokeW = 28;
-  const gapDeg = 220; // total arc span in degrees (220° = leaves 140° gap at bottom)
-  const startDeg = 180 + (360 - gapDeg) / 2; // starts bottom-left
-  const endDeg = startDeg + gapDeg;
+  const W = 600, H = 330;
+  const cx = W / 2, cy = H - 40;
+  const R = 210, innerR = 148;
+  const startAngle = -Math.PI;
 
-  const toRad = (d) => (d * Math.PI) / 180;
-
-  const totalSeats = partySummary.reduce((s, p) => s + p.seats, 0);
-  const majorityNeeded = Math.ceil(totalSeats / 2);
+  const totalSeatsArc = partySummary.reduce((s, p) => s + p.seats, 0);
+  const majorityNeeded = Math.ceil(totalSeatsArc / 2);
   const winnerColor = winner ? getPartyColor(winner.party) : "#cc0000";
   const hasMajority = winner && winner.seats >= majorityNeeded;
 
-  // Circumference of the arc track
-  const arcAngle = toRad(gapDeg);
-  const trackLen = R * arcAngle; // arc length = r * theta
-
-  // Convert polar angle (degrees, 0=right) to SVG x,y
-  function pt(deg, r = R) {
-    const rad = toRad(deg);
-    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-  }
-
-  // Build an SVG arc path string for a stroke-based arc segment
-  // Uses strokeDasharray trick: each segment is a full circle stroke,
-  // offset and dasharray set to show only its slice
-  function segmentDash(startFrac, endFrac) {
-    const circumference = 2 * Math.PI * R;
-    const arcSpanFrac = gapDeg / 360;
-    const fullArc = circumference * arcSpanFrac;
-
-    const segStart = fullArc * startFrac;
-    const segLen   = fullArc * (endFrac - startFrac);
-    const gap      = 3; // px gap between segments
-
-    return {
-      strokeDasharray: `${Math.max(0, segLen - gap)} ${circumference - (segLen - gap)}`,
-      strokeDashoffset: -(circumference * (startDeg / 360)) - segStart,
-    };
-  }
-
-  // Full circle path for stroke technique
-  const circleProps = {
-    cx, cy, r: R,
-    fill: "none",
-    strokeWidth: strokeW,
-    strokeLinecap: "round",
-  };
-
-  // Build segments
   let cumulative = 0;
   const segments = partySummary.map((p) => {
-    const startFrac = cumulative / totalSeats;
+    const startFrac = cumulative / totalSeatsArc;
     cumulative += p.seats;
-    const endFrac = cumulative / totalSeats;
+    const endFrac = cumulative / totalSeatsArc;
     return { ...p, startFrac, endFrac };
   });
 
-  // Majority marker position
-  const majFrac = majorityNeeded / totalSeats;
-  const majDeg  = startDeg + gapDeg * majFrac;
-  const majPtO  = pt(majDeg, R + strokeW / 2 + 10);
-  const majPtI  = pt(majDeg, R - strokeW / 2 - 10);
-  const majLbl  = pt(majDeg, R + strokeW / 2 + 26);
+  function polarToXY(angle, r) {
+    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  }
 
-  // Winner needle tip — end of winner's segment
-  const winFrac  = winner ? winner.seats / totalSeats : 0;
-  const winDeg   = startDeg + gapDeg * winFrac;
-  const needlePt = pt(winDeg, R);
-  const needleOuter = pt(winDeg, R + strokeW / 2 + 6);
+  function arcPath(startFrac, endFrac, outerR = R, inR = innerR, gapRad = 0.018) {
+    const a1 = startAngle + startFrac * Math.PI;
+    const a2 = startAngle + endFrac * Math.PI;
+    const span = a2 - a1;
+    const gap = Math.min(gapRad, span * 0.3);
+    const ag1 = a1 + gap / 2;
+    const ag2 = a2 - gap / 2;
+    if (ag2 <= ag1) return "";
+    const o  = polarToXY(ag1, outerR);
+    const p  = polarToXY(ag2, outerR);
+    const i  = polarToXY(ag2, inR);
+    const j  = polarToXY(ag1, inR);
+    const large = ag2 - ag1 > Math.PI ? 1 : 0;
+    return [
+      `M ${o.x.toFixed(2)} ${o.y.toFixed(2)}`,
+      `A ${outerR} ${outerR} 0 ${large} 1 ${p.x.toFixed(2)} ${p.y.toFixed(2)}`,
+      `L ${i.x.toFixed(2)} ${i.y.toFixed(2)}`,
+      `A ${inR} ${inR} 0 ${large} 0 ${j.x.toFixed(2)} ${j.y.toFixed(2)}`,
+      "Z",
+    ].join(" ");
+  }
 
-  // 0 and total labels
-  const labelStart = pt(startDeg, R + strokeW / 2 + 20);
-  const labelEnd   = pt(endDeg,   R + strokeW / 2 + 20);
+  // Unique gradient IDs per party
+  const gradIds = segments.map((_, i) => `seg-grad-${i}`);
+
+  // Majority line
+  const majAngle = -Math.PI / 2;
+  const mOuter = polarToXY(majAngle, R + 24);
+  const mInner = polarToXY(majAngle, innerR - 24);
+  const mLabelPt = polarToXY(majAngle, R + 38);
+
+  // End labels
+  const leftPt  = polarToXY(startAngle, R + 28);
+  const rightPt = polarToXY(0, R + 28);
 
   return (
     <div className="er-gauge-wrap">
-      <svg className="er-gauge-svg" viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg">
+      <svg
+        className="er-gauge-svg"
+        viewBox={`0 0 ${W} ${H}`}
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <defs>
-          <filter id="glow-filter" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          {/* Radial gradients for each segment */}
+          {segments.map((p, i) => {
+            const color = getPartyColor(p.party);
+            return (
+              <radialGradient
+                key={gradIds[i]}
+                id={gradIds[i]}
+                cx="50%" cy="100%"
+                r="60%"
+                gradientUnits="objectBoundingBox"
+              >
+                <stop offset="0%" stopColor={color} stopOpacity="1" />
+                <stop offset="100%" stopColor={color} stopOpacity="0.7" />
+              </radialGradient>
+            );
+          })}
+
+          {/* Soft inner shadow ring */}
+          <radialGradient id="track-grad" cx="50%" cy="100%" r="55%">
+            <stop offset="0%" stopColor="#1e1e1e" />
+            <stop offset="100%" stopColor="#141414" />
+          </radialGradient>
+
+          {/* Center glow */}
+          <radialGradient id="center-glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor={winnerColor} stopOpacity="0.08" />
+            <stop offset="100%" stopColor={winnerColor} stopOpacity="0" />
+          </radialGradient>
+
+          {/* Winner highlight gradient */}
+          <radialGradient id="winner-shine" cx="30%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </radialGradient>
+
+          <filter id="seg-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
-          <filter id="needle-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+
+          <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#000" floodOpacity="0.5" />
           </filter>
-          {/* Per-party glow gradients */}
-          {segments.map((p, i) => (
-            <radialGradient key={i} id={`pg-${i}`} cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor={getPartyColor(p.party)} stopOpacity="1" />
-              <stop offset="100%" stopColor={getPartyColor(p.party)} stopOpacity="0.75" />
-            </radialGradient>
-          ))}
         </defs>
 
-        {/* ── Track (background arc) ── */}
-        <circle
-          {...circleProps}
-          stroke="#1c1c1c"
-          strokeWidth={strokeW + 4}
-          strokeLinecap="butt"
-          strokeDasharray={`${(gapDeg / 360) * 2 * Math.PI * R} ${2 * Math.PI * R}`}
-          strokeDashoffset={-(2 * Math.PI * R) * (startDeg / 360)}
+        {/* Background track - deep groove */}
+        <path d={arcPath(0, 1, R + 3, innerR - 3, 0)} fill="url(#track-grad)" opacity="0.6" />
+        <path d={arcPath(0, 1, R,     innerR,     0)} fill="#131313" />
+
+        {/* Subtle groove rim lines */}
+        <path
+          d={(() => {
+            const pts = Array.from({ length: 50 }, (_, k) => {
+              const a = startAngle + (k / 49) * Math.PI;
+              const pt = polarToXY(a, R);
+              return k === 0 ? `M ${pt.x} ${pt.y}` : `L ${pt.x} ${pt.y}`;
+            });
+            return pts.join(" ");
+          })()}
+          fill="none" stroke="#222" strokeWidth="0.5"
         />
-        <circle
-          {...circleProps}
-          stroke="#161616"
-          strokeDasharray={`${(gapDeg / 360) * 2 * Math.PI * R} ${2 * Math.PI * R}`}
-          strokeDashoffset={-(2 * Math.PI * R) * (startDeg / 360)}
-          strokeLinecap="butt"
+        <path
+          d={(() => {
+            const pts = Array.from({ length: 50 }, (_, k) => {
+              const a = startAngle + (k / 49) * Math.PI;
+              const pt = polarToXY(a, innerR);
+              return k === 0 ? `M ${pt.x} ${pt.y}` : `L ${pt.x} ${pt.y}`;
+            });
+            return pts.join(" ");
+          })()}
+          fill="none" stroke="#1a1a1a" strokeWidth="0.5"
         />
 
-        {/* ── Party segments ── */}
-        {segments.map((p, i) => {
-          const { strokeDasharray, strokeDashoffset } = segmentDash(p.startFrac, p.endFrac);
-          const isWinner = i === 0;
-          return (
-            <circle
-              key={p.party}
-              {...circleProps}
-              stroke={getPartyColor(p.party)}
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              filter={isWinner ? "url(#glow-filter)" : undefined}
-              opacity={isWinner ? 1 : 0.88}
-            >
-              <title>{p.party}: {p.seats} seats</title>
-            </circle>
-          );
-        })}
+        {/* Party segments — shadow pass first */}
+        {segments.map((p, i) => (
+          <path
+            key={`shadow-${p.party}`}
+            d={arcPath(p.startFrac, p.endFrac, R + 1, innerR - 1)}
+            fill={getPartyColor(p.party)}
+            opacity="0.15"
+            filter="url(#soft-shadow)"
+          />
+        ))}
 
-        {/* ── Majority marker ── */}
+        {/* Party segments — main fill */}
+        {segments.map((p, i) => (
+          <path
+            key={`seg-${p.party}`}
+            d={arcPath(p.startFrac, p.endFrac)}
+            fill={`url(#${gradIds[i]})`}
+            filter={i === 0 ? "url(#seg-glow)" : undefined}
+          >
+            <title>{p.party}: {p.seats} seats</title>
+          </path>
+        ))}
+
+        {/* Winner segment — gloss sheen */}
+        {segments[0] && (
+          <path
+            d={arcPath(segments[0].startFrac, segments[0].endFrac, R - 2, innerR + (R - innerR) * 0.45)}
+            fill="url(#winner-shine)"
+            opacity="0.6"
+          />
+        )}
+
+        {/* Center glow blob */}
+        <ellipse cx={cx} cy={cy} rx={70} ry={40} fill="url(#center-glow)" />
+
+        {/* Majority dashed line */}
         <line
-          x1={majPtI.x} y1={majPtI.y}
-          x2={majPtO.x} y2={majPtO.y}
-          stroke="#3a3a3a"
-          strokeWidth="1.5"
-          strokeDasharray="3 3"
+          x1={mInner.x} y1={mInner.y}
+          x2={mOuter.x} y2={mOuter.y}
+          stroke="#383838"
+          strokeWidth="1"
+          strokeDasharray="3 4"
           strokeLinecap="round"
         />
-        <circle cx={majPtO.x} cy={majPtO.y} r="3" fill="#2a2a2a" stroke="#484848" strokeWidth="1" />
-        <circle cx={majPtI.x} cy={majPtI.y} r="3" fill="#2a2a2a" stroke="#484848" strokeWidth="1" />
-        <text
-          x={majLbl.x} y={majLbl.y}
-          textAnchor="middle" dominantBaseline="middle"
-          fontFamily="'IBM Plex Mono', monospace" fontSize="9" fill="#444" letterSpacing="0.1em"
-        >
+        {/* Majority dot */}
+        <circle cx={polarToXY(majAngle, R).x} cy={polarToXY(majAngle, R).y} r="3.5" fill="#2a2a2a" stroke="#444" strokeWidth="1" />
+        <circle cx={polarToXY(majAngle, innerR).x} cy={polarToXY(majAngle, innerR).y} r="3.5" fill="#2a2a2a" stroke="#444" strokeWidth="1" />
+
+        {/* Majority label */}
+        <text x={mLabelPt.x} y={mLabelPt.y - 8} textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="8.5" fill="#3a3a3a" letterSpacing="0.12em">
           MAJORITY
         </text>
-        <text
-          x={majLbl.x} y={majLbl.y + 12}
-          textAnchor="middle" dominantBaseline="middle"
-          fontFamily="'IBM Plex Mono', monospace" fontSize="11" fontWeight="600" fill="#505050"
-        >
+        <text x={mLabelPt.x} y={mLabelPt.y + 4} textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="11" fill="#484848" fontWeight="600">
           {majorityNeeded}
         </text>
 
-        {/* ── Winner needle dot ── */}
-        {winner && (
-          <>
-            <circle
-              cx={needleOuter.x} cy={needleOuter.y} r="7"
-              fill={winnerColor} opacity="0.15"
-              filter="url(#needle-glow)"
-            />
-            <circle
-              cx={needlePt.x} cy={needlePt.y} r="5"
-              fill={winnerColor} stroke="#0a0a0a" strokeWidth="2"
-              filter="url(#needle-glow)"
-            />
-          </>
-        )}
-
-        {/* ── 0 / total edge labels ── */}
-        <text
-          x={labelStart.x} y={labelStart.y}
-          textAnchor="middle" dominantBaseline="middle"
-          fontFamily="'IBM Plex Mono', monospace" fontSize="11" fill="#333"
-        >0</text>
-        <text
-          x={labelEnd.x} y={labelEnd.y}
-          textAnchor="middle" dominantBaseline="middle"
-          fontFamily="'IBM Plex Mono', monospace" fontSize="11" fill="#333"
-        >{totalSeats}</text>
+        {/* 0 / total edge labels */}
+        <text x={leftPt.x - 4}  y={leftPt.y + 4} textAnchor="end"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="10" fill="#383838">0</text>
+        <text x={rightPt.x + 4} y={rightPt.y + 4} textAnchor="start"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="10" fill="#383838">{totalSeatsArc}</text>
 
         {/* ── Center display ── */}
-        {/* Soft glow behind number */}
-        <ellipse cx={cx} cy={cy - 30} rx={80} ry={50}
-          fill={winnerColor} opacity="0.04" />
-
-        {/* Big seat number */}
-        <text
-          x={cx} y={cy - 42}
-          textAnchor="middle"
-          fontFamily="'Playfair Display', serif"
-          fontSize="64" fontWeight="900"
-          fill={winnerColor}
-        >
+        {/* Seats number */}
+        <text x={cx} y={cy - 56} textAnchor="middle"
+          fontFamily="'Playfair Display', serif" fontSize="56" fontWeight="900"
+          fill={winnerColor} opacity="0.95">
           {winner?.seats ?? "—"}
         </text>
 
-        {/* Divider */}
-        <line
-          x1={cx - 36} y1={cy - 18}
-          x2={cx + 36} y2={cy - 18}
-          stroke={winnerColor} strokeWidth="0.75" opacity="0.25"
-        />
+        {/* Thin separator line */}
+        <line x1={cx - 32} y1={cy - 36} x2={cx + 32} y2={cy - 36}
+          stroke={winnerColor} strokeWidth="0.5" opacity="0.3" />
 
-        {/* Party abbr */}
-        <text
-          x={cx} y={cy - 4}
-          textAnchor="middle"
-          fontFamily="'IBM Plex Mono', monospace"
-          fontSize="11" fill="#777" letterSpacing="0.12em"
-        >
+        {/* Party abbreviation */}
+        <text x={cx} y={cy - 22} textAnchor="middle"
+          fontFamily="'IBM Plex Mono', monospace" fontSize="10" fill="#888" letterSpacing="0.1em">
           {winner ? abbreviateParty(winner.party) : "—"}
         </text>
 
-        {/* Status */}
-        <text
-          x={cx} y={cy + 12}
-          textAnchor="middle"
-          fontFamily="'IBM Plex Sans', sans-serif"
-          fontSize="10" fill="#444" letterSpacing="0.06em"
-        >
+        {/* Status label */}
+        <text x={cx} y={cy - 8} textAnchor="middle"
+          fontFamily="'IBM Plex Sans', sans-serif" fontSize="10" fill="#555" letterSpacing="0.06em">
           {hasMajority ? "MAJORITY WON" : "LEADING"}
         </text>
       </svg>
@@ -519,41 +516,41 @@ export default function ElectionResultsSection() {
         }
 
         .er-gauge-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 32px;
-        position: relative;
-      }
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 32px;
+      position: relative;
+    }
 
-      .er-gauge-svg {
-        width: 100%;
-        max-width: 540px;
-        overflow: visible;
-      }
+    .er-gauge-svg {
+      width: 100%;
+      max-width: 540px;
+      overflow: visible;
+    }
 
-      .er-gauge-status {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 20px;
-        border: 1px solid #2a2a2a;
-        border-radius: 20px;
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 11px;
-        color: #666;
-        letter-spacing: 0.04em;
-        margin-top: 8px;
-        transition: all 0.4s ease;
-      }
+    .er-gauge-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      border: 1px solid #2a2a2a;
+      border-radius: 20px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #666;
+      letter-spacing: 0.04em;
+      margin-top: 8px;
+      transition: all 0.4s ease;
+    }
 
-      .er-gauge-status-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        animation: er-pulse 2s infinite;
-      }
+    .er-gauge-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: er-pulse 2s infinite;
+    }
 
         /* Majority banner */
         .er-majority-banner {
