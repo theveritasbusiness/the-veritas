@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Script from "next/script";
 import "../src/index.css";
+import AnalyticsLoader from "../src/components/AnalyticsLoader";
 
 const HOME_DESCRIPTION =
   "The Veritas is a fearless voice for truth and justice. In an age of misinformation, we practice unbiased, fact-checked, and responsible journalism. We uncover hidden realities, amplify marginalized voices, and hold power to account going beyond headlines to report stories that truly impact society. The Veritas is not just a media house; it is a movement where truth speaks and justice prevails.";
@@ -77,24 +78,8 @@ export default function VeritasApp({ Component, pageProps }) {
         />
       </Head>
 
-      {/* Scripts are fine using afterInteractive */}
-      <Script
-        strategy="afterInteractive"
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9106312967186703"
-        crossOrigin="anonymous"
-      />
-      <Script
-        strategy="afterInteractive"
-        src="https://www.googletagmanager.com/gtag/js?id=G-CGB4JKXZ8J"
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-CGB4JKXZ8J');
-        `}
-      </Script>
+      {/* Load analytics only after user consents to cookies */}
+      <AnalyticsLoader />
 
       <Component {...pageProps} />
     </>

@@ -4,6 +4,7 @@ import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } 
 import AdSlot from "./components/AdSlot";
 import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
+import Head from "next/head";
 import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
@@ -163,6 +164,12 @@ export default function TheVeritasShowcase({
         robots={isFilteredHomeView ? "noindex,follow" : "index,follow"}
         absoluteTitle
       />
+
+      {heroArticle && heroArticle.hero_image ? (
+        <Head>
+          <link rel="preload" as="image" href={getHeroImageUrl(heroArticle.hero_image, heroArticle.hero_focus)} />
+        </Head>
+      ) : null}
 
       <MarketTickerTape />
 

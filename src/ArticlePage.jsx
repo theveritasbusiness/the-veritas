@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Script from "next/script";
+import Head from "next/head";
 import { Link, useParams } from "./lib/router";
 import { fetchArticleBySlug, fetchArticles } from "./api";
 import AdSlot from "./components/AdSlot";
@@ -180,6 +181,12 @@ export default function ArticlePage({
         tags={Array.isArray(article.hashtags) ? article.hashtags : []}
       />
 
+      {article.hero_image ? (
+        <Head>
+          <link rel="preload" as="image" href={getStoryImageUrl(article.hero_image)} />
+        </Head>
+      ) : null}
+
       {isMounted && (
         <Script
           src="https://news.google.com/swg/js/v1/swg-basic.js"
@@ -228,9 +235,14 @@ export default function ArticlePage({
         <img
           src={getStoryImageUrl(article.hero_image)}
           className="my-6 max-h-[520px] w-full rounded-2xl object-cover shadow-lg sm:my-8"
-          style={getImagePresentation(article.hero_focus, article.hero_crop)}
-          alt={article.hero_caption || articleTitle}
+          style={{
+            ...getImagePresentation(article.hero_focus, article.hero_crop),
+            aspectRatio: "16/9",
+            width: "100%"
+          }}
+          alt={article.hero_caption || articleTitle || "Article image"}
           loading="eager"
+          decoding="async"
         />
         {article.hero_caption ? (
           <div className="-mt-2 mb-6 text-sm leading-6 text-neutral-400 sm:mb-8">{article.hero_caption}</div>
@@ -253,9 +265,11 @@ export default function ArticlePage({
                 <figure key={index} className="my-8 space-y-3">
                   <img
                     src={getStoryImageUrl(text)}
-                    alt={block.caption || ""}
+                    alt={block.caption || articleTitle || "Article image"}
                     className="max-h-[560px] w-full rounded-2xl object-cover shadow-lg"
                     loading="lazy"
+                    decoding="async"
+                    style={{ aspectRatio: "16/9", width: "100%" }}
                   />
                   {block.caption && (
                     <figcaption className="text-sm text-neutral-400">{block.caption}</figcaption>
