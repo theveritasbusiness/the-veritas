@@ -1,11 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "./lib/router";
-import { fetchArticles, fetchBreaking, loadCachedArticles, loadCachedBreaking } from "./api";
+import {
+  fetchArticles,
+  fetchBreaking,
+  fetchSubcategories,
+  loadCachedArticles,
+  loadCachedBreaking
+} from "./api";
 import AdSlot from "./components/AdSlot";
 import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
 import Head from "next/head";
 import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
+import { getCategoryConfigByName, getCategoryPath } from "./content/categories";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
 import ElectionResultsSection from "./ElectionResultsSection";
@@ -28,6 +35,7 @@ function EditorialBadge({ className = "" }) {
 export default function TheVeritasShowcase({
   initialArticles = [],
   initialBreaking = [],
+  initialSubcategories = [],
   initialLoadError = "",
   forcedCategory = "",
   pageTitle = HOME_TITLE,
@@ -36,6 +44,7 @@ export default function TheVeritasShowcase({
 }) {
   const [articles, setArticles] = useState(initialArticles);
   const [breaking, setBreaking] = useState(initialBreaking);
+  const [subcategories, setSubcategories] = useState(initialSubcategories);
   const [loading, setLoading] = useState(
     initialArticles.length === 0 && initialBreaking.length === 0 && !initialLoadError
   );
@@ -46,8 +55,12 @@ export default function TheVeritasShowcase({
 
   const searchQuery = searchParams.get("search") || "";
   const selectedCategory = forcedCategory || searchParams.get("category");
+  const selectedSubcategory = searchParams.get("subcategory") || "";
   const isFilteredHomeView =
-    !forcedCategory && (Boolean(searchQuery) || Boolean(selectedCategory && selectedCategory !== "Home"));
+    !forcedCategory &&
+    (Boolean(searchQuery) ||
+      Boolean(selectedCategory && selectedCategory !== "Home") ||
+      Boolean(selectedSubcategory));
 
   const searchedArticles = articles.filter((article) => {
     const query = searchQuery.toLowerCase();
@@ -61,8 +74,19 @@ export default function TheVeritasShowcase({
   });
 
   const finalArticles = searchedArticles.filter((article) => {
-    if (!selectedCategory || selectedCategory === "Home") return true;
-    return article.category && article.category.toLowerCase() === selectedCategory.toLowerCase();
+    const categoryMatches =
+      !selectedCategory ||
+      selectedCategory === "Home" ||
+      (article.category && article.category.toLowerCase() === selectedCategory.toLowerCase());
+
+    if (!categoryMatches) return false;
+
+    if (!selectedSubcategory) return true;
+
+    return (
+      article.subcategory_slug?.toLowerCase() === selectedSubcategory.toLowerCase() ||
+      article.subcategory?.toLowerCase() === selectedSubcategory.toLowerCase()
+    );
   });
 
   const sliderArticles = finalArticles.filter((article) => article.show_on_slider === true);
@@ -74,6 +98,39 @@ export default function TheVeritasShowcase({
   const heroArticle = heroSlides[heroIndex] || heroSlides[0] || null;
   const secondaryArticles = finalArticles.filter((article) => article.slug !== heroArticle?.slug);
   const featuredArticle = secondaryArticles[0] || null;
+  const shouldShowSubcategorySections =
+    !forcedCategory && !searchQuery && !selectedCategory && !selectedSubcategory;
+
+  const homepageSubcategorySections = useMemo(() => {
+    if (!shouldShowSubcategorySections) return [];
+
+    return subcategories
+      .map((subcategory) => {
+        const sectionArticles = articles.filter(
+          (article) =>
+            article.subcategory_slug === subcategory.slug &&
+            article.category === subcategory.category
+        );
+
+        if (sectionArticles.length === 0) {
+          return null;
+        }
+
+        const leadArticle = sectionArticles[0];
+        const supportingArticles = sectionArticles.slice(1, 5);
+        const categoryConfig = getCategoryConfigByName(subcategory.category);
+
+        return {
+          ...subcategory,
+          categoryPath: categoryConfig
+            ? `${getCategoryPath(categoryConfig.slug)}?subcategory=${subcategory.slug}`
+            : "/",
+          leadArticle,
+          supportingArticles
+        };
+      })
+      .filter(Boolean);
+  }, [articles, shouldShowSubcategorySections, subcategories]);
 
   const shorts = [
     {
@@ -99,8 +156,10 @@ export default function TheVeritasShowcase({
       try {
         if (articles.length === 0 && breaking.length === 0) setLoading(true);
         const [allArticles, breakingArticles] = await Promise.all([fetchArticles(), fetchBreaking()]);
+        const subcategoryData = await fetchSubcategories().catch(() => []);
         setArticles(allArticles);
         setBreaking(breakingArticles);
+        setSubcategories(Array.isArray(subcategoryData) ? subcategoryData : []);
         setLoadError("");
       } catch (err) {
         console.error("Failed to load articles:", err);
@@ -110,12 +169,12 @@ export default function TheVeritasShowcase({
       }
     }
 
-    if (initialArticles.length === 0 || initialBreaking.length === 0) {
+    if (initialArticles.length === 0 || initialBreaking.length === 0 || initialSubcategories.length === 0) {
       loadData();
     } else {
       setLoading(false);
     }
-  }, [initialArticles.length, initialBreaking.length]);
+  }, [initialArticles.length, initialBreaking.length, initialSubcategories.length]);
 
   useEffect(() => {
     if (heroIndex > heroSlides.length - 1) {
@@ -457,6 +516,87 @@ export default function TheVeritasShowcase({
       </main>
 
       <ElectionResultsSection />
+      {homepageSubcategorySections.length > 0 ? (
+        <section className="mx-auto max-w-6xl px-3 pb-10 sm:px-4">
+          <div className="space-y-8">
+            {homepageSubcategorySections.map((section) => (
+              <div key={section.slug} className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4 sm:p-5">
+                <div className="mb-5 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.28em] text-neutral-400">
+                      {section.category}
+                    </div>
+                    <h2 className="mt-2 font-serif text-2xl text-white sm:text-[2rem]">{section.name}</h2>
+                  </div>
+                </div>
+
+                <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr),minmax(0,1fr)]">
+                  <Link
+                    to={`/article/${section.leadArticle.slug}`}
+                    className="group overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900"
+                  >
+                    {section.leadArticle.hero_image ? (
+                      <img
+                        src={getHeroImageUrl(section.leadArticle.hero_image, section.leadArticle.hero_focus)}
+                        alt={section.leadArticle.title}
+                        className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-[1.02] sm:h-72"
+                        style={getImagePresentation(section.leadArticle.hero_focus, section.leadArticle.hero_crop)}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : null}
+
+                    <div className="p-4 sm:p-5">
+                      <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--veritas-red)]">
+                        {section.leadArticle.category}
+                      </div>
+                      <h3 className="mt-3 font-serif text-2xl leading-tight text-white group-hover:underline sm:text-[2rem]">
+                        {section.leadArticle.title}
+                      </h3>
+                      <p className="mt-3 text-sm leading-[1.7] text-neutral-300">
+                        {section.leadArticle.subheadline || section.leadArticle.paragraphs?.[0]?.slice(0, 160)}
+                      </p>
+                    </div>
+                  </Link>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {section.supportingArticles.map((article) => (
+                      <Link
+                        key={article.id}
+                        to={`/article/${article.slug}`}
+                        className="flex min-h-[160px] flex-col justify-between rounded-2xl border border-neutral-800 bg-neutral-900 p-4 transition-colors hover:border-neutral-700"
+                      >
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--veritas-red)]">
+                            {article.category}
+                          </div>
+                          <h4 className="mt-3 text-lg font-semibold leading-snug text-white hover:underline">
+                            {article.title}
+                          </h4>
+                          <p className="mt-2 text-sm leading-[1.65] text-neutral-400">
+                            {article.subheadline || article.paragraphs?.[0]?.slice(0, 100)}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 text-xs text-neutral-500">{getArticleDisplayTime(article)}</div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-5">
+                  <Link
+                    to={section.categoryPath}
+                    className="inline-flex items-center rounded-full border border-white/15 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white/30 hover:bg-white/5"
+                  >
+                    More
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <style>{`
         .veritas-loader {

@@ -26,20 +26,23 @@ export async function getStaticProps({ params }) {
   }
 
   try {
-    const [articlesRes, breakingRes] = await Promise.all([
+    const [articlesRes, breakingRes, subcategoriesRes] = await Promise.all([
       fetch(`${API_BASE}/articles`),
-      fetch(`${API_BASE}/articles/breaking`)
+      fetch(`${API_BASE}/articles/breaking`),
+      fetch(`${API_BASE}/subcategories`)
     ]);
 
-    const [initialArticles, initialBreaking] = await Promise.all([
+    const [initialArticles, initialBreaking, initialSubcategories] = await Promise.all([
       articlesRes.ok ? articlesRes.json() : [],
-      breakingRes.ok ? breakingRes.json() : []
+      breakingRes.ok ? breakingRes.json() : [],
+      subcategoriesRes.ok ? subcategoriesRes.json() : []
     ]);
 
     return {
       props: {
         initialArticles: Array.isArray(initialArticles) ? initialArticles : [],
         initialBreaking: Array.isArray(initialBreaking) ? initialBreaking : [],
+        initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
         initialLoadError: "",
         forcedCategory: category.name,
         pageTitle: `${category.title} | The Veritas`,
@@ -53,6 +56,7 @@ export async function getStaticProps({ params }) {
       props: {
         initialArticles: [],
         initialBreaking: [],
+        initialSubcategories: [],
         initialLoadError: "",
         forcedCategory: category.name,
         pageTitle: `${category.title} | The Veritas`,

@@ -12,20 +12,23 @@ export default function HomePage(props) {
 
 export async function getStaticProps() {
   try {
-    const [articlesRes, breakingRes] = await Promise.all([
+    const [articlesRes, breakingRes, subcategoriesRes] = await Promise.all([
       fetch(`${API_BASE}/articles`),
-      fetch(`${API_BASE}/articles/breaking`)
+      fetch(`${API_BASE}/articles/breaking`),
+      fetch(`${API_BASE}/subcategories`)
     ]);
 
-    const [initialArticles, initialBreaking] = await Promise.all([
+    const [initialArticles, initialBreaking, initialSubcategories] = await Promise.all([
       articlesRes.ok ? articlesRes.json() : [],
-      breakingRes.ok ? breakingRes.json() : []
+      breakingRes.ok ? breakingRes.json() : [],
+      subcategoriesRes.ok ? subcategoriesRes.json() : []
     ]);
 
     return {
       props: {
         initialArticles: Array.isArray(initialArticles) ? initialArticles : [],
         initialBreaking: Array.isArray(initialBreaking) ? initialBreaking : [],
+        initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
         initialLoadError: ""
       },
       revalidate: 60
@@ -35,6 +38,7 @@ export async function getStaticProps() {
       props: {
         initialArticles: [],
         initialBreaking: [],
+        initialSubcategories: [],
         initialLoadError: ""
       },
       revalidate: 60

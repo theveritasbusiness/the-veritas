@@ -107,6 +107,18 @@ export async function fetchAdminArticle(id) {
   });
 }
 
+export async function fetchSubcategories() {
+  return fetchJson("/subcategories");
+}
+
+export async function createSubcategory(payload) {
+  return fetchJson("/subcategories", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+}
+
 export function authHeaders() {
   return {
     "Content-Type": "application/json",

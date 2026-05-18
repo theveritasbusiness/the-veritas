@@ -1,18 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "../lib/router";
 import {
   API_BASE,
   CLOUDINARY_UPLOAD_PRESET,
   authHeaders,
+  fetchSubcategories,
   getCloudinaryUploadUrl
 } from "../api";
 import HeroImageEditor from "../components/HeroImageEditor";
+import { CATEGORY_CONFIG } from "../content/categories";
 import { HERO_FOCUS_OPTIONS } from "../utils/cloudinary";
 
 export default function NewArticle() {
   const [title, setTitle] = useState("");
   const [subheadline, setSubheadline] = useState("");
   const [category, setCategory] = useState("");
+  const [subcategorySlug, setSubcategorySlug] = useState("");
+  const [subcategories, setSubcategories] = useState([]);
   const [heroImage, setHeroImage] = useState("");
   const [uploading, setUploading] = useState(false);
   const [heroCaption, setHeroCaption] = useState("");
@@ -26,6 +30,42 @@ export default function NewArticle() {
   const [isEditorial, setIsEditorial] = useState(false);
   const [contentBlocks, setContentBlocks] = useState([{ type: "paragraph", text: "" }]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSubcategories() {
+      try {
+        const data = await fetchSubcategories();
+        if (isMounted) {
+          setSubcategories(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (isMounted) {
+          setSubcategories([]);
+        }
+      }
+    }
+
+    loadSubcategories();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const availableSubcategories = useMemo(() => {
+    if (!category) return subcategories;
+    return subcategories.filter(
+      (subcategory) => subcategory.category?.toLowerCase() === category.toLowerCase()
+    );
+  }, [category, subcategories]);
+
+  useEffect(() => {
+    if (!subcategorySlug) return;
+    if (!availableSubcategories.some((subcategory) => subcategory.slug === subcategorySlug)) {
+      setSubcategorySlug("");
+    }
+  }, [availableSubcategories, subcategorySlug]);
 
   function createTableBlock(columnCount = 3, rowCount = 2) {
     return {
@@ -173,6 +213,8 @@ export default function NewArticle() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
+    const selectedSubcategory = subcategories.find((item) => item.slug === subcategorySlug) || null;
+
     try {
       const res = await fetch(`${API_BASE}/articles`, {
         method: "POST",
@@ -182,6 +224,8 @@ export default function NewArticle() {
           subheadline,
           slug,
           category,
+          subcategory: selectedSubcategory?.name || "",
+          subcategory_slug: selectedSubcategory?.slug || "",
           hero_image: heroImage,
           hero_caption: heroCaption,
           hero_focus: heroFocus,
@@ -217,7 +261,32 @@ export default function NewArticle() {
 
         <input placeholder="Headline" className="w-full p-2 bg-black border" onChange={(e) => setTitle(e.target.value)} />
         <input placeholder="Subheadline" className="w-full p-2 bg-black border" onChange={(e) => setSubheadline(e.target.value)} />
-        <input placeholder="Category" className="w-full p-2 bg-black border" onChange={(e) => setCategory(e.target.value)} />
+        <select
+          className="w-full p-2 bg-black border"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">Select category</option>
+          {CATEGORY_CONFIG.map((categoryOption) => (
+            <option key={categoryOption.slug} value={categoryOption.name}>
+              {categoryOption.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="w-full p-2 bg-black border"
+          value={subcategorySlug}
+          onChange={(e) => setSubcategorySlug(e.target.value)}
+        >
+          <option value="">No subcategory</option>
+          {availableSubcategories.map((subcategory) => (
+            <option key={subcategory.id || subcategory.slug} value={subcategory.slug}>
+              {subcategory.name}
+            </option>
+          ))}
+        </select>
+
         <input type="file" accept="image/*" className="w-full p-2 bg-black border" onChange={(e) => handleImageUpload(e.target.files[0])} />
 
         {uploading && <div className="text-sm text-neutral-400">Uploading image...</div>}

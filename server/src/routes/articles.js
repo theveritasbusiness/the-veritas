@@ -141,6 +141,8 @@ function normalizeArticle(article, columns) {
     slug: cleanSlug || article.slug,
     raw_slug: article.slug,
     author_name: article.author_name || "The Veritas Desk",
+    subcategory: article.subcategory || "",
+    subcategory_slug: article.subcategory_slug || "",
     hero_crop: heroCrop,
     content_blocks: parseContentBlocks(article),
     published_ago: hasColumn(columns, "published_at")
@@ -351,6 +353,8 @@ router.post("/", requireAuth, async (req, res) => {
       hero_focus,
       hero_crop,
       author_name,
+      subcategory,
+      subcategory_slug,
       hashtags,
       paragraphs,
       bibliography,
@@ -370,6 +374,8 @@ router.post("/", requireAuth, async (req, res) => {
     const contentBlocksJSON = JSON.stringify(blocks);
 
     let columns = await ensureArticleColumn("author_name", "TEXT");
+    columns = await ensureArticleColumn("subcategory", "TEXT");
+    columns = await ensureArticleColumn("subcategory_slug", "TEXT");
     columns = await ensureArticleColumn("hero_focus", "TEXT DEFAULT 'auto'");
     columns = await ensureArticleColumn("hero_crop", "TEXT");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
@@ -417,8 +423,8 @@ router.post("/", requireAuth, async (req, res) => {
     ];
 
     if (hasColumn(columns, "author_name")) {
-      insertColumns.splice(6, 0, "author_name");
-      values.splice(6, 0, author_name?.trim() || "");
+      insertColumns.splice(6, 0, "author_name", "subcategory", "subcategory_slug");
+      values.splice(6, 0, author_name?.trim() || "", subcategory?.trim() || "", subcategory_slug?.trim() || "");
     }
 
     const placeholders = insertColumns.map((_, index) => `$${index + 1}`).join(",");
@@ -461,6 +467,8 @@ router.put("/:id", requireAuth, async (req, res) => {
       hero_focus,
       hero_crop,
       author_name,
+      subcategory,
+      subcategory_slug,
       hashtags,
       paragraphs,
       bibliography,
@@ -480,6 +488,8 @@ router.put("/:id", requireAuth, async (req, res) => {
     const contentBlocksJSON = JSON.stringify(blocks);
 
     let columns = await ensureArticleColumn("author_name", "TEXT");
+    columns = await ensureArticleColumn("subcategory", "TEXT");
+    columns = await ensureArticleColumn("subcategory_slug", "TEXT");
     columns = await ensureArticleColumn("hero_focus", "TEXT DEFAULT 'auto'");
     columns = await ensureArticleColumn("hero_crop", "TEXT");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
@@ -502,7 +512,13 @@ router.put("/:id", requireAuth, async (req, res) => {
     ];
 
     if (hasColumn(columns, "author_name")) {
-      updateEntries.splice(5, 0, ["author_name", author_name?.trim() || ""]);
+      updateEntries.splice(
+        5,
+        0,
+        ["author_name", author_name?.trim() || ""],
+        ["subcategory", subcategory?.trim() || ""],
+        ["subcategory_slug", subcategory_slug?.trim() || ""]
+      );
     }
 
     const values = updateEntries.map(([, value]) => value);

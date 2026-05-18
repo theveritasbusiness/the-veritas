@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "../lib/router";
 import {
   API_BASE,
   CLOUDINARY_UPLOAD_PRESET,
   authHeaders,
   fetchAdminArticle,
+  fetchSubcategories,
   getCloudinaryUploadUrl
 } from "../api";
 import HeroImageEditor from "../components/HeroImageEditor";
+import { CATEGORY_CONFIG } from "../content/categories";
 import { HERO_FOCUS_OPTIONS, normalizeHeroCrop } from "../utils/cloudinary";
 
 function normalizeEditorBlock(block) {
@@ -75,6 +77,8 @@ function normalizeEditorArticle(article) {
     title: typeof article?.title === "string" ? article.title : "",
     subheadline: typeof article?.subheadline === "string" ? article.subheadline : "",
     category: typeof article?.category === "string" ? article.category : "",
+    subcategory: typeof article?.subcategory === "string" ? article.subcategory : "",
+    subcategory_slug: typeof article?.subcategory_slug === "string" ? article.subcategory_slug : "",
     hero_image: typeof article?.hero_image === "string" ? article.hero_image : "",
     hero_caption: typeof article?.hero_caption === "string" ? article.hero_caption : "",
     hero_focus: typeof article?.hero_focus === "string" ? article.hero_focus : "auto",
@@ -99,6 +103,7 @@ export default function EditArticle() {
   const [uploading, setUploading] = useState(false);
   const [contentBlocks, setContentBlocks] = useState([]);
   const [error, setError] = useState("");
+  const [subcategories, setSubcategories] = useState([]);
 
   function createTableBlock(columnCount = 3, rowCount = 2) {
     return {
@@ -144,6 +149,50 @@ export default function EditArticle() {
     loadArticle();
     return undefined;
   }, [id]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadSubcategories() {
+      try {
+        const data = await fetchSubcategories();
+        if (isMounted) {
+          setSubcategories(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        if (isMounted) {
+          setSubcategories([]);
+        }
+      }
+    }
+
+    loadSubcategories();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const availableSubcategories = useMemo(() => {
+    if (!article?.category) return subcategories;
+    return subcategories.filter(
+      (subcategory) => subcategory.category?.toLowerCase() === article.category.toLowerCase()
+    );
+  }, [article?.category, subcategories]);
+
+  useEffect(() => {
+    if (!article?.subcategory_slug) return;
+    if (!availableSubcategories.some((subcategory) => subcategory.slug === article.subcategory_slug)) {
+      setArticle((currentArticle) =>
+        currentArticle
+          ? {
+              ...currentArticle,
+              subcategory: "",
+              subcategory_slug: ""
+            }
+          : currentArticle
+      );
+    }
+  }, [availableSubcategories, article?.subcategory_slug]);
 
   async function uploadAsset(file, resourceType = "image") {
     if (!file) return null;
@@ -229,6 +278,8 @@ export default function EditArticle() {
           title: article.title,
           subheadline: article.subheadline,
           category: article.category,
+          subcategory: article.subcategory || "",
+          subcategory_slug: article.subcategory_slug || "",
           hero_image: article.hero_image,
           hero_caption: article.hero_caption || "",
           hero_focus: article.hero_focus || "auto",
@@ -284,11 +335,38 @@ export default function EditArticle() {
           className="w-full p-2 bg-black border"
         />
 
-        <input
+        <select
           value={article.category || ""}
           onChange={(e) => setArticle({ ...article, category: e.target.value })}
           className="w-full p-2 bg-black border"
-        />
+        >
+          <option value="">Select category</option>
+          {CATEGORY_CONFIG.map((categoryOption) => (
+            <option key={categoryOption.slug} value={categoryOption.name}>
+              {categoryOption.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={article.subcategory_slug || ""}
+          onChange={(e) => {
+            const selected = availableSubcategories.find((subcategory) => subcategory.slug === e.target.value);
+            setArticle({
+              ...article,
+              subcategory_slug: e.target.value,
+              subcategory: selected?.name || ""
+            });
+          }}
+          className="w-full p-2 bg-black border"
+        >
+          <option value="">No subcategory</option>
+          {availableSubcategories.map((subcategory) => (
+            <option key={subcategory.id || subcategory.slug} value={subcategory.slug}>
+              {subcategory.name}
+            </option>
+          ))}
+        </select>
 
         <input
           type="file"

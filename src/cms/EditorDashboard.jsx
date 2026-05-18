@@ -51,13 +51,22 @@ export default function EditorDashboard() {
     <div className="min-h-screen bg-black text-white p-8">
       <h1 className="text-3xl font-serif mb-6">Editor Dashboard</h1>
 
-      <Link
-        to="/cms/new"
-        className="inline-block text-black px-4 py-2 rounded mb-6"
-        style={{ backgroundColor: "var(--veritas-red)" }}
-      >
-        Create New Article
-      </Link>
+      <div className="mb-6 flex flex-wrap gap-3">
+        <Link
+          to="/cms/new"
+          className="inline-block rounded px-4 py-2 text-black"
+          style={{ backgroundColor: "var(--veritas-red)" }}
+        >
+          Create New Article
+        </Link>
+
+        <Link
+          to="/cms/subcategories/new"
+          className="inline-block rounded border border-neutral-700 px-4 py-2 text-white"
+        >
+          Create New Subcategory
+        </Link>
+      </div>
 
       {error && <div className="mb-4" style={{ color: "var(--veritas-red)" }}>{error}</div>}
 
