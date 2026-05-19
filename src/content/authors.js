@@ -73,6 +73,11 @@ const KNOWN_AUTHORS = {
   }
 };
 
+const AUTHOR_ALIASES = {
+  [slugifyAuthor("Soumyadeep Mondl")]: slugifyAuthor("Soumyadeep Mondal"),
+  [slugifyAuthor("Tavisha Kausik")]: slugifyAuthor("Tavisha Kaushik")
+};
+
 const DEFAULT_PROFILE_ORDER = [
   slugifyAuthor("Kavye Singhal"),
   slugifyAuthor("Soumyadeep Mondal"),
@@ -85,7 +90,8 @@ const DEFAULT_PROFILE_ORDER = [
 
 export function getAuthorProfile(name = "") {
   const cleanName = String(name || "").trim() || "The Veritas Desk";
-  const slug = slugifyAuthor(cleanName);
+  const rawSlug = slugifyAuthor(cleanName);
+  const slug = AUTHOR_ALIASES[rawSlug] || rawSlug;
   const known = KNOWN_AUTHORS[slug];
 
   if (known) {

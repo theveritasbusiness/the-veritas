@@ -348,32 +348,34 @@ export default function TheVeritasShowcase({
 
         {finalArticles.length > 0 && (
           <section className="order-2 min-w-0 md:order-1 md:col-span-3">
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
-              <h3 className="mb-3 border-b pb-3 font-serif text-[2rem] sm:text-2xl">Latest News</h3>
-              <ul className="space-y-3 text-sm">
-                {secondaryArticles.slice(0, 5).map((article) => (
-                  <li
-                    key={article.id}
-                    className="flex items-start gap-3 rounded-xl p-2 transition-all hover:bg-neutral-800"
-                  >
-                    <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
-                      &#9670;
-                    </div>
-                    <div className="min-w-0">
-                      <Link
-                        to={`/article/${article.slug}`}
-                        className="block break-words font-medium leading-[1.65] hover:underline"
-                      >
-                        {article.title}
-                      </Link>
-                      <div className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <div className="space-y-5 md:sticky md:top-6">
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
+                <h3 className="mb-3 border-b pb-3 font-serif text-[2rem] sm:text-2xl">Latest News</h3>
+                <ul className="space-y-3 text-sm">
+                  {secondaryArticles.slice(0, 5).map((article) => (
+                    <li
+                      key={article.id}
+                      className="flex items-start gap-3 rounded-xl p-2 transition-all hover:bg-neutral-800"
+                    >
+                      <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
+                        &#9670;
+                      </div>
+                      <div className="min-w-0">
+                        <Link
+                          to={`/article/${article.slug}`}
+                          className="block break-words font-medium leading-[1.65] hover:underline"
+                        >
+                          {article.title}
+                        </Link>
+                        <div className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-            <AdSlot slot={AD_SLOT_HOME_SIDEBAR} label="Sponsored" className="mt-5 min-h-[220px]" />
+              <AdSlot slot={AD_SLOT_HOME_SIDEBAR} label="Sponsored" className="min-h-[220px]" />
+            </div>
           </section>
         )}
 
@@ -477,38 +479,40 @@ export default function TheVeritasShowcase({
         )}
 
         {finalArticles.length > 0 && (
-          <aside className="order-3 min-w-0 space-y-5 sm:space-y-6 md:col-span-3">
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
-              <h3 className="mb-4 border-b border-neutral-700 pb-2 font-serif text-xl">Shorts</h3>
+          <aside className="order-3 min-w-0 md:col-span-3">
+            <div className="space-y-5 sm:space-y-6 md:sticky md:top-6">
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
+                <h3 className="mb-4 border-b border-neutral-700 pb-2 font-serif text-xl">Shorts</h3>
 
-              <div className="space-y-4">
-                {shorts.map((short) => (
-                  <div
-                    key={short.href}
-                    className="overflow-hidden rounded-[1.75rem] border"
-                    style={{ borderColor: "rgba(222, 2, 22, 0.35)" }}
-                  >
-                    <div className="relative bg-black" style={{ aspectRatio: "9 / 16" }}>
-                      <iframe
-                        src={short.embed}
-                        title={`${short.type === "youtube" ? "YouTube short" : "Instagram reel"} ${short.href}`}
-                        className="absolute inset-0 h-full w-full"
-                        loading="lazy"
-                        allowTransparency={true}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                      />
-                    </div>
-                    <a
-                      href={short.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
+                <div className="space-y-4">
+                  {shorts.map((short) => (
+                    <div
+                      key={short.href}
+                      className="overflow-hidden rounded-[1.75rem] border"
+                      style={{ borderColor: "rgba(222, 2, 22, 0.35)" }}
                     >
-                      Watch Reel
-                    </a>
-                  </div>
-                ))}
+                      <div className="relative bg-black" style={{ aspectRatio: "9 / 16" }}>
+                        <iframe
+                          src={short.embed}
+                          title={`${short.type === "youtube" ? "YouTube short" : "Instagram reel"} ${short.href}`}
+                          className="absolute inset-0 h-full w-full"
+                          loading="lazy"
+                          allowTransparency={true}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
+                      </div>
+                      <a
+                        href={short.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
+                      >
+                        Watch Reel
+                      </a>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </aside>
@@ -559,26 +563,61 @@ export default function TheVeritasShowcase({
                     </div>
                   </Link>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-4">
                     {section.supportingArticles.map((article) => (
                       <Link
                         key={article.id}
                         to={`/article/${article.slug}`}
-                        className="flex min-h-[160px] flex-col justify-between rounded-2xl border border-neutral-800 bg-neutral-900 p-4 transition-colors hover:border-neutral-700"
+                        className="grid min-h-[132px] grid-cols-[92px,1fr] gap-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-3 transition-colors hover:border-neutral-700"
                       >
-                        <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--veritas-red)]">
-                            {article.category}
-                          </div>
-                          <h4 className="mt-3 text-lg font-semibold leading-snug text-white hover:underline">
-                            {article.title}
-                          </h4>
-                          <p className="mt-2 text-sm leading-[1.65] text-neutral-400">
-                            {article.subheadline || article.paragraphs?.[0]?.slice(0, 100)}
-                          </p>
+                        <div className="overflow-hidden rounded-xl bg-neutral-950">
+                          {article.hero_image ? (
+                            <img
+                              src={getCardImageUrl(article.hero_image, article.hero_focus)}
+                              alt={article.title}
+                              className="h-full w-full object-cover"
+                              style={getImagePresentation(article.hero_focus, article.hero_crop)}
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <div className="flex h-full min-h-[92px] items-center justify-center bg-neutral-950 text-[10px] uppercase tracking-[0.24em] text-neutral-600">
+                              No Image
+                            </div>
+                          )}
                         </div>
 
-                        <div className="mt-4 text-xs text-neutral-500">{getArticleDisplayTime(article)}</div>
+                        <div className="flex min-w-0 flex-col justify-between">
+                          <div>
+                            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--veritas-red)]">
+                              {article.category}
+                            </div>
+                            <h4
+                              className="mt-2 text-base font-semibold leading-snug text-white hover:underline"
+                              style={{
+                                display: "-webkit-box",
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden"
+                              }}
+                            >
+                              {article.title}
+                            </h4>
+                            <p
+                              className="mt-2 text-sm leading-[1.55] text-neutral-400"
+                              style={{
+                                display: "-webkit-box",
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden"
+                              }}
+                            >
+                              {article.subheadline || article.paragraphs?.[0]?.slice(0, 88)}
+                            </p>
+                          </div>
+
+                          <div className="mt-3 text-xs text-neutral-500">{getArticleDisplayTime(article)}</div>
+                        </div>
                       </Link>
                     ))}
                   </div>
