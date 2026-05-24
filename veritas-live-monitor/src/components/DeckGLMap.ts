@@ -5456,6 +5456,25 @@ export class DeckGLMap {
           },
         });
         this.maplibreMap.addLayer({
+          id: 'country-base-fill',
+          type: 'fill',
+          source: 'country-boundaries',
+          paint: {
+            'fill-color': '#ffffff',
+            'fill-opacity': 0.025,
+          },
+        });
+        this.maplibreMap.addLayer({
+          id: 'country-base-border',
+          type: 'line',
+          source: 'country-boundaries',
+          paint: {
+            'line-color': '#9ca3af',
+            'line-width': 1,
+            'line-opacity': 0.18,
+          },
+        });
+        this.maplibreMap.addLayer({
           id: 'country-hover-fill',
           type: 'fill',
           source: 'country-boundaries',
@@ -5715,9 +5734,13 @@ export class DeckGLMap {
   private updateCountryLayerPaint(theme: 'dark' | 'light'): void {
     if (!this.maplibreMap || !this.countryGeoJsonLoaded) return;
     if (!this.maplibreMap.getLayer('country-hover-fill')) return;
+    const baseFillOpacity = theme === 'light' ? 0.04 : 0.025;
+    const baseBorderOpacity = theme === 'light' ? 0.28 : 0.18;
     const hoverFillOpacity   = theme === 'light' ? 0.08 : 0.05;
     const hoverBorderOpacity = theme === 'light' ? 0.35 : 0.22;
     const highlightOpacity   = theme === 'light' ? 0.18 : 0.12;
+    this.maplibreMap.setPaintProperty('country-base-fill', 'fill-opacity', baseFillOpacity);
+    this.maplibreMap.setPaintProperty('country-base-border', 'line-opacity', baseBorderOpacity);
     this.maplibreMap.setPaintProperty('country-hover-fill',   'fill-opacity', hoverFillOpacity);
     this.maplibreMap.setPaintProperty('country-hover-border', 'line-opacity', hoverBorderOpacity);
     this.maplibreMap.setPaintProperty('country-highlight-fill', 'fill-opacity', highlightOpacity);
