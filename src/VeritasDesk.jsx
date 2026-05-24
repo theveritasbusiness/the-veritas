@@ -22,7 +22,7 @@ const regionBlueprint = [
   { region: "Eastern Europe", x: "51%", y: "24%", city: "Warsaw" }
 ];
 
-export default function LiveMonitor() {
+export default function VeritasDesk() {
   const location = useLocation();
   const [articles, setArticles] = useState([]);
   const [breaking, setBreaking] = useState([]);
@@ -519,7 +519,7 @@ export default function LiveMonitor() {
 .live-ticker {
   display: inline-block;
   padding-left: 100%;
-  animation: liveTicker 24s linear infinite;
+  animation: liveTicker 68s linear infinite;
 }
 
 .ops-map {

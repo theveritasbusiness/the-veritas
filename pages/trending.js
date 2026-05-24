@@ -1,10 +1,10 @@
 import Layout from "../src/components/Layout";
-import LiveMonitor from "../src/LiveMonitor";
+import VeritasDesk from "../src/VeritasDesk";
 
 export default function TrendingPage() {
   return (
     <Layout>
-      <LiveMonitor />
+      <VeritasDesk />
     </Layout>
   );
 }
