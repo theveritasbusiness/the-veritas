@@ -519,7 +519,7 @@ export default function VeritasDesk() {
 .live-ticker {
   display: inline-block;
   padding-left: 100%;
-  animation: liveTicker 68s linear infinite;
+  animation: liveTicker 128s linear infinite;
 }
 
 .ops-map {
