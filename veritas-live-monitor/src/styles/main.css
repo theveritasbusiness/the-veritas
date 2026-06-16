@@ -1243,6 +1243,10 @@ canvas,
   display: none;
 }
 
+.mobile-map-toolbar {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .site-footer {
     flex-direction: column;
@@ -11993,9 +11997,48 @@ a.prediction-link:hover {
     display: none !important;
   }
 
-  /* Hide layer toggle buttons on mobile - use fixed layers */
-  .layer-toggles {
-    display: none !important;
+  .mobile-map-toolbar {
+    display: flex;
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: calc(env(safe-area-inset-left, 0px) + 10px);
+    right: calc(env(safe-area-inset-right, 0px) + 78px);
+    z-index: 125;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-map-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-map-toolbar-btn {
+    flex: 0 0 auto;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(222, 2, 22, 0.42);
+    background: rgba(10, 10, 12, 0.88);
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  }
+
+  .mobile-map-toolbar-btn:active {
+    transform: translateY(1px);
+  }
+
+  body.mobile-layers-open #mobileLayersBtn,
+  body.mobile-time-open #mobileTimeBtn {
+    border-color: rgba(254, 204, 28, 0.8);
+    color: var(--accent-secondary);
+    box-shadow: 0 0 0 1px rgba(254, 204, 28, 0.18), 0 10px 28px rgba(0, 0, 0, 0.34);
   }
 
   /* Single-column panel layout on mobile */
@@ -12110,16 +12153,27 @@ a.prediction-link:hover {
   }
 
   .time-slider {
-    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    display: none;
+    top: auto;
     left: calc(env(safe-area-inset-left, 0px) + 8px);
     right: calc(env(safe-area-inset-right, 0px) + 56px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
     max-width: none;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: 4px 8px;
+    padding: 8px 10px;
     gap: 6px;
+    border-radius: 14px;
+    background: rgba(9, 9, 11, 0.94);
+    border: 1px solid rgba(222, 2, 22, 0.28);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.36);
+    z-index: 135;
+  }
+
+  body.mobile-time-open .time-slider {
+    display: flex;
   }
 
   .time-slider::-webkit-scrollbar {
@@ -12147,6 +12201,52 @@ a.prediction-link:hover {
     flex: 0 0 auto;
     padding: 8px 12px;
     min-height: 36px;
+  }
+
+  .deckgl-layer-toggles {
+    display: none;
+    position: absolute;
+    left: calc(env(safe-area-inset-left, 0px) + 8px);
+    right: calc(env(safe-area-inset-right, 0px) + 8px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+    max-width: none;
+    max-height: min(58vh, 420px);
+    border-radius: 16px;
+    background: rgba(9, 9, 11, 0.96);
+    border-color: rgba(222, 2, 22, 0.26);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.42);
+    z-index: 136;
+  }
+
+  .deckgl-layer-toggles .toggle-header {
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  .deckgl-layer-toggles .layer-search {
+    margin: 0 10px 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .deckgl-layer-toggles .layer-toggle {
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .deckgl-layer-toggles .layer-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+  }
+
+  .deckgl-layer-toggles .toggle-label {
+    font-size: 11px;
+  }
+
+  body.mobile-layers-open .deckgl-layer-toggles {
+    display: flex !important;
   }
 
   /* Map popup positioning for mobile - ensure it's visible */
@@ -12248,19 +12348,15 @@ a.prediction-link:hover {
     font-size: 11px;
   }
 
-  .layer-toggles {
-    max-height: 80px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
+  .mobile-map-toolbar {
+    right: calc(env(safe-area-inset-right, 0px) + 72px);
+    gap: 6px;
   }
 
-  .layer-toggle {
-    flex-shrink: 0;
-    padding: 6px 10px;
-    font-size: 9px;
-    min-width: 50px;
+  .mobile-map-toolbar-btn {
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 10px;
   }
 
   .map-popup {

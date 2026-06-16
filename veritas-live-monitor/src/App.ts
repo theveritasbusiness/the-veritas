@@ -800,6 +800,7 @@ export class App {
     // panels from being blocked when a loadAllData batch is slow.
     window.addEventListener('scroll', this.handleViewportPrime, { passive: true });
     window.addEventListener('resize', this.handleViewportPrime);
+    window.addEventListener('veritas-monitor:mobile-surface-change', this.handleViewportPrime as EventListener);
     await Promise.all([
       this.dataLoader.loadAllData(true),
       this.primeVisiblePanelData(true),
@@ -853,6 +854,7 @@ export class App {
     this.state.isDestroyed = true;
     window.removeEventListener('scroll', this.handleViewportPrime);
     window.removeEventListener('resize', this.handleViewportPrime);
+    window.removeEventListener('veritas-monitor:mobile-surface-change', this.handleViewportPrime as EventListener);
     window.removeEventListener('online', this.handleConnectivityChange);
     window.removeEventListener('offline', this.handleConnectivityChange);
     if (this.visiblePanelPrimeRaf !== null) {

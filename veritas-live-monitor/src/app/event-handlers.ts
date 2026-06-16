@@ -94,6 +94,7 @@ export class EventHandlerManager implements AppModule {
   private boundMapResizeVisChangeHandler: (() => void) | null = null;
   private boundMapFullscreenEscHandler: ((e: KeyboardEvent) => void) | null = null;
   private boundMobileMenuKeyHandler: ((e: KeyboardEvent) => void) | null = null;
+  private boundMobileMapToolbarDismissHandler: ((e: MouseEvent) => void) | null = null;
   private boundPanelCloseHandler: ((e: Event) => void) | null = null;
   private boundWidgetModifyHandler: ((e: Event) => void) | null = null;
   private boundUndoHandler: ((e: KeyboardEvent) => void) | null = null;
@@ -122,6 +123,7 @@ export class EventHandlerManager implements AppModule {
 
   init(): void {
     this.setupEventListeners();
+    this.setupMobileMapToolbar();
     this.setupIdleDetection();
     this.setupTvMode();
   }
@@ -204,6 +206,10 @@ export class EventHandlerManager implements AppModule {
     if (this.boundDesktopExternalLinkHandler) {
       document.removeEventListener('click', this.boundDesktopExternalLinkHandler, true);
       this.boundDesktopExternalLinkHandler = null;
+    }
+    if (this.boundMobileMapToolbarDismissHandler) {
+      document.removeEventListener('click', this.boundMobileMapToolbarDismissHandler, true);
+      this.boundMobileMapToolbarDismissHandler = null;
     }
     if (this.idleTimeoutId) {
       clearTimeout(this.idleTimeoutId);
@@ -533,11 +539,13 @@ export class EventHandlerManager implements AppModule {
 
     document.getElementById('mobileMenuRegion')?.addEventListener('click', () => {
       this.closeMobileMenu();
+      document.body.classList.remove('mobile-layers-open', 'mobile-time-open');
       this.openRegionSheet();
     });
 
     document.getElementById('mobileMenuSettings')?.addEventListener('click', () => {
       this.closeMobileMenu();
+      document.body.classList.remove('mobile-layers-open', 'mobile-time-open');
       this.ctx.unifiedSettings?.open();
     });
 
@@ -848,6 +856,51 @@ export class EventHandlerManager implements AppModule {
     }
 
     window.location.reload();
+  }
+
+  private setupMobileMapToolbar(): void {
+    if (!this.ctx.isMobile) return;
+
+    const toggleLayers = () => {
+      const nextOpen = !document.body.classList.contains('mobile-layers-open');
+      document.body.classList.toggle('mobile-layers-open', nextOpen);
+      if (nextOpen) document.body.classList.remove('mobile-time-open');
+    };
+    const toggleTime = () => {
+      const nextOpen = !document.body.classList.contains('mobile-time-open');
+      document.body.classList.toggle('mobile-time-open', nextOpen);
+      if (nextOpen) document.body.classList.remove('mobile-layers-open');
+    };
+    const openSearch = () => {
+      this.callbacks.updateSearchIndex();
+      this.ctx.searchModal?.open();
+    };
+
+    document.getElementById('mobileLayersBtn')?.addEventListener('click', toggleLayers);
+    document.getElementById('mobileTimeBtn')?.addEventListener('click', toggleTime);
+    document.getElementById('mobileRegionBtn')?.addEventListener('click', () => {
+      document.body.classList.remove('mobile-layers-open', 'mobile-time-open');
+      this.openRegionSheet();
+    });
+    document.getElementById('mobileMapSearchBtn')?.addEventListener('click', () => {
+      track('search-open', { source: 'mobile-map-toolbar' });
+      document.body.classList.remove('mobile-layers-open', 'mobile-time-open');
+      openSearch();
+    });
+
+    this.boundMobileMapToolbarDismissHandler = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (
+        target.closest('#mobileMapToolbar') ||
+        target.closest('.deckgl-layer-toggles') ||
+        target.closest('.time-slider')
+      ) {
+        return;
+      }
+      document.body.classList.remove('mobile-layers-open', 'mobile-time-open');
+    };
+    document.addEventListener('click', this.boundMobileMapToolbarDismissHandler, true);
   }
 
   toggleFullscreen(): void {

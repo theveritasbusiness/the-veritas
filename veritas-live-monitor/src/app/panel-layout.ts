@@ -297,6 +297,12 @@ export class PanelLayoutManager implements AppModule {
             </div>
           </div>
           <div class="map-container" id="mapContainer"></div>
+          <div class="mobile-map-toolbar" id="mobileMapToolbar" aria-label="Map controls">
+            <button class="mobile-map-toolbar-btn" id="mobileLayersBtn" type="button">Layers</button>
+            <button class="mobile-map-toolbar-btn" id="mobileTimeBtn" type="button">Range</button>
+            <button class="mobile-map-toolbar-btn" id="mobileRegionBtn" type="button">Region</button>
+            <button class="mobile-map-toolbar-btn" id="mobileMapSearchBtn" type="button">Search</button>
+          </div>
           ${SITE_VARIANT === 'happy' ? '<button class="tv-exit-btn" id="tvExitBtn">Exit TV Mode</button>' : ''}
           <div class="map-resize-handle" id="mapResizeHandle"></div>
           <div class="map-bottom-grid" id="mapBottomGrid"></div>
@@ -366,6 +372,9 @@ export class PanelLayoutManager implements AppModule {
   private applyMobileSurface(surface: MobileSurface): void {
     document.body.dataset.mobileSurface = surface;
     localStorage.setItem(MOBILE_SURFACE_STORAGE_KEY, surface);
+    if (surface !== 'map') {
+      document.body.classList.remove('mobile-layers-open', 'mobile-time-open');
+    }
 
     document.querySelectorAll<HTMLButtonElement>('.mobile-surface-btn').forEach((button) => {
       const active = button.dataset.surface === surface;
@@ -386,6 +395,9 @@ export class PanelLayoutManager implements AppModule {
       el.setAttribute('aria-hidden', visible ? 'false' : 'true');
     });
 
+    window.dispatchEvent(new CustomEvent('veritas-monitor:mobile-surface-change', {
+      detail: { surface },
+    }));
     window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
   }
 
