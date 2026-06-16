@@ -86,6 +86,64 @@ export interface PanelLayoutCallbacks {
   loadSecurityAdvisories?: () => Promise<void>;
 }
 
+type MobileSurface = 'map' | 'live' | 'alerts' | 'data' | 'extras';
+
+const MOBILE_SURFACE_STORAGE_KEY = 'veritas-monitor-mobile-surface';
+
+const MOBILE_LIVE_PANELS = new Set([
+  'live-news',
+  'live-webcams',
+  'pinned-webcams',
+]);
+
+const MOBILE_ALERT_PANELS = new Set([
+  'insights',
+  'strategic-posture',
+  'strategic-risk',
+  'intel',
+  'gdelt-intel',
+  'cii',
+  'cascade',
+  'ucdp-events',
+  'military-correlation',
+  'escalation-correlation',
+  'economic-correlation',
+  'disaster-correlation',
+  'service-status',
+  'telegram-intel',
+  'airline-intel',
+  'thermal-escalation',
+  'politics',
+  'middleeast',
+  'asia',
+  'africa',
+  'latam',
+  'gov',
+  'security',
+  'policy',
+  'events',
+]);
+
+const MOBILE_DATA_PANELS = new Set([
+  'markets',
+  'heatmap',
+  'commodities',
+  'energy-complex',
+  'economic',
+  'consumer-prices',
+  'trade-policy',
+  'sanctions-pressure',
+  'supply-chain',
+  'macro-signals',
+  'etf-flows',
+  'stablecoins',
+  'displacement',
+  'satellite-fires',
+  'monitors',
+  'world-clock',
+  'investments',
+]);
+
 export class PanelLayoutManager implements AppModule {
   private ctx: AppContext;
   private callbacks: PanelLayoutCallbacks;
@@ -246,6 +304,20 @@ export class PanelLayoutManager implements AppModule {
         <div class="panels-grid" id="panelsGrid"></div>
         <button class="search-mobile-fab" id="searchMobileFab" aria-label="Search">\u{1F50D}</button>
       </div>
+      <nav class="mobile-surface-nav" id="mobileSurfaceNav" aria-label="Monitor sections">
+        <button class="mobile-surface-btn active" data-surface="map" aria-pressed="true">
+          <span class="mobile-surface-label">Map</span>
+        </button>
+        <button class="mobile-surface-btn" data-surface="live" aria-pressed="false">
+          <span class="mobile-surface-label">Live</span>
+        </button>
+        <button class="mobile-surface-btn" data-surface="alerts" aria-pressed="false">
+          <span class="mobile-surface-label">Alerts</span>
+        </button>
+        <button class="mobile-surface-btn" data-surface="data" aria-pressed="false">
+          <span class="mobile-surface-label">Data</span>
+        </button>
+      </nav>
       <footer class="site-footer">
         <div class="site-footer-brand">
           <img src="${veritasLogoUrl}" alt="The Veritas" width="86" height="20" class="site-footer-icon" />
@@ -261,8 +333,60 @@ export class PanelLayoutManager implements AppModule {
     this.createPanels();
 
     if (this.ctx.isMobile) {
-      this.setupMobileMapToggle();
+      this.setupMobileSurfaceNavigation();
+      void this.setupMobileMapToggle;
     }
+  }
+
+  private getMobileSurfaceForPanel(key: string): MobileSurface {
+    if (MOBILE_LIVE_PANELS.has(key)) return 'live';
+    if (MOBILE_ALERT_PANELS.has(key)) return 'alerts';
+    if (MOBILE_DATA_PANELS.has(key)) return 'data';
+    return 'extras';
+  }
+
+  private setupMobileSurfaceNavigation(): void {
+    const nav = document.getElementById('mobileSurfaceNav');
+    if (!nav) return;
+
+    const stored = localStorage.getItem(MOBILE_SURFACE_STORAGE_KEY);
+    const initialSurface: MobileSurface =
+      stored === 'live' || stored === 'alerts' || stored === 'data' ? stored : 'map';
+
+    nav.querySelectorAll<HTMLButtonElement>('[data-surface]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const nextSurface = (button.dataset.surface as MobileSurface | undefined) ?? 'map';
+        this.applyMobileSurface(nextSurface);
+      });
+    });
+
+    this.applyMobileSurface(initialSurface);
+  }
+
+  private applyMobileSurface(surface: MobileSurface): void {
+    document.body.dataset.mobileSurface = surface;
+    localStorage.setItem(MOBILE_SURFACE_STORAGE_KEY, surface);
+
+    document.querySelectorAll<HTMLButtonElement>('.mobile-surface-btn').forEach((button) => {
+      const active = button.dataset.surface === surface;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+
+    const mapSection = document.getElementById('mapSection');
+    const panelsGrid = document.getElementById('panelsGrid');
+
+    mapSection?.classList.toggle('mobile-surface-hidden', surface !== 'map');
+    panelsGrid?.classList.toggle('mobile-surface-hidden', surface === 'map');
+
+    panelsGrid?.querySelectorAll<HTMLElement>('[data-mobile-surface]').forEach((el) => {
+      const panelSurface = (el.dataset.mobileSurface as MobileSurface | undefined) ?? 'extras';
+      const visible = surface !== 'map' && panelSurface === surface;
+      el.classList.toggle('mobile-surface-hidden', !visible);
+      el.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    });
+
+    window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
   }
 
   private setupMobileMapToggle(): void {
@@ -925,6 +1049,7 @@ export class PanelLayoutManager implements AppModule {
     // "+" Add Panel block at the end of the grid
     const addPanelBlock = document.createElement('button');
     addPanelBlock.className = 'add-panel-block';
+    addPanelBlock.dataset.mobileSurface = 'data';
     addPanelBlock.setAttribute('aria-label', t('components.panel.addPanel'));
     const addIcon = document.createElement('span');
     addIcon.className = 'add-panel-block-icon';
@@ -942,6 +1067,7 @@ export class PanelLayoutManager implements AppModule {
     if (isProUser()) {
       const proBlock = document.createElement('button');
       proBlock.className = 'add-panel-block ai-widget-block ai-widget-block-pro';
+      proBlock.dataset.mobileSurface = 'data';
       proBlock.setAttribute('aria-label', t('widgets.createInteractive'));
       const proIcon = document.createElement('span');
       proIcon.className = 'add-panel-block-icon';
@@ -968,6 +1094,7 @@ export class PanelLayoutManager implements AppModule {
     if (isProUser()) {
       const mcpBlock = document.createElement('button');
       mcpBlock.className = 'add-panel-block mcp-panel-block';
+      mcpBlock.dataset.mobileSurface = 'data';
       mcpBlock.setAttribute('aria-label', t('mcp.connectPanel'));
       const mcpIcon = document.createElement('span');
       mcpIcon.className = 'add-panel-block-icon';
@@ -1388,6 +1515,13 @@ export class PanelLayoutManager implements AppModule {
 
   private makeDraggable(el: HTMLElement, key: string): void {
     el.dataset.panel = key;
+    el.dataset.mobileSurface = this.getMobileSurfaceForPanel(key);
+    if (this.ctx.isMobile) {
+      const currentSurface = (document.body.dataset.mobileSurface as MobileSurface | undefined) ?? 'map';
+      const visible = currentSurface !== 'map' && el.dataset.mobileSurface === currentSurface;
+      el.classList.toggle('mobile-surface-hidden', !visible);
+      el.setAttribute('aria-hidden', visible ? 'false' : 'true');
+    }
     let isDragging = false;
     let dragStarted = false;
     let startX = 0;
