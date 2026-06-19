@@ -519,7 +519,7 @@ export default function TheVeritasShowcase({
         )}
       </main>
 
-      <ElectionResultsSection />
+      {forcedCategory.toLowerCase() === "politics" && <ElectionResultsSection />}
       {homepageSubcategorySections.length > 0 ? (
         <section className="mx-auto max-w-6xl px-3 pb-10 sm:px-4">
           <div className="space-y-8">
