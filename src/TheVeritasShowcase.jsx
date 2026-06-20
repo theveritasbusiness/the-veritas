@@ -11,7 +11,7 @@ import AdSlot from "./components/AdSlot";
 import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
 import Head from "next/head";
-import { AD_SLOT_HOME_INLINE, AD_SLOT_HOME_SIDEBAR } from "./lib/env";
+import { AD_SLOT_HOME_INLINE } from "./lib/env";
 import { getCategoryConfigByName, getCategoryPath } from "./content/categories";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
@@ -49,7 +49,8 @@ export default function TheVeritasShowcase({
     initialArticles.length === 0 && initialBreaking.length === 0 && !initialLoadError
   );
   const [loadError, setLoadError] = useState(initialLoadError);
-  const [heroIndex, setHeroIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(1);
+  const [isTransitioning, setIsTransitioning] = useState(true);
   const [searchParams] = useSearchParams();
   const touchStartX = useRef(null);
 
@@ -95,9 +96,57 @@ export default function TheVeritasShowcase({
     return finalArticles[0] ? [finalArticles[0]] : [];
   }, [finalArticles, sliderArticles]);
 
-  const heroArticle = heroSlides[heroIndex] || heroSlides[0] || null;
-  const secondaryArticles = finalArticles.filter((article) => article.slug !== heroArticle?.slug);
-  const featuredArticle = secondaryArticles[0] || null;
+  const activeLogicalIndex = useMemo(() => {
+    if (heroSlides.length <= 1) return 0;
+    let idx = activeIndex - 1;
+    if (idx < 0) return heroSlides.length - 1;
+    if (idx >= heroSlides.length) return 0;
+    return idx;
+  }, [activeIndex, heroSlides.length]);
+
+  const heroArticle = heroSlides[activeLogicalIndex] || heroSlides[0] || null;
+
+  const gridArticles = useMemo(() => {
+    const slideSlugs = new Set(heroSlides.map((s) => s.slug));
+    let filtered = finalArticles.filter((a) => !slideSlugs.has(a.slug));
+    if (filtered.length < 5) {
+      filtered = finalArticles.filter((a) => a.slug !== heroArticle?.slug);
+    }
+    return filtered;
+  }, [finalArticles, heroSlides, heroArticle]);
+
+  const moreTopStoriesData = useMemo(() => {
+    const consumedSlugs = new Set();
+    
+    heroSlides.forEach((slide) => {
+      if (slide && slide.slug) {
+        consumedSlugs.add(slide.slug);
+      }
+    });
+
+    gridArticles.slice(0, 10).forEach((article) => {
+      if (article && article.slug) {
+        consumedSlugs.add(article.slug);
+      }
+    });
+
+    const unusedArticles = finalArticles.filter((article) => !consumedSlugs.has(article.slug));
+
+    if (unusedArticles.length < 3) {
+      return null;
+    }
+
+    const featuredStory = unusedArticles[0];
+    const headlineList = unusedArticles.slice(1, 7);
+    const mostReadList = unusedArticles.slice(7, 11);
+
+    return {
+      featuredStory,
+      headlineList,
+      mostReadList
+    };
+  }, [finalArticles, heroSlides, gridArticles]);
+
   const shouldShowSubcategorySections =
     !forcedCategory && !searchQuery && !selectedCategory && !selectedSubcategory;
 
@@ -176,23 +225,62 @@ export default function TheVeritasShowcase({
     }
   }, [initialArticles.length, initialBreaking.length, initialSubcategories.length]);
 
+  const extendedSlides = useMemo(() => {
+    if (heroSlides.length <= 1) return heroSlides;
+    return [
+      heroSlides[heroSlides.length - 1],
+      ...heroSlides,
+      heroSlides[0]
+    ];
+  }, [heroSlides]);
+
   useEffect(() => {
-    if (heroIndex > heroSlides.length - 1) {
-      setHeroIndex(0);
+    if (activeIndex > extendedSlides.length - 1) {
+      setActiveIndex(1);
     }
-  }, [heroIndex, heroSlides.length]);
+  }, [activeIndex, extendedSlides.length]);
 
   useEffect(() => {
     if (heroSlides.length <= 1) return undefined;
     const intervalId = window.setInterval(() => {
-      setHeroIndex((currentIndex) => (currentIndex + 1) % heroSlides.length);
+      setActiveIndex((prev) => prev + 1);
     }, 6500);
     return () => window.clearInterval(intervalId);
   }, [heroSlides.length]);
 
+  useEffect(() => {
+    if (!isTransitioning) {
+      const forceRepaint = document.body.offsetHeight;
+      setIsTransitioning(true);
+    }
+  }, [isTransitioning]);
+
+  const handleTransitionEnd = () => {
+    if (activeIndex === 0) {
+      setIsTransitioning(false);
+      setActiveIndex(heroSlides.length);
+    } else if (activeIndex === heroSlides.length + 1) {
+      setIsTransitioning(false);
+      setActiveIndex(1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (activeIndex <= 0) return;
+    setIsTransitioning(true);
+    setActiveIndex((prev) => prev - 1);
+  };
+
+  const handleNext = () => {
+    if (activeIndex >= heroSlides.length + 1) return;
+    setIsTransitioning(true);
+    setActiveIndex((prev) => prev + 1);
+  };
+
   function goToHeroSlide(index) {
     if (heroSlides.length === 0) return;
-    setHeroIndex((index + heroSlides.length) % heroSlides.length);
+    setIsTransitioning(true);
+    setActiveIndex(index + 1);
   }
 
   function handleHeroTouchStart(event) {
@@ -207,9 +295,9 @@ export default function TheVeritasShowcase({
 
     if (Math.abs(deltaX) < 45 || heroSlides.length <= 1) return;
     if (deltaX < 0) {
-      goToHeroSlide(heroIndex + 1);
+      handleNext();
     } else {
-      goToHeroSlide(heroIndex - 1);
+      handlePrev();
     }
   }
 
@@ -232,60 +320,73 @@ export default function TheVeritasShowcase({
 
       <MarketTickerTape />
 
+      {/* ── HERO SLIDER (At the Top) ── */}
       {heroArticle && (
-        <header className="mx-auto mt-4 max-w-6xl px-3 sm:mt-6 sm:px-4">
-          <div className="relative" onTouchStart={handleHeroTouchStart} onTouchEnd={handleHeroTouchEnd}>
-            <Link to={`/article/${heroArticle.slug}`}>
-              <div className="relative min-h-[430px] cursor-pointer overflow-hidden rounded-2xl sm:min-h-[470px] md:h-96">
-                <img
-                  src={getHeroImageUrl(heroArticle.hero_image, heroArticle.hero_focus) || "https://via.placeholder.com/1200x600"}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute inset-0 h-full w-full object-cover blur-sm opacity-45"
-                  style={getImagePresentation(heroArticle.hero_focus, heroArticle.hero_crop)}
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
-                />
-                <img
-                  src={getHeroImageUrl(heroArticle.hero_image, heroArticle.hero_focus) || "https://via.placeholder.com/1200x600"}
-                  alt={heroArticle.title || "Top story"}
-                  className="absolute inset-0 h-full w-full object-contain"
-                  style={getImagePresentation(heroArticle.hero_focus, heroArticle.hero_crop)}
-                  loading="eager"
-                  fetchPriority="high"
-                  decoding="async"
-                />
+        <header className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
+          <div className="relative overflow-hidden rounded-md min-h-[430px] sm:min-h-[470px] md:h-96 bg-black" onTouchStart={handleHeroTouchStart} onTouchEnd={handleHeroTouchEnd}>
+            <div 
+              className="absolute inset-0 flex w-full h-full"
+              style={{ 
+                transform: `translate3d(-${activeIndex * 100}%, 0, 0)`,
+                transition: isTransitioning ? "transform 700ms cubic-bezier(0.25, 1, 0.5, 1)" : "none"
+              }}
+              onTransitionEnd={handleTransitionEnd}
+            >
+              {extendedSlides.map((slide, index) => (
+                <div 
+                  key={slide.id || slide.slug || index} 
+                  className="relative h-full w-full flex-shrink-0 cursor-pointer"
+                >
+                  <Link to={`/article/${slide.slug}`} className="block h-full w-full relative">
+                    <img
+                      src={getHeroImageUrl(slide.hero_image, slide.hero_focus) || "https://via.placeholder.com/1200x600"}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 h-full w-full object-cover blur-sm opacity-45"
+                      style={getImagePresentation(slide.hero_focus, slide.hero_crop)}
+                      loading={index === 1 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                    <img
+                      src={getHeroImageUrl(slide.hero_image, slide.hero_focus) || "https://via.placeholder.com/1200x600"}
+                      alt={slide.title || "Top story"}
+                      className="absolute inset-0 h-full w-full object-contain"
+                      style={getImagePresentation(slide.hero_focus, slide.hero_crop)}
+                      loading={index === 1 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
 
-                {heroArticle.is_editorial ? (
-                  <div className="absolute right-4 top-4 z-[1]">
-                    <EditorialBadge />
-                  </div>
-                ) : null}
+                    {slide.is_editorial ? (
+                      <div className="absolute right-4 top-4 z-[1]">
+                        <EditorialBadge />
+                      </div>
+                    ) : null}
 
-                <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black via-black/55 to-transparent p-5 sm:p-6">
-                  <div className="max-w-3xl">
-                    <div className="text-sm font-semibold sm:text-base" style={{ color: "var(--veritas-red)" }}>
-                      {heroArticle.is_breaking ? "BREAKING" : "TOP STORY"}
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black via-black/55 to-transparent p-5 sm:p-6 text-left">
+                      <div className="max-w-3xl">
+                        <div className="text-sm font-semibold sm:text-base" style={{ color: "var(--veritas-red)" }}>
+                          {slide.is_breaking ? "BREAKING" : "TOP STORY"}
+                        </div>
+
+                        <h1 className="mt-2 break-words font-serif text-[2.4rem] font-bold leading-[1.01] sm:text-[2.95rem] md:text-[2.8rem] lg:text-[3.5rem] xl:text-[4rem] text-white">
+                          {slide.title || "Loading..."}
+                        </h1>
+
+                        <p className="mt-3 max-w-2xl text-base leading-relaxed text-neutral-300 sm:text-lg">
+                          {slide.subheadline || slide.paragraphs?.[0]?.slice(0, 140)}
+                        </p>
+                      </div>
                     </div>
-
-                    <h1 className="mt-2 break-words font-serif text-[2.4rem] font-bold leading-[1.01] sm:text-[2.95rem] md:text-[2.8rem] lg:text-[3.5rem] xl:text-[4rem]">
-                      {heroArticle.title || "Loading..."}
-                    </h1>
-
-                    <p className="mt-3 max-w-2xl text-base leading-relaxed text-neutral-300 sm:text-lg">
-                      {heroArticle.subheadline || heroArticle.paragraphs?.[0]?.slice(0, 140)}
-                    </p>
-                  </div>
+                  </Link>
                 </div>
-              </div>
-            </Link>
+              ))}
+            </div>
 
             {heroSlides.length > 1 && (
               <>
                 <button
                   type="button"
-                  onClick={() => goToHeroSlide(heroIndex - 1)}
+                  onClick={handlePrev}
                   className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/20 bg-black/55 px-3 py-2 text-white backdrop-blur transition hover:bg-black/75"
                   aria-label="Previous hero article"
                 >
@@ -294,7 +395,7 @@ export default function TheVeritasShowcase({
 
                 <button
                   type="button"
-                  onClick={() => goToHeroSlide(heroIndex + 1)}
+                  onClick={handleNext}
                   className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/20 bg-black/55 px-3 py-2 text-white backdrop-blur transition hover:bg-black/75"
                   aria-label="Next hero article"
                 >
@@ -302,14 +403,14 @@ export default function TheVeritasShowcase({
                 </button>
 
                 <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-                  {heroSlides.map((article, index) => (
+                  {heroSlides.map((slide, index) => (
                     <button
-                      key={article.id || article.slug || index}
+                      key={slide.id || slide.slug || index}
                       type="button"
                       onClick={() => goToHeroSlide(index)}
                       aria-label={`Go to hero article ${index + 1}`}
                       className={`h-2.5 rounded-full transition-all ${
-                        index === heroIndex ? "w-8 bg-[var(--veritas-red)]" : "w-2.5 bg-white/45 hover:bg-white/70"
+                        index === activeLogicalIndex ? "w-8 bg-[var(--veritas-red)]" : "w-2.5 bg-white/45 hover:bg-white/70"
                       }`}
                     />
                   ))}
@@ -320,224 +421,516 @@ export default function TheVeritasShowcase({
         </header>
       )}
 
-      <main className="mx-auto grid max-w-6xl grid-cols-1 gap-5 px-3 py-6 sm:gap-6 sm:px-4 sm:py-8 md:grid-cols-12">
-        {!loading && finalArticles.length === 0 && (
-          <div className="col-span-12 py-20 text-center text-neutral-400">
-            <div className="mx-auto max-w-xl rounded-2xl border border-neutral-800 bg-neutral-950 px-6 py-10">
-              <h2 className="font-serif text-3xl text-white">No articles found.</h2>
-              <p className="mt-3 text-sm leading-relaxed text-neutral-400 sm:text-base">
-                {loadError
-                  ? "We're reconnecting to the latest story feed. Please check back in a moment."
-                  : "The latest article feed is empty right now. Please check back shortly."}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {loading && (
-          <div className="col-span-12 py-20 text-center text-neutral-400">
-            <div className="mx-auto max-w-xl rounded-2xl border border-neutral-800 bg-neutral-950 px-6 py-10">
-              <div className="veritas-loader mx-auto" aria-hidden="true" />
-              <div className="mt-5 font-serif text-2xl text-white">Loading stories</div>
-              <p className="mt-3 text-sm leading-relaxed text-neutral-400 sm:text-base">
-                Pulling in the latest Veritas stories now.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {finalArticles.length > 0 && (
-          <section className="order-2 min-w-0 md:order-1 md:col-span-3">
-            <div className="space-y-5 md:sticky md:top-6">
-              <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
-                <h3 className="mb-3 border-b pb-3 font-serif text-[2rem] sm:text-2xl">Latest News</h3>
-                <ul className="space-y-3 text-sm">
-                  {secondaryArticles.slice(0, 5).map((article) => (
-                    <li
-                      key={article.id}
-                      className="flex items-start gap-3 rounded-xl p-2 transition-all hover:bg-neutral-800"
-                    >
-                      <div className="mt-1 shrink-0" style={{ color: "var(--veritas-red)" }}>
-                        &#9670;
-                      </div>
-                      <div className="min-w-0">
-                        <Link
-                          to={`/article/${article.slug}`}
-                          className="block break-words font-medium leading-[1.65] hover:underline"
-                        >
-                          {article.title}
-                        </Link>
-                        <div className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <AdSlot slot={AD_SLOT_HOME_SIDEBAR} label="Sponsored" className="min-h-[220px]" />
-            </div>
-          </section>
-        )}
-
-        {finalArticles.length > 0 && (
-          <section className="order-1 min-w-0 space-y-5 sm:space-y-6 md:order-2 md:col-span-6">
-            {featuredArticle && (
-              <article className="grid grid-cols-1 gap-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 sm:grid-cols-[140px,1fr] md:grid-cols-3">
-                <img
-                  src={getCardImageUrl(featuredArticle.hero_image, featuredArticle.hero_focus) || ""}
-                  className="h-44 w-full rounded-xl object-cover sm:h-full md:h-[240px]"
-                  style={getImagePresentation(featuredArticle.hero_focus, featuredArticle.hero_crop)}
-                  alt={featuredArticle.title}
-                  loading="lazy"
-                  decoding="async"
-                />
-
-                <div className="min-w-0 md:col-span-2">
-                  <div className="text-sm" style={{ color: "var(--veritas-red)" }}>
-                    {featuredArticle.category?.toUpperCase() || ""}
-                  </div>
-
-                  <Link
-                    to={`/article/${featuredArticle.slug}`}
-                    className="mt-2 block break-words font-serif text-2xl font-bold hover:underline sm:text-[2rem]"
-                  >
-                    {featuredArticle.title}
-                  </Link>
-
-                  <p className="mt-2 text-sm leading-[1.65] text-neutral-300">
-                    {featuredArticle.subheadline || featuredArticle.paragraphs?.[0]?.slice(0, 120)}
-                  </p>
-                </div>
-              </article>
-            )}
-
-            <AdSlot slot={AD_SLOT_HOME_INLINE} label="Sponsored" className="min-h-[160px]" />
-
-            <div>
-              <h3 className="mb-4 font-serif text-xl">More Stories</h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-1">
-                {secondaryArticles.slice(1, 4).map((article) => (
-                  <div
-                    key={article.id}
-                    className="min-w-0 overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900 shadow-sm transition-transform hover:scale-[1.01] md:grid md:min-h-[240px] md:grid-cols-[240px,1fr]"
-                  >
+      {/* ── SECTION 1: 3-Column Grid below Hero Slider ── */}
+      {gridArticles.length > 0 && (
+        <section className="mx-auto mt-6 max-w-7xl px-3 sm:mt-8 sm:px-4">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_2fr_1fr]">
+            
+            {/* Left Column — 2 side articles */}
+            <div className="order-2 grid grid-cols-2 gap-4 lg:order-1 lg:grid-cols-1">
+              {gridArticles.slice(1, 3).map((article) => (
+                <Link
+                  key={article.id}
+                  to={`/article/${article.slug}`}
+                  className="group flex flex-col overflow-hidden rounded-md border border-neutral-800 bg-neutral-900 transition-all hover:border-neutral-600"
+                >
+                  <div className="relative h-32 flex-shrink-0 overflow-hidden sm:h-36 lg:h-40">
                     {article.hero_image ? (
                       <img
                         src={getCardImageUrl(article.hero_image, article.hero_focus)}
                         alt={article.title}
-                        className="hidden h-full min-h-[240px] w-full object-cover md:block"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                         style={getImagePresentation(article.hero_focus, article.hero_crop)}
                         loading="lazy"
                         decoding="async"
                       />
-                    ) : null}
-
-                    <div className="relative flex min-h-[240px] flex-col justify-between p-4 md:p-5">
-                      {article.is_editorial ? (
-                        <div className="mb-3">
-                          <EditorialBadge />
-                        </div>
-                      ) : null}
-                      <div>
-                        <div className="text-xs font-semibold" style={{ color: "var(--veritas-red)" }}>
-                          {article.category}
-                        </div>
-                        <Link
-                          to={`/article/${article.slug}`}
-                          className="mt-2 block break-words text-[1.05rem] font-bold leading-[1.45] hover:underline"
-                          style={{
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden"
-                          }}
-                        >
-                          {article.title}
-                        </Link>
-
-                        <p
-                          className="mt-2 text-sm leading-[1.7] text-neutral-400"
-                          style={{
-                            display: "-webkit-box",
-                            WebkitLineClamp: 4,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden"
-                          }}
-                        >
-                          {article.subheadline || article.paragraphs?.[0]?.slice(0, 90)}
-                        </p>
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-neutral-950 text-[10px] uppercase tracking-widest text-neutral-600">
+                        No image
                       </div>
-                      <div className="mt-3">
-                        <span className="text-xs text-neutral-400">{getArticleDisplayTime(article)}</span>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between p-3">
+                    <div>
+                      <div
+                        className="text-[10px] font-semibold uppercase tracking-[0.2em]"
+                        style={{ color: "var(--veritas-red)" }}
+                      >
+                        {article.category?.toUpperCase()}
                       </div>
+                      <h3
+                        className="mt-1.5 text-sm font-bold leading-snug group-hover:underline sm:text-[0.95rem]"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden"
+                        }}
+                      >
+                        {article.title}
+                      </h3>
                     </div>
+                    <span className="mt-2 text-[10.5px] text-neutral-500">
+                      {getArticleDisplayTime(article)}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Center — 1 Main article */}
+            <div className="order-1 lg:order-2">
+              {gridArticles[0] && (
+                <Link
+                  to={`/article/${gridArticles[0].slug}`}
+                  className="group flex h-full flex-col overflow-hidden rounded-md border border-neutral-800 bg-neutral-900 transition-all hover:border-neutral-600"
+                >
+                  <div className="relative h-60 flex-shrink-0 overflow-hidden sm:h-72 lg:h-[320px]">
+                    {gridArticles[0].hero_image ? (
+                      <img
+                        src={getHeroImageUrl(gridArticles[0].hero_image, gridArticles[0].hero_focus)}
+                        alt={gridArticles[0].title}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        style={getImagePresentation(gridArticles[0].hero_focus, gridArticles[0].hero_crop)}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-neutral-950 text-[10px] uppercase tracking-widest text-neutral-600">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
+                    <div>
+                      <div
+                        className="text-[10px] font-semibold uppercase tracking-[0.2em]"
+                        style={{ color: "var(--veritas-red)" }}
+                      >
+                        {gridArticles[0].category?.toUpperCase()}
+                      </div>
+                      <h2 className="mt-2 font-serif text-xl font-bold leading-snug group-hover:underline sm:text-2xl text-white">
+                        {gridArticles[0].title}
+                      </h2>
+                      <p
+                        className="mt-2 text-sm leading-relaxed text-neutral-400"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden"
+                        }}
+                      >
+                        {gridArticles[0].subheadline || gridArticles[0].paragraphs?.[0]?.slice(0, 140)}
+                      </p>
+                    </div>
+                    <span className="mt-3 text-xs text-neutral-500">
+                      {getArticleDisplayTime(gridArticles[0])}
+                    </span>
+                  </div>
+                </Link>
+              )}
+            </div>
+
+            {/* Right Column — 2 side articles */}
+            <div className="order-3 grid grid-cols-2 gap-4 lg:grid-cols-1">
+              {gridArticles.slice(3, 5).map((article) => (
+                <Link
+                  key={article.id}
+                  to={`/article/${article.slug}`}
+                  className="group flex flex-col overflow-hidden rounded-md border border-neutral-800 bg-neutral-900 transition-all hover:border-neutral-600"
+                >
+                  <div className="relative h-32 flex-shrink-0 overflow-hidden sm:h-36 lg:h-40">
+                    {article.hero_image ? (
+                      <img
+                        src={getCardImageUrl(article.hero_image, article.hero_focus)}
+                        alt={article.title}
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        style={getImagePresentation(article.hero_focus, article.hero_crop)}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-neutral-950 text-[10px] uppercase tracking-widest text-neutral-600">
+                        No image
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between p-3">
+                    <div>
+                      <div
+                        className="text-[10px] font-semibold uppercase tracking-[0.2em]"
+                        style={{ color: "var(--veritas-red)" }}
+                      >
+                        {article.category?.toUpperCase()}
+                      </div>
+                      <h3
+                        className="mt-1.5 text-sm font-bold leading-snug group-hover:underline sm:text-[0.95rem]"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden"
+                        }}
+                      >
+                        {article.title}
+                      </h3>
+                    </div>
+                    <span className="mt-2 text-[10.5px] text-neutral-500">
+                      {getArticleDisplayTime(article)}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+          </div>
+        </section>
+      )}
+
+      {/* Loading state */}
+      {loading && (
+        <div className="mx-auto max-w-7xl px-3 py-20 text-center text-neutral-400 sm:px-4">
+          <div className="mx-auto max-w-xl rounded-md border border-neutral-800 bg-neutral-950 px-6 py-10">
+            <div className="veritas-loader mx-auto" aria-hidden="true" />
+            <div className="mt-5 font-serif text-2xl text-white">Loading stories</div>
+            <p className="mt-3 text-sm leading-relaxed text-neutral-400 sm:text-base">
+              Pulling in the latest Veritas stories now.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!loading && finalArticles.length === 0 && (
+        <div className="mx-auto max-w-7xl px-3 py-20 text-center text-neutral-400 sm:px-4">
+          <div className="mx-auto max-w-xl rounded-md border border-neutral-800 bg-neutral-950 px-6 py-10">
+            <h2 className="font-serif text-3xl text-white">No articles found.</h2>
+            <p className="mt-3 text-sm leading-relaxed text-neutral-400 sm:text-base">
+              {loadError
+                ? "We're reconnecting to the latest story feed. Please check back in a moment."
+                : "The latest article feed is empty right now. Please check back shortly."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── SECTION 2: Latest News ── */}
+      {finalArticles.length > 0 && (
+        <section className="mx-auto max-w-7xl px-3 py-8 sm:px-4 sm:py-10">
+          <div className="mb-6 flex items-center gap-4">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+            <h2 className="whitespace-nowrap font-serif text-2xl font-bold tracking-tight sm:text-3xl text-white">
+              Latest News
+            </h2>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+          </div>
+
+          {/* 2 large main articles */}
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2">
+            {gridArticles.slice(5, 7).map((article) => (
+              <Link
+                key={article.id}
+                to={`/article/${article.slug}`}
+                className="group overflow-hidden rounded-md border border-neutral-800 bg-neutral-900 transition-all hover:border-neutral-600"
+              >
+                <div className="relative h-52 overflow-hidden sm:h-64">
+                  {article.hero_image ? (
+                    <img
+                      src={getHeroImageUrl(article.hero_image, article.hero_focus)}
+                      alt={article.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      style={getImagePresentation(article.hero_focus, article.hero_crop)}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : null}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                </div>
+                <div className="p-4 sm:p-5">
+                  <div
+                    className="text-[11px] font-semibold uppercase tracking-[0.22em]"
+                    style={{ color: "var(--veritas-red)" }}
+                  >
+                    {article.category?.toUpperCase()}
+                  </div>
+                  <h3 className="mt-2 font-serif text-xl font-bold leading-snug group-hover:underline sm:text-2xl text-white">
+                    {article.title}
+                  </h3>
+                  <p
+                    className="mt-2 text-sm leading-relaxed text-neutral-400"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden"
+                    }}
+                  >
+                    {article.subheadline || article.paragraphs?.[0]?.slice(0, 150)}
+                  </p>
+                  <span className="mt-3 inline-block text-xs text-neutral-500">
+                    {getArticleDisplayTime(article)}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* 3 smaller articles */}
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3">
+            {gridArticles.slice(7, 10).map((article) => (
+              <Link
+                key={article.id}
+                to={`/article/${article.slug}`}
+                className="group overflow-hidden rounded-md border border-neutral-800 bg-neutral-900 transition-all hover:border-neutral-600"
+              >
+                <div className="relative h-40 overflow-hidden sm:h-44">
+                  {article.hero_image ? (
+                    <img
+                      src={getCardImageUrl(article.hero_image, article.hero_focus)}
+                      alt={article.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      style={getImagePresentation(article.hero_focus, article.hero_crop)}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : null}
+                </div>
+                <div className="p-3 sm:p-4">
+                  <div
+                    className="text-[10px] font-semibold uppercase tracking-[0.2em]"
+                    style={{ color: "var(--veritas-red)" }}
+                  >
+                    {article.category?.toUpperCase()}
+                  </div>
+                  <h3
+                    className="mt-1.5 text-[0.9rem] font-bold leading-snug group-hover:underline text-white"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden"
+                    }}
+                  >
+                    {article.title}
+                  </h3>
+                  <span className="mt-2 inline-block text-[11px] text-neutral-500">
+                    {getArticleDisplayTime(article)}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Inline Ad */}
+      {finalArticles.length > 0 && (
+        <div className="mx-auto max-w-7xl px-3 sm:px-4">
+          <AdSlot slot={AD_SLOT_HOME_INLINE} label="Sponsored" className="min-h-[140px] rounded-md" />
+        </div>
+      )}
+
+      {/* ── SECTION 3: Latest Videos ── */}
+      {shorts.length > 0 && (
+        <section className="mx-auto max-w-7xl px-3 py-6 sm:px-4 sm:py-8">
+          <div className="mb-5 flex items-center gap-4">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+            <h2 className="whitespace-nowrap font-serif text-xl font-bold tracking-tight sm:text-2xl text-white">
+              Latest Videos
+            </h2>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+          </div>
+
+          <div className="veritas-shorts-row flex gap-4 overflow-x-auto pb-4">
+            {shorts.map((short) => (
+              <div
+                key={short.href}
+                className="w-[240px] flex-shrink-0 overflow-hidden rounded-md border bg-neutral-900 sm:w-[260px]"
+                style={{ borderColor: "rgba(222, 2, 22, 0.25)" }}
+              >
+                <div className="relative bg-black" style={{ aspectRatio: "9 / 16" }}>
+                  <iframe
+                    src={short.embed}
+                    title={`${short.type === "youtube" ? "YouTube short" : "Instagram reel"} ${short.href}`}
+                    className="absolute inset-0 h-full w-full"
+                    loading="lazy"
+                    allowTransparency={true}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
+                </div>
+                <a
+                  href={short.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
+                >
+                  {short.type === "youtube" ? "Watch Short" : "Watch Reel"}
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── SECTION 4: More Top Stories ── */}
+      {moreTopStoriesData && (
+        <section className="mx-auto max-w-7xl px-3 py-6 sm:px-4 sm:py-8">
+          <div className="mb-6 flex items-center gap-4">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+            <h2 className="whitespace-nowrap font-serif text-2xl font-bold tracking-tight sm:text-3xl text-white">
+              More Top Stories
+            </h2>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-[40%_38%_22%] items-stretch">
+            
+            {/* Left Column (Featured story card) — roughly 40% width */}
+            <div className="flex flex-col">
+              <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400">
+                More Top Stories
+              </div>
+              <div className="h-px bg-neutral-800 mb-4" />
+              
+              <Link
+                to={`/article/${moreTopStoriesData.featuredStory.slug}`}
+                className="group flex flex-col h-full overflow-hidden rounded-md border border-neutral-800 bg-neutral-900 transition-all hover:border-neutral-600"
+              >
+                <div className="relative overflow-hidden shrink-0">
+                  {moreTopStoriesData.featuredStory.hero_image ? (
+                    <img
+                      src={getCardImageUrl(moreTopStoriesData.featuredStory.hero_image, moreTopStoriesData.featuredStory.hero_focus)}
+                      alt={moreTopStoriesData.featuredStory.title}
+                      className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      style={{
+                        ...getImagePresentation(moreTopStoriesData.featuredStory.hero_focus, moreTopStoriesData.featuredStory.hero_crop),
+                        aspectRatio: "4/3"
+                      }}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="flex w-full items-center justify-center bg-neutral-950 text-[10px] uppercase tracking-widest text-neutral-600" style={{ aspectRatio: "4/3" }}>
+                      No image
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-1 flex-col justify-start p-4">
+                  {(moreTopStoriesData.featuredStory.hero_caption || moreTopStoriesData.featuredStory.image_caption || moreTopStoriesData.featuredStory.photo_credit) ? (
+                    <p className="mb-2 text-xs italic text-neutral-400">
+                      {moreTopStoriesData.featuredStory.hero_caption || moreTopStoriesData.featuredStory.image_caption || moreTopStoriesData.featuredStory.photo_credit}
+                    </p>
+                  ) : null}
+                  <h3
+                    className="font-serif font-bold text-lg sm:text-xl text-white group-hover:underline leading-snug"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden"
+                    }}
+                  >
+                    {moreTopStoriesData.featuredStory.title}
+                  </h3>
+                </div>
+              </Link>
+            </div>
+
+            {/* Middle Column (Text-only headline list) — roughly 38% width */}
+            <div className="flex flex-col">
+              <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.2em] text-transparent select-none hidden md:block">
+                Spacer
+              </div>
+              <div className="h-px bg-neutral-800 mb-4 hidden md:block" />
+              
+              <div className="flex flex-col justify-between h-full divide-y divide-neutral-800">
+                {moreTopStoriesData.headlineList.map((article, idx) => (
+                  <div key={article.slug} className={`py-3.5 ${idx === 0 ? "pt-0" : ""} ${idx === moreTopStoriesData.headlineList.length - 1 ? "pb-0" : ""}`}>
+                    <Link to={`/article/${article.slug}`} className="group block">
+                      <h3
+                        className="font-serif font-bold text-base sm:text-lg text-white group-hover:underline leading-snug"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden"
+                        }}
+                      >
+                        {article.title}
+                      </h3>
+                    </Link>
                   </div>
                 ))}
               </div>
             </div>
-          </section>
-        )}
 
-        {finalArticles.length > 0 && (
-          <aside className="order-3 min-w-0 md:col-span-3">
-            <div className="space-y-5 sm:space-y-6 md:sticky md:top-6">
-              <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
-                <h3 className="mb-4 border-b border-neutral-700 pb-2 font-serif text-xl">Shorts</h3>
-
-                <div className="space-y-4">
-                  {shorts.map((short) => (
-                    <div
-                      key={short.href}
-                      className="overflow-hidden rounded-[1.75rem] border"
-                      style={{ borderColor: "rgba(222, 2, 22, 0.35)" }}
-                    >
-                      <div className="relative bg-black" style={{ aspectRatio: "9 / 16" }}>
-                        <iframe
-                          src={short.embed}
-                          title={`${short.type === "youtube" ? "YouTube short" : "Instagram reel"} ${short.href}`}
-                          className="absolute inset-0 h-full w-full"
-                          loading="lazy"
-                          allowTransparency={true}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          allowFullScreen
-                        />
+            {/* Right Column ("Most Read" list) — roughly 22% width */}
+            <div className="flex flex-col">
+              <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400">
+                Most Read
+              </div>
+              <div className="h-px bg-neutral-800 mb-4" />
+              
+              <div className="flex flex-col divide-y divide-neutral-800">
+                {moreTopStoriesData.mostReadList.map((article, index) => {
+                  const isExclusive = article.is_exclusive || article.exclusive;
+                  return (
+                    <div key={article.slug} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
+                      <span className="font-sans font-bold text-[22px] text-neutral-400 select-none leading-none shrink-0 w-6 text-right">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <Link to={`/article/${article.slug}`} className="group block">
+                          <h4
+                            className="font-sans text-[13px] sm:text-[14px] font-semibold text-white group-hover:underline leading-snug"
+                            style={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden"
+                            }}
+                          >
+                            {isExclusive ? (
+                              <span className="inline-flex items-center bg-black text-white border border-neutral-700 font-sans text-[9px] font-extrabold tracking-wider px-1.5 py-0.5 rounded-full mr-1.5 uppercase select-none align-middle">
+                                EXCLUSIVE
+                              </span>
+                            ) : null}
+                            {article.title}
+                          </h4>
+                        </Link>
                       </div>
-                      <a
-                        href={short.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="block px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
-                      >
-                        Watch Reel
-                      </a>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
-          </aside>
-        )}
-      </main>
+
+          </div>
+        </section>
+      )}
 
       {forcedCategory.toLowerCase() === "politics" && <ElectionResultsSection />}
       {homepageSubcategorySections.length > 0 ? (
-        <section className="mx-auto max-w-6xl px-3 pb-10 sm:px-4">
-          <div className="space-y-8">
+        <section className="mx-auto max-w-7xl px-3 pb-10 sm:px-4">
+          <div className="space-y-6">
             {homepageSubcategorySections.map((section) => (
-              <div key={section.slug} className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4 sm:p-5">
-                <div className="mb-5 flex items-center justify-between gap-3">
+              <div key={section.slug} className="rounded-md border border-neutral-800 bg-neutral-950 p-3.5 sm:p-4">
+                <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <div className="text-xs uppercase tracking-[0.28em] text-neutral-400">
                       {section.category}
                     </div>
-                    <h2 className="mt-2 font-serif text-2xl text-white sm:text-[2rem]">{section.name}</h2>
+                    <h2 className="mt-1.5 font-serif text-xl text-white sm:text-2xl">{section.name}</h2>
                   </div>
                 </div>
 
-                <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr),minmax(0,1fr)]">
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr),minmax(0,1fr)]">
                   <Link
                     to={`/article/${section.leadArticle.slug}`}
-                    className="group overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-900"
+                    className="group overflow-hidden rounded-md border border-neutral-800 bg-neutral-900"
                   >
                     {section.leadArticle.hero_image ? (
                       <img
@@ -563,14 +956,14 @@ export default function TheVeritasShowcase({
                     </div>
                   </Link>
 
-                  <div className="grid gap-4">
+                  <div className="grid gap-3">
                     {section.supportingArticles.map((article) => (
                       <Link
                         key={article.id}
                         to={`/article/${article.slug}`}
-                        className="grid min-h-[132px] grid-cols-[92px,1fr] gap-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-3 transition-colors hover:border-neutral-700"
+                        className="grid min-h-[108px] grid-cols-[84px,1fr] gap-3 rounded-md border border-neutral-800 bg-neutral-900 p-2.5 transition-colors hover:border-neutral-700"
                       >
-                        <div className="overflow-hidden rounded-xl bg-neutral-950">
+                        <div className="overflow-hidden rounded bg-neutral-950">
                           {article.hero_image ? (
                             <img
                               src={getCardImageUrl(article.hero_image, article.hero_focus)}
