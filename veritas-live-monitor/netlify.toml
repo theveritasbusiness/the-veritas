@@ -1,0 +1,18 @@
+[build]
+  command = "VITE_WS_API_URL=https://veritas-live-monitor.netlify.app npm run build:web"
+  publish = "dist"
+
+[[redirects]]
+  from = "/docs"
+  to = "/docs/documentation"
+  status = 302
+
+[[redirects]]
+  from = "/live/*"
+  to = "/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
