@@ -168,7 +168,7 @@ export default function ArticlePage({
   }
 
   return (
-    <div className="mx-auto grid w-full md:max-w-[70%] xl:max-w-6xl grid-cols-1 gap-6 overflow-x-hidden px-3 py-6 sm:gap-10 sm:px-4 sm:py-10 md:grid-cols-12">
+    <div className="mx-auto grid w-full md:max-w-[85%] xl:max-w-7xl grid-cols-1 gap-6 overflow-x-hidden px-3 py-6 sm:gap-10 sm:px-4 sm:py-10 md:grid-cols-12">
       <Seo
         title={articleTitle}
         description={articleDescription}
@@ -206,7 +206,7 @@ export default function ArticlePage({
         />
       )}
 
-      <div className="min-w-0 md:col-span-12">
+      <div className="min-w-0 md:col-start-3 md:col-span-7">
         <div className="mb-2 flex items-start justify-between gap-3">
           <div className="text-sm uppercase tracking-wide" style={{ color: "var(--veritas-red)" }}>
             {article.category}
@@ -214,14 +214,14 @@ export default function ArticlePage({
           {article.is_editorial && <EditorialBadge />}
         </div>
 
-        <h1 className="break-words font-serif text-2xl font-bold leading-tight tracking-tight sm:text-3xl md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem]">
+        <h1 className="break-words font-serif text-2xl font-bold leading-[1.6] tracking-tight sm:text-3xl md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] text-left w-full">
           {articleTitle}
         </h1>
-        <p className="mt-3 text-base italic leading-relaxed text-neutral-400 sm:text-lg">
+        <p className="mt-3 text-base italic leading-relaxed text-neutral-400 sm:text-lg text-left max-w-2xl">
           {article.subheadline}
         </p>
         <div className="my-4 w-16 border-b" style={{ borderColor: "var(--veritas-red)" }} />
-        <div className="mt-3 text-sm text-neutral-500">
+        <div className="mt-3 text-sm text-neutral-500 text-left">
           By{" "}
           <Link
             to={`/authors/${authorProfile.slug}`}
@@ -231,10 +231,12 @@ export default function ArticlePage({
           </Link>{" "}
           | {formatPublishedDateTime(article.published_at)}
         </div>
+      </div>
 
+      <div className="min-w-0 md:col-start-3 md:col-span-7">
         <img
           src={getStoryImageUrl(article.hero_image)}
-          className="my-6 max-h-[520px] w-full rounded-2xl object-cover shadow-lg sm:my-8"
+          className="my-6 max-h-[380px] w-full rounded-2xl object-cover shadow-lg sm:my-8"
           style={{
             ...getImagePresentation(article.hero_focus, article.hero_crop),
             aspectRatio: "16/9",
@@ -247,9 +249,6 @@ export default function ArticlePage({
         {article.hero_caption ? (
           <div className="-mt-2 mb-6 text-sm leading-6 text-neutral-400 sm:mb-8">{article.hero_caption}</div>
         ) : null}
-      </div>
-
-      <div className="min-w-0 md:col-span-8">
         <div className="space-y-5 break-words font-serif text-[17px] leading-[1.9] text-white sm:space-y-6 sm:text-[18px]">
           {renderedBlocks.map((block, index) => {
             const text = typeof block.text === "string" ? block.text : "";
@@ -394,7 +393,7 @@ export default function ArticlePage({
         ) : null}
       </div>
 
-      <div className="h-fit min-w-0 space-y-5 sm:space-y-6 md:sticky md:top-24 md:col-span-4">
+      <div className="h-fit min-w-0 space-y-5 sm:space-y-6 md:sticky md:top-24 md:col-start-10 md:col-span-3">
         <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4 sm:p-5">
           <h3 className="mb-4 border-b border-neutral-700 pb-2 font-serif text-2xl">Latest News</h3>
           <ul className="space-y-4 text-sm">
@@ -413,7 +412,7 @@ export default function ArticlePage({
             ))}
           </ul>
         </div>
-        <AdSlot slot={AD_SLOT_ARTICLE_SIDEBAR} label="Advertisement" className="min-h-[250px]" />
+                <AdSlot slot={AD_SLOT_ARTICLE_SIDEBAR} label="Advertisement" className="min-h-[250px]" />
       </div>
     </div>
   );
