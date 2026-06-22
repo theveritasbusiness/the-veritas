@@ -117,7 +117,7 @@ export default function TheVeritasShowcase({
 
   const moreTopStoriesData = useMemo(() => {
     const consumedSlugs = new Set();
-    
+
     heroSlides.forEach((slide) => {
       if (slide && slide.slug) {
         consumedSlugs.add(slide.slug);
@@ -324,17 +324,17 @@ export default function TheVeritasShowcase({
       {heroArticle && (
         <header className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
           <div className="relative overflow-hidden rounded-md min-h-[430px] sm:min-h-[470px] md:h-96 bg-black" onTouchStart={handleHeroTouchStart} onTouchEnd={handleHeroTouchEnd}>
-            <div 
+            <div
               className="absolute inset-0 flex w-full h-full"
-              style={{ 
+              style={{
                 transform: `translate3d(-${activeIndex * 100}%, 0, 0)`,
                 transition: isTransitioning ? "transform 700ms cubic-bezier(0.25, 1, 0.5, 1)" : "none"
               }}
               onTransitionEnd={handleTransitionEnd}
             >
               {extendedSlides.map((slide, index) => (
-                <div 
-                  key={slide.id || slide.slug || index} 
+                <div
+                  key={`extended-slide-${index}-${slide.id || slide.slug}`}
                   className="relative h-full w-full flex-shrink-0 cursor-pointer"
                 >
                   <Link to={`/article/${slide.slug}`} className="block h-full w-full relative">
@@ -405,13 +405,12 @@ export default function TheVeritasShowcase({
                 <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
                   {heroSlides.map((slide, index) => (
                     <button
-                      key={slide.id || slide.slug || index}
+                      key={`hero-dot-${index}-${slide.id || slide.slug}`}
                       type="button"
                       onClick={() => goToHeroSlide(index)}
                       aria-label={`Go to hero article ${index + 1}`}
-                      className={`h-2.5 rounded-full transition-all ${
-                        index === activeLogicalIndex ? "w-8 bg-[var(--veritas-red)]" : "w-2.5 bg-white/45 hover:bg-white/70"
-                      }`}
+                      className={`h-2.5 rounded-full transition-all ${index === activeLogicalIndex ? "w-8 bg-[var(--veritas-red)]" : "w-2.5 bg-white/45 hover:bg-white/70"
+                        }`}
                     />
                   ))}
                 </div>
@@ -425,7 +424,7 @@ export default function TheVeritasShowcase({
       {gridArticles.length > 0 && (
         <section className="mx-auto mt-6 max-w-7xl px-3 sm:mt-8 sm:px-4">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_2fr_1fr]">
-            
+
             {/* Left Column — 2 side articles */}
             <div className="order-2 grid grid-cols-2 gap-4 lg:order-1 lg:grid-cols-1">
               {gridArticles.slice(1, 3).map((article) => (
@@ -786,14 +785,14 @@ export default function TheVeritasShowcase({
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-[40%_38%_22%] items-stretch">
-            
+
             {/* Left Column (Featured story card) — roughly 40% width */}
             <div className="flex flex-col">
               <div className="mb-1 text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400">
                 More Top Stories
               </div>
               <div className="h-px bg-neutral-800 mb-4" />
-              
+
               <Link
                 to={`/article/${moreTopStoriesData.featuredStory.slug}`}
                 className="group flex flex-col h-full overflow-hidden rounded-md border border-neutral-800 bg-neutral-900 transition-all hover:border-neutral-600"
@@ -817,7 +816,7 @@ export default function TheVeritasShowcase({
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex flex-1 flex-col justify-start p-4">
                   {(moreTopStoriesData.featuredStory.hero_caption || moreTopStoriesData.featuredStory.image_caption || moreTopStoriesData.featuredStory.photo_credit) ? (
                     <p className="mb-2 text-xs italic text-neutral-400">
@@ -845,7 +844,7 @@ export default function TheVeritasShowcase({
                 Spacer
               </div>
               <div className="h-px bg-neutral-800 mb-4 hidden md:block" />
-              
+
               <div className="flex flex-col justify-between h-full divide-y divide-neutral-800">
                 {moreTopStoriesData.headlineList.map((article, idx) => (
                   <div key={article.slug} className={`py-3.5 ${idx === 0 ? "pt-0" : ""} ${idx === moreTopStoriesData.headlineList.length - 1 ? "pb-0" : ""}`}>
@@ -873,7 +872,7 @@ export default function TheVeritasShowcase({
                 Most Read
               </div>
               <div className="h-px bg-neutral-800 mb-4" />
-              
+
               <div className="flex flex-col divide-y divide-neutral-800">
                 {moreTopStoriesData.mostReadList.map((article, index) => {
                   const isExclusive = article.is_exclusive || article.exclusive;
