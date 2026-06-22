@@ -85,16 +85,16 @@ export default function ArticlePage({
   const isDeskAuthor = /(bureau|desk)$/i.test(authorProfile.name || "");
   const articleAuthorSchema = isDeskAuthor
     ? {
-        "@type": "Organization",
-        name: article.author_name?.trim() || "The Veritas Desk",
-        url: `https://www.theveritas.in/authors/${authorProfile.slug}`
-      }
+      "@type": "Organization",
+      name: article.author_name?.trim() || "The Veritas Desk",
+      url: `https://www.theveritas.in/authors/${authorProfile.slug}`
+    }
     : {
-        "@type": "Person",
-        name: article.author_name?.trim() || "The Veritas Desk",
-        url: `https://www.theveritas.in/authors/${authorProfile.slug}`,
-        sameAs: authorProfile.linkedin || undefined
-      };
+      "@type": "Person",
+      name: article.author_name?.trim() || "The Veritas Desk",
+      url: `https://www.theveritas.in/authors/${authorProfile.slug}`,
+      sameAs: authorProfile.linkedin || undefined
+    };
   const articleDescription =
     article.subheadline?.trim() ||
     article.paragraphs?.find((paragraph) => typeof paragraph === "string" && paragraph.trim())?.trim()?.slice(0, 180) ||
@@ -114,11 +114,11 @@ export default function ArticlePage({
       { "@type": "ListItem", position: 1, name: "Home", item: "https://www.theveritas.in/" },
       article.category
         ? {
-            "@type": "ListItem",
-            position: 2,
-            name: article.category,
-            item: `https://www.theveritas.in${getCategoryPath(article.category)}`
-          }
+          "@type": "ListItem",
+          position: 2,
+          name: article.category,
+          item: `https://www.theveritas.in${getCategoryPath(article.category)}`
+        }
         : null,
       {
         "@type": "ListItem",
@@ -168,7 +168,7 @@ export default function ArticlePage({
   }
 
   return (
-    <div className="mx-auto grid max-w-6xl w-full grid-cols-1 gap-6 overflow-x-hidden px-3 py-6 sm:gap-10 sm:px-4 sm:py-10 md:grid-cols-12">
+    <div className="mx-auto grid w-full md:max-w-[70%] xl:max-w-6xl grid-cols-1 gap-6 overflow-x-hidden px-3 py-6 sm:gap-10 sm:px-4 sm:py-10 md:grid-cols-12">
       <Seo
         title={articleTitle}
         description={articleDescription}
@@ -206,7 +206,7 @@ export default function ArticlePage({
         />
       )}
 
-      <div className="min-w-0 md:col-span-8">
+      <div className="min-w-0 md:col-span-12">
         <div className="mb-2 flex items-start justify-between gap-3">
           <div className="text-sm uppercase tracking-wide" style={{ color: "var(--veritas-red)" }}>
             {article.category}
@@ -214,7 +214,7 @@ export default function ArticlePage({
           {article.is_editorial && <EditorialBadge />}
         </div>
 
-        <h1 className="break-words font-serif text-[2.3rem] font-bold leading-[1.02] tracking-tight sm:text-5xl md:text-[3.2rem] lg:text-[3.75rem] xl:text-[4.1rem]">
+        <h1 className="break-words font-serif text-2xl font-bold leading-tight tracking-tight sm:text-3xl md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem]">
           {articleTitle}
         </h1>
         <p className="mt-3 text-base italic leading-relaxed text-neutral-400 sm:text-lg">
@@ -247,14 +247,16 @@ export default function ArticlePage({
         {article.hero_caption ? (
           <div className="-mt-2 mb-6 text-sm leading-6 text-neutral-400 sm:mb-8">{article.hero_caption}</div>
         ) : null}
+      </div>
 
+      <div className="min-w-0 md:col-span-8">
         <div className="space-y-5 break-words font-serif text-[17px] leading-[1.9] text-white sm:space-y-6 sm:text-[18px]">
           {renderedBlocks.map((block, index) => {
             const text = typeof block.text === "string" ? block.text : "";
 
             if (block.type === "subheading") {
               return (
-                <h2 key={index} className="mb-3 mt-8 text-2xl font-bold text-white">
+                <h2 key={index} className="mb-3 mt-8 text-xl font-bold text-white sm:text-2xl">
                   {text}
                 </h2>
               );

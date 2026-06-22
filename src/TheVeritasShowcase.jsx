@@ -420,6 +420,15 @@ export default function TheVeritasShowcase({
         </header>
       )}
 
+      {/* ── ADVERTISEMENT BANNER ── */}
+      <div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
+        <div className="flex h-[120px] sm:h-[130px] w-full items-center justify-center rounded-md ">
+          <div className="text-[10.5px] uppercase tracking-[0.3em] text-neutral-500">
+            Advertisement
+          </div>
+        </div>
+      </div>
+
       {/* ── SECTION 1: 3-Column Grid below Hero Slider ── */}
       {gridArticles.length > 0 && (
         <section className="mx-auto mt-6 max-w-7xl px-3 sm:mt-8 sm:px-4">
