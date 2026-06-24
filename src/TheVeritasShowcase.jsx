@@ -16,6 +16,7 @@ import { getCategoryConfigByName, getCategoryPath } from "./content/categories";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
 import ElectionResultsSection from "./ElectionResultsSection";
+import MarketsSection from "./components/MarketsSection";
 
 const HOME_TITLE = "The Veritas - Where the truth speaks itself";
 const HOME_DESCRIPTION =
@@ -622,6 +623,9 @@ export default function TheVeritasShowcase({
           </div>
         </div>
       )}
+
+      {/* ── SECTION 2: MARKETS ACTION ── */}
+      <MarketsSection />
 
       {/* ── SECTION 2: Latest News ── */}
       {finalArticles.length > 0 && (
