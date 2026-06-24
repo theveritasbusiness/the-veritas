@@ -100,7 +100,10 @@ export default function MarketTickerTape() {
       </div>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
         .market-strip {
+          font-family: "Roboto", sans-serif;
           box-shadow:
             inset 0 0 0 1px rgba(255, 255, 255, 0.02),
             0 8px 24px rgba(0, 0, 0, 0.16);
@@ -171,12 +174,12 @@ export default function MarketTickerTape() {
 
         .market-card-value,
         .market-card-change {
-          font-family: "Roboto Mono", "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+          font-family: "Roboto", sans-serif;
         }
 
         .market-card-value {
           font-size: 0.98rem;
-          font-weight: 700;
+          font-weight: 500;
           color: #f8f8f8;
         }
 
@@ -185,7 +188,7 @@ export default function MarketTickerTape() {
           align-items: center;
           gap: 6px;
           font-size: 0.78rem;
-          font-weight: 700;
+          font-weight: 400;
           white-space: nowrap;
         }
 

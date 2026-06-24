@@ -1,9 +1,29 @@
 const ipoCalendar = [
-  { company: "Hyundai Motor India", priceRange: "1860 - 1960", isSme: false },
-  { company: "Swiggy Limited", priceRange: "370 - 390", isSme: false },
-  { company: "NTPC Green Energy", priceRange: "102 - 108", isSme: false },
-  { company: "Standard Glass Lining", priceRange: "150 - 156", isSme: true },
-  { company: "Acme Solar Holdings", priceRange: "275 - 289", isSme: false }
+  {
+    company: "Waterways Leisure Tourism",
+    priceRange: "769 - 808",
+    isSme: false,
+  },
+  {
+    company: "Advit Jewels",
+    priceRange: "130 - 138",
+    isSme: false,
+  },
+  {
+    company: "Shreedhar Spinners",
+    priceRange: "₹67 (Fixed Price)",
+    isSme: true,
+  },
+  {
+    company: "Sri Priyanka Geo Commex",
+    priceRange: "TBA",
+    isSme: true,
+  },
+  {
+    company: "Fabindia Limited",
+    priceRange: "TBA",
+    isSme: false,
+  }
 ];
 
 export default ipoCalendar;
