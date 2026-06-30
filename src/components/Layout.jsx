@@ -129,6 +129,14 @@ export default function Layout({ children }) {
       <nav className="border-b border-neutral-800">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 overflow-x-auto no-scrollbar">
           <ul className="flex w-max min-w-full justify-start md:justify-center gap-5 sm:gap-7 py-3 text-sm whitespace-nowrap">
+            {/* Burger Menu Button (Only icon, clean & bold) */}
+            <li
+              className="cursor-pointer transition-colors text-white/90 hover:text-[var(--veritas-red)] flex items-center pr-1.5"
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Open navigation menu"
+            >
+              <i className="fa fa-bars veritas-burger-icon" />
+            </li>
             {categories.map((item) => {
               const isActive =
                 (item === "Home" && !selectedCategory && !isTrendingRoute) ||
@@ -160,14 +168,6 @@ export default function Layout({ children }) {
                 </li>
               );
             })}
-            {/* Burger Menu Button (Only icon, clean & bold) */}
-            <li
-              className="cursor-pointer transition-colors text-white/90 hover:text-[var(--veritas-red)] flex items-center pl-1.5"
-              onClick={() => setIsMenuOpen(true)}
-              aria-label="Open navigation menu"
-            >
-              <i className="fa fa-bars veritas-burger-icon" />
-            </li>
           </ul>
         </div>
       </nav>
@@ -738,7 +738,7 @@ export default function Layout({ children }) {
 /* Drawer & Burger Animations */
 @keyframes veritasSlideIn {
   from {
-    transform: translateX(100%);
+    transform: translateX(-100%);
   }
   to {
     transform: translateX(0);
@@ -780,7 +780,7 @@ export default function Layout({ children }) {
 
           {/* Drawer content panel */}
           <div
-            className="relative w-full max-w-sm sm:max-w-md bg-neutral-950 border-l border-neutral-800 h-full flex flex-col justify-between shadow-2xl z-10 transition-transform duration-300 veritas-animate-slide-in ml-auto"
+            className="relative w-full max-w-sm sm:max-w-md bg-neutral-950 border-r border-neutral-800 h-full flex flex-col justify-between shadow-2xl z-10 transition-transform duration-300 veritas-animate-slide-in mr-auto"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-900">
