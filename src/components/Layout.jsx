@@ -9,8 +9,8 @@ const categories = [
   "India",
   "The Veritas Desk",
   "Politics",
-  "Business",
-  "Science",
+  "Markets",
+  "Tech",
   "Legal",
   "Lifestyle",
   "Sports",
@@ -24,6 +24,7 @@ export default function Layout({ children }) {
   const selectedCategory = searchParams.get("category");
   const querySearch = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(querySearch);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isExternalLiveUrl = /^https?:\/\//i.test(LIVE_MONITOR_URL);
   const isTrendingRoute = location.pathname === "/trending";
 
@@ -159,6 +160,14 @@ export default function Layout({ children }) {
                 </li>
               );
             })}
+            {/* Burger Menu Button (Only icon, clean & bold) */}
+            <li
+              className="cursor-pointer transition-colors text-white/90 hover:text-[var(--veritas-red)] flex items-center pl-1.5"
+              onClick={() => setIsMenuOpen(true)}
+              aria-label="Open navigation menu"
+            >
+              <i className="fa fa-bars veritas-burger-icon" />
+            </li>
           </ul>
         </div>
       </nav>
@@ -725,7 +734,169 @@ export default function Layout({ children }) {
   }
   .veritas-footer-legal { flex-wrap: wrap; }
 }
+
+/* Drawer & Burger Animations */
+@keyframes veritasSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.veritas-animate-slide-in {
+  animation: veritasSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.veritas-burger-icon {
+  font-size: 1.25rem;
+  font-weight: 900;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Custom scrollbar hiding for drawer contents */
+.drawer-no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.drawer-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
       `}</style>
+
+      {/* Slide-out Navigation Drawer */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 flex"
+          role="dialog"
+          aria-modal="true"
+        >
+          {/* Backdrop overlay */}
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity duration-300"
+            onClick={() => setIsMenuOpen(false)}
+          />
+
+          {/* Drawer content panel */}
+          <div
+            className="relative w-full max-w-sm sm:max-w-md bg-neutral-950 border-l border-neutral-800 h-full flex flex-col justify-between shadow-2xl z-10 transition-transform duration-300 veritas-animate-slide-in ml-auto"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-900">
+              <Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center">
+                <img
+                  src="/Logo_Edit_4.png"
+                  alt="The Veritas"
+                  className="h-10 w-auto object-contain"
+                />
+              </Link>
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="text-neutral-400 hover:text-white transition-colors p-2 -mr-2"
+                aria-label="Close menu"
+              >
+                <i className="fa fa-times text-xl" />
+              </button>
+            </div>
+
+            {/* Scrollable Categories List */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 drawer-no-scrollbar">
+              {/* Menu Sections (Expanded) */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500 mb-4">
+                  Featured Sections
+                </h3>
+                <div className="space-y-3">
+                  {[
+                    {
+                      label: "Environment & Climate",
+                      path: "/environment-climate",
+                      desc: "Ecology, policy, sustainability"
+                    },
+                    {
+                      label: "Society & Culture",
+                      path: "/society-culture",
+                      desc: "Social movements, lifestyle, human interest"
+                    },
+                    {
+                      label: "Editorials",
+                      path: "/editorials",
+                      desc: "Columns, op-eds, commentary"
+                    },
+                    {
+                      label: "The Veritas Explains",
+                      path: "/the-veritas-explains",
+                      desc: "In-depth explanations of complex issues"
+                    },
+                    {
+                      label: "Health",
+                      path: "/health",
+                      desc: "Public health, medicine, policy"
+                    },
+                    {
+                      label: "Business, Economy",
+                      path: "/markets",
+                      desc: "Markets, company moves, financial analysis"
+                    }
+                  ].map((sec) => (
+                    <Link
+                      key={sec.label}
+                      to={sec.path}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="group block p-3.5 rounded-lg bg-neutral-900/40 hover:bg-neutral-900 border border-neutral-900 hover:border-neutral-800 transition-all duration-200"
+                    >
+                      <div className="font-serif text-base text-neutral-100 group-hover:text-[var(--veritas-red)] transition-colors">
+                        {sec.label}
+                      </div>
+                      <div className="text-xs text-neutral-400 mt-1 font-sans">
+                        {sec.desc}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* All Sections Directory */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500 mb-4">
+                  All Sections
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: "Home", path: "/" },
+                    { label: "The Veritas Desk", path: "/trending" },
+                    { label: "World", path: "/world" },
+                    { label: "India", path: "/india" },
+                    { label: "Politics", path: "/politics" },
+                    { label: "Tech", path: "/tech" },
+                    { label: "Legal", path: "/legal" },
+                    { label: "Lifestyle", path: "/lifestyle" },
+                    { label: "Sports", path: "/sports" },
+                    { label: "About Us", path: "/about" }
+                  ].map((sec) => (
+                    <Link
+                      key={sec.label}
+                      to={sec.path}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block py-2 px-3 text-sm text-neutral-300 hover:text-white hover:bg-neutral-900 rounded transition-colors font-sans"
+                    >
+                      {sec.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer inside drawer */}
+            <div className="p-6 border-t border-neutral-900 bg-neutral-950/80">
+              <div className="text-[10px] text-neutral-500 text-center font-sans">
+                © {new Date().getFullYear()} The Veritas. All rights reserved.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

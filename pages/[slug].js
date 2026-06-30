@@ -41,8 +41,8 @@ function minimizeArticle(article) {
     image_caption: article.image_caption || "",
     photo_credit: article.photo_credit || "",
     hero_caption: article.hero_caption || "",
-    paragraphs: Array.isArray(article.paragraphs) && article.paragraphs.length > 0 
-      ? [article.paragraphs[0]] 
+    paragraphs: Array.isArray(article.paragraphs) && article.paragraphs.length > 0
+      ? [article.paragraphs[0]]
       : []
   };
 }

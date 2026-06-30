@@ -9,7 +9,7 @@ import {
   getCloudinaryUploadUrl
 } from "../api";
 import HeroImageEditor from "../components/HeroImageEditor";
-import { CATEGORY_CONFIG } from "../content/categories";
+import { CATEGORY_CONFIG, isCategoryMatch } from "../content/categories";
 import { HERO_FOCUS_OPTIONS, normalizeHeroCrop } from "../utils/cloudinary";
 
 function normalizeEditorBlock(block) {
@@ -44,10 +44,10 @@ function normalizeEditorBlock(block) {
 
     const rows = Array.isArray(block.rows) && block.rows.length > 0
       ? block.rows.map((row) =>
-          Array.isArray(row)
-            ? headers.map((_, index) => (typeof row[index] === "string" ? row[index] : ""))
-            : headers.map(() => "")
-        )
+        Array.isArray(row)
+          ? headers.map((_, index) => (typeof row[index] === "string" ? row[index] : ""))
+          : headers.map(() => "")
+      )
       : [headers.map(() => ""), headers.map(() => "")];
 
     return {
@@ -175,7 +175,7 @@ export default function EditArticle() {
   const availableSubcategories = useMemo(() => {
     if (!article?.category) return subcategories;
     return subcategories.filter(
-      (subcategory) => subcategory.category?.toLowerCase() === article.category.toLowerCase()
+      (subcategory) => isCategoryMatch(subcategory.category, article.category)
     );
   }, [article?.category, subcategories]);
 
@@ -185,10 +185,10 @@ export default function EditArticle() {
       setArticle((currentArticle) =>
         currentArticle
           ? {
-              ...currentArticle,
-              subcategory: "",
-              subcategory_slug: ""
-            }
+            ...currentArticle,
+            subcategory: "",
+            subcategory_slug: ""
+          }
           : currentArticle
       );
     }

@@ -12,7 +12,7 @@ import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
 import Head from "next/head";
 import { AD_SLOT_HOME_INLINE } from "./lib/env";
-import { getCategoryConfigByName, getCategoryPath } from "./content/categories";
+import { getCategoryConfigByName, getCategoryPath, isCategoryMatch } from "./content/categories";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
 import ElectionResultsSection from "./ElectionResultsSection";
@@ -79,7 +79,7 @@ export default function TheVeritasShowcase({
     const categoryMatches =
       !selectedCategory ||
       selectedCategory === "Home" ||
-      (article.category && article.category.toLowerCase() === selectedCategory.toLowerCase());
+      (article.category && isCategoryMatch(article.category, selectedCategory));
 
     if (!categoryMatches) return false;
 

@@ -8,7 +8,7 @@ import {
   getCloudinaryUploadUrl
 } from "../api";
 import HeroImageEditor from "../components/HeroImageEditor";
-import { CATEGORY_CONFIG } from "../content/categories";
+import { CATEGORY_CONFIG, isCategoryMatch } from "../content/categories";
 import { HERO_FOCUS_OPTIONS } from "../utils/cloudinary";
 
 export default function NewArticle() {
@@ -56,7 +56,7 @@ export default function NewArticle() {
   const availableSubcategories = useMemo(() => {
     if (!category) return subcategories;
     return subcategories.filter(
-      (subcategory) => subcategory.category?.toLowerCase() === category.toLowerCase()
+      (subcategory) => isCategoryMatch(subcategory.category, category)
     );
   }, [category, subcategories]);
 
@@ -180,20 +180,20 @@ export default function NewArticle() {
     }
 
     const nonEmptyBlocks = contentBlocks.filter((block) => {
-        if (block.type === "image" || block.type === "video") {
-          return block.text?.trim();
-        }
-
-        if (block.type === "table") {
-          return (
-            (block.title || "").trim() ||
-            block.headers?.some((header) => header?.trim()) ||
-            block.rows?.some((row) => row?.some((cell) => cell?.trim()))
-          );
-        }
-
+      if (block.type === "image" || block.type === "video") {
         return block.text?.trim();
-      });
+      }
+
+      if (block.type === "table") {
+        return (
+          (block.title || "").trim() ||
+          block.headers?.some((header) => header?.trim()) ||
+          block.rows?.some((row) => row?.some((cell) => cell?.trim()))
+        );
+      }
+
+      return block.text?.trim();
+    });
     const paragraphBlocks = nonEmptyBlocks.filter((block) => block.type === "paragraph");
 
     if (paragraphBlocks.length === 0) {
