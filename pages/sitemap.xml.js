@@ -12,6 +12,7 @@ const STATIC_PAGES = [
   { path: "/india", changefreq: "daily", priority: 0.7 },
   { path: "/politics", changefreq: "daily", priority: 0.7 },
   { path: "/business", changefreq: "daily", priority: 0.7 },
+  { path: "/markets", changefreq: "daily", priority: 0.7 },
   { path: "/science", changefreq: "daily", priority: 0.7 },
   { path: "/legal", changefreq: "daily", priority: 0.7 },
   { path: "/lifestyle", changefreq: "daily", priority: 0.7 },

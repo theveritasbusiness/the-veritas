@@ -9,6 +9,7 @@ const categories = [
   "India",
   "The Veritas Desk",
   "Politics",
+  "Business",
   "Markets",
   "Tech",
   "Legal",
@@ -835,9 +836,9 @@ export default function Layout({ children }) {
                       desc: "Public health, medicine, policy"
                     },
                     {
-                      label: "Business, Economy",
-                      path: "/markets",
-                      desc: "Markets, company moves, financial analysis"
+                      label: "Business & Economy",
+                      path: "/business",
+                      desc: "Business, corporate updates, economic policies"
                     }
                   ].map((sec) => (
                     <Link
@@ -869,6 +870,8 @@ export default function Layout({ children }) {
                     { label: "World", path: "/world" },
                     { label: "India", path: "/india" },
                     { label: "Politics", path: "/politics" },
+                    { label: "Business", path: "/business" },
+                    { label: "Markets", path: "/markets" },
                     { label: "Tech", path: "/tech" },
                     { label: "Legal", path: "/legal" },
                     { label: "Lifestyle", path: "/lifestyle" },

@@ -21,6 +21,13 @@ export const CATEGORY_CONFIG = [
       "Political reporting, power shifts, elections, governance, and accountability journalism from The Veritas."
   },
   {
+    name: "Business",
+    slug: "business",
+    title: "Business News",
+    description:
+      "Business, corporate updates, economic policies, and financial news reported by The Veritas."
+  },
+  {
     name: "Markets",
     slug: "markets",
     title: "Markets News",
@@ -93,8 +100,11 @@ export function isCategoryMatch(catA = "", catB = "") {
 
   if (normA === normB) return true;
 
-  const businessGroup = ["business", "markets", "business, economy", "business & economy"];
+  const businessGroup = ["business", "business, economy", "business & economy"];
   if (businessGroup.includes(normA) && businessGroup.includes(normB)) return true;
+
+  const marketGroup = ["markets", "market"];
+  if (marketGroup.includes(normA) && marketGroup.includes(normB)) return true;
 
   const scienceGroup = ["science", "tech", "science & technology"];
   if (scienceGroup.includes(normA) && scienceGroup.includes(normB)) return true;
@@ -106,7 +116,6 @@ export function getCategoryConfigBySlug(slug = "") {
   const targetSlug = String(slug || "").toLowerCase();
   // Handle slug compatibility for routing / redirects if needed
   let normalizedSlug = targetSlug;
-  if (targetSlug === "business") normalizedSlug = "markets";
   if (targetSlug === "science") normalizedSlug = "tech";
   
   return CATEGORY_CONFIG.find((category) => category.slug === normalizedSlug) || null;
