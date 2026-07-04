@@ -22,40 +22,58 @@ export function getAuthorInitials(name = "") {
 }
 
 const KNOWN_AUTHORS = {
-  [slugifyAuthor("Kavye Singhal")]: {
-    name: "Kavye Singhal",
-    role: "Founder and     Chief Executive Officer",
+  [slugifyAuthor("Kavya Singhal")]: {
+    name: "Kavya Singhal",
+    role: "Founder and Chief Executive Officer",
     linkedin: "https://www.linkedin.com/in/kavye-singhal-40237a403/",
-    bio: "Kavye Singhal is the Founder and Chief Executive Officer of The Veritas, leading the organization with a vision for impactful journalism.",
-    image: null
+    bio: "Kavya Singhal leads The Veritas with a vision for impactful journalism, public trust, and long-term editorial growth.",
+    image: "/Kavya.PNG",
+    lead: true
   },
   [slugifyAuthor("Soumyadeep Mondal")]: {
     name: "Soumyadeep Mondal",
-    role: "Co-founder and    Chief Administrative Officer",
+    role: "Co-founder and Chief Administrative Officer",
     linkedin: "https://www.linkedin.com/in/soumyadeep-mondal-01a21b3a5/",
     bio: "Soumyadeep Mondal is the Co-founder and Chief Administrative Officer of The Veritas, managing the organization's operations and administrative functions.",
-    image: "/Soumyadeep.jpeg"
+    image: "/Soumyadeep.jpeg",
+    lead: true
   },
   [slugifyAuthor("Sidharth Sharma")]: {
     name: "Sidharth Sharma",
     role: "Chief Technology Officer",
     linkedin: "https://www.linkedin.com/in/siddy-kahanikaar/",
     bio: "Sidharth Sharma is the Chief Technology Officer of The Veritas, driving the organization's digital innovation and technical strategy.",
-    image: null
+    image: "/Sidharth.png.png",
+    lead: true
   },
   [slugifyAuthor("Tavisha Kaushik")]: {
     name: "Tavisha Kaushik",
     role: "Editor-in-Chief",
     linkedin: "https://www.linkedin.com/in/tavisha-kaushik-975a91315/",
     bio: "Tavisha Kaushik leads The Veritas newsroom with a sharp editorial eye, overseeing the publication's news direction, editorial standards, and long-form coverage priorities.",
-    image: "/Tavisha.jpeg"
+    image: "/Tavisha.jpeg",
+    lead: true
   },
-  [slugifyAuthor("Nitanshu Jain")]: {
-    name: "Nitanshu Jain",
-    role: "News Presenter and Editor",
-    linkedin: "https://www.linkedin.com/in/nitanshu-jain-9392853b5/",
-    bio: "Nitanshu Jain presents and shapes The Veritas reporting with a focus on clarity, delivery, and audience-facing journalism across fast-moving stories.",
-    image: "/Nitanshu.png"
+  [slugifyAuthor("Sumit Bhatt")]: {
+    name: "Sumit Bhatt",
+    role: "Chief Developer",
+    linkedin: "https://www.linkedin.com/in/sumit-bhatt-753186218/",
+    bio: "Sumit Bhatt leads core development work at The Veritas, strengthening the platform, publishing tools, and product reliability across the newsroom stack.",
+    image: "/Sumit.jpeg"
+  },
+  [slugifyAuthor("Alisha")]: {
+    name: "Alisha",
+    role: "Editor",
+    linkedin: "",
+    bio: "Alisha contributes to The Veritas with editorial judgment, newsroom coordination, and publication support across evolving stories.",
+    image: "/Alisha_The-Veritas.png"
+  },
+  [slugifyAuthor("Madhvi")]: {
+    name: "Madhvi",
+    role: "Editor",
+    linkedin: "",
+    bio: "Madhvi contributes to The Veritas with editorial support, reporting inputs, and category-specific newsroom work.",
+    image: null
   },
   [slugifyAuthor("The Veritas Bureau")]: {
     name: "The Veritas Bureau",
@@ -74,16 +92,24 @@ const KNOWN_AUTHORS = {
 };
 
 const AUTHOR_ALIASES = {
+  [slugifyAuthor("Kavye Singhal")]: slugifyAuthor("Kavya Singhal"),
   [slugifyAuthor("Soumyadeep Mondl")]: slugifyAuthor("Soumyadeep Mondal"),
-  [slugifyAuthor("Tavisha Kausik")]: slugifyAuthor("Tavisha Kaushik")
+  [slugifyAuthor("Tavisha Kausik")]: slugifyAuthor("Tavisha Kaushik"),
+  [slugifyAuthor("Madvie")]: slugifyAuthor("Madhvi")
 };
 
-const DEFAULT_PROFILE_ORDER = [
-  slugifyAuthor("Kavye Singhal"),
+const ABOUT_VISIBLE_ORDER = [
+  slugifyAuthor("Kavya Singhal"),
   slugifyAuthor("Soumyadeep Mondal"),
   slugifyAuthor("Tavisha Kaushik"),
   slugifyAuthor("Sidharth Sharma"),
-  slugifyAuthor("Nitanshu Jain"),
+  slugifyAuthor("Sumit Bhatt"),
+  slugifyAuthor("Alisha"),
+  slugifyAuthor("Madhvi")
+];
+
+const DEFAULT_PROFILE_ORDER = [
+  ...ABOUT_VISIBLE_ORDER,
   slugifyAuthor("The Veritas Bureau"),
   slugifyAuthor("The Veritas Desk")
 ];
@@ -136,7 +162,7 @@ export function collectAuthorProfiles(articles = []) {
 }
 
 export function getFeaturedTeamProfiles() {
-  return DEFAULT_PROFILE_ORDER.map((slug) => {
+  return ABOUT_VISIBLE_ORDER.map((slug) => {
     const profile = KNOWN_AUTHORS[slug];
     return profile
       ? {

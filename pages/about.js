@@ -2,7 +2,7 @@ import Layout from "../src/components/Layout";
 import Seo from "../src/components/Seo";
 import { Link } from "../src/lib/router";
 import { API_BASE } from "../src/lib/env";
-import { collectAuthorProfiles, getFeaturedTeamProfiles } from "../src/content/authors";
+import { getFeaturedTeamProfiles } from "../src/content/authors";
 
 function TeamAvatar({ profile }) {
   if (profile.image) {
@@ -33,6 +33,9 @@ function StatCard({ label, value, copy }) {
 }
 
 export default function AboutPage({ authors = [], articleCount = 0 }) {
+  const leadProfiles = authors.filter((profile) => profile.lead);
+  const teamProfiles = authors.filter((profile) => !profile.lead);
+
   return (
     <Layout>
       <Seo
@@ -160,8 +163,66 @@ export default function AboutPage({ authors = [], articleCount = 0 }) {
               </div>
             </div>
 
-            <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {authors.map((profile) => (
+            <div className="mt-6 rounded-[30px] border border-[rgba(222,2,22,0.24)] bg-[linear-gradient(135deg,rgba(34,4,8,0.9),rgba(10,10,10,0.95))] p-6 sm:p-7">
+              <div
+                className="text-xs uppercase tracking-[0.24em]"
+                style={{ color: "var(--veritas-red)" }}
+              >
+                Leadership
+              </div>
+              <h3 className="mt-3 font-serif text-3xl text-white">Core members</h3>
+              <p className="mt-2 max-w-3xl text-sm leading-7 text-neutral-400">
+                The lead team steering editorial direction, operations, and product at The Veritas.
+              </p>
+
+              <div className="mt-6 grid gap-5 md:grid-cols-2">
+                {leadProfiles.map((profile) => (
+                  <article
+                    key={profile.slug}
+                    className="rounded-[24px] border border-[rgba(255,255,255,0.08)] bg-black/40 p-6 backdrop-blur-sm"
+                  >
+                    <div className="flex items-start gap-4">
+                      <TeamAvatar profile={profile} />
+                      <div className="min-w-0">
+                        <div className="font-serif text-2xl leading-tight text-white">{profile.name}</div>
+                        <div
+                          className="mt-2 text-xs uppercase tracking-[0.28em]"
+                          style={{ color: "var(--veritas-red)" }}
+                        >
+                          Lead
+                        </div>
+                        <div className="mt-2 text-sm text-neutral-300">{profile.role}</div>
+                      </div>
+                    </div>
+
+                    <p className="mt-5 text-sm leading-7 text-neutral-300">{profile.bio}</p>
+
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <Link
+                        to={`/authors/${profile.slug}`}
+                        className="inline-flex items-center rounded-full border border-white/10 px-4 py-2 text-sm text-white transition hover:border-[var(--veritas-red)] hover:text-[var(--veritas-red)]"
+                      >
+                        View Profile
+                      </Link>
+
+                      {profile.linkedin ? (
+                        <a
+                          href={profile.linkedin}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center rounded-full border border-white/10 px-4 py-2 text-sm text-white transition hover:border-[var(--veritas-red)] hover:text-[var(--veritas-red)]"
+                        >
+                          LinkedIn
+                        </a>
+                      ) : null}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {teamProfiles.map((profile) => (
                 <article
                   key={profile.slug}
                   className="rounded-[24px] border border-neutral-800 bg-neutral-950 p-6"
@@ -214,19 +275,10 @@ export async function getStaticProps() {
   try {
     const response = await fetch(`${API_BASE}/articles`);
     const articles = response.ok ? await response.json() : [];
-    const articleAuthors = collectAuthorProfiles(Array.isArray(articles) ? articles : []);
-    const featuredAuthors = getFeaturedTeamProfiles();
-    const authorMap = new Map();
-
-    [...featuredAuthors, ...articleAuthors].forEach((profile) => {
-      if (!authorMap.has(profile.slug)) {
-        authorMap.set(profile.slug, profile);
-      }
-    });
 
     return {
       props: {
-        authors: Array.from(authorMap.values()),
+        authors: getFeaturedTeamProfiles(),
         articleCount: Array.isArray(articles) ? articles.length : 0
       },
       revalidate: 60
