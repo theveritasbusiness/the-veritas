@@ -24,7 +24,7 @@ export function getAuthorInitials(name = "") {
 const KNOWN_AUTHORS = {
   [slugifyAuthor("Kavya Singhal")]: {
     name: "Kavya Singhal",
-    role: "Founder & CEO",
+    role: "Founder & Chief Executive Officer",
     linkedin: "https://www.linkedin.com/in/kavye-singhal-40237a403/",
     bio: "Kavya Singhal leads The Veritas with a vision for impactful journalism, public trust, and long-term editorial growth.",
     image: "/Kavya.PNG",
@@ -32,7 +32,7 @@ const KNOWN_AUTHORS = {
   },
   [slugifyAuthor("Soumyadeep Mondal")]: {
     name: "Soumyadeep Mondal",
-    role: "Co-Founder & CAO",
+    role: "Co-Founder & Chief Administrative Officer",
     linkedin: "https://www.linkedin.com/in/soumyadeep-mondal-01a21b3a5/",
     bio: "Soumyadeep Mondal is the Co-founder and Chief Administrative Officer of The Veritas, managing the organization's operations and administrative functions.",
     image: "/Soumyadeep.jpeg",
@@ -40,7 +40,7 @@ const KNOWN_AUTHORS = {
   },
   [slugifyAuthor("Sidharth Sharma")]: {
     name: "Sidharth Sharma",
-    role: "CTO",
+    role: "Chief Technology Officer",
     linkedin: "https://www.linkedin.com/in/siddy-kahanikaar/",
     bio: "Sidharth Sharma is the Chief Technology Officer of The Veritas, driving the organization's digital innovation and technical strategy.",
     image: "/Sidharth.png.png",
@@ -48,7 +48,7 @@ const KNOWN_AUTHORS = {
   },
   [slugifyAuthor("Tavisha Kaushik")]: {
     name: "Tavisha Kaushik",
-    role: "Editor in Chief & CMO",
+    role: "Editor in Chief & Chief Marketing Officer",
     linkedin: "https://www.linkedin.com/in/tavisha-kaushik-975a91315/",
     bio: "Tavisha Kaushik leads The Veritas newsroom with a sharp editorial eye, overseeing the publication's news direction, editorial standards, and long-form coverage priorities.",
     image: "/Tavisha.jpeg",
