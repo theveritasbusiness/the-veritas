@@ -168,7 +168,7 @@ export default function AboutPage({ authors = [], articleCount = 0 }) {
                 className="text-xs uppercase tracking-[0.24em]"
                 style={{ color: "var(--veritas-red)" }}
               >
-                Core Members
+                Lead
               </div>
               <h3 className="mt-3 font-serif text-3xl text-white">Lead</h3>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-neutral-400">
