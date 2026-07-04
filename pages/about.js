@@ -168,9 +168,9 @@ export default function AboutPage({ authors = [], articleCount = 0 }) {
                 className="text-xs uppercase tracking-[0.24em]"
                 style={{ color: "var(--veritas-red)" }}
               >
-                Leadership
+                Core Members
               </div>
-              <h3 className="mt-3 font-serif text-3xl text-white">Core members</h3>
+              <h3 className="mt-3 font-serif text-3xl text-white">Lead</h3>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-neutral-400">
                 The lead team steering editorial direction, operations, and product at The Veritas.
               </p>
@@ -189,9 +189,8 @@ export default function AboutPage({ authors = [], articleCount = 0 }) {
                           className="mt-2 text-xs uppercase tracking-[0.28em]"
                           style={{ color: "var(--veritas-red)" }}
                         >
-                          Lead
+                          {profile.role}
                         </div>
-                        <div className="mt-2 text-sm text-neutral-300">{profile.role}</div>
                       </div>
                     </div>
 
