@@ -5,12 +5,12 @@ import { createShort } from "../api";
 function detectPlatform(url = "") {
   const value = String(url).toLowerCase();
 
-  if (value.includes("instagram.com/reel/")) {
-    return "Instagram Reel";
+  if (value.includes("instagram.com/reel/") || value.includes("instagram.com/p/")) {
+    return "Instagram";
   }
 
   if (value.includes("youtube.com/shorts/") || value.includes("youtu.be/") || value.includes("youtube.com/watch")) {
-    return "YouTube Short";
+    return "YouTube";
   }
 
   return "Supported short";
@@ -51,7 +51,7 @@ export default function NewShort() {
       <div className="mx-auto max-w-2xl rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
         <h1 className="mb-2 font-serif text-3xl">Add Short</h1>
         <p className="mb-6 text-sm leading-relaxed text-neutral-400">
-          Paste an Instagram reel or YouTube short link. It will appear in the homepage Latest Videos section.
+          Paste an Instagram or YouTube short link. It will appear in the homepage Latest Videos section.
         </p>
 
         <div className="space-y-4">

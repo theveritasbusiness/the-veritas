@@ -170,7 +170,7 @@ export default function AboutPage({ authors = [], articleCount = 0 }) {
               >
                 Lead
               </div>
-              <h3 className="mt-3 font-serif text-3xl text-white">Lead</h3>
+              <h3 className="mt-3 font-serif text-3xl text-white">The Veritas Lead Team</h3>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-neutral-400">
                 The lead team steering editorial direction, operations, and product at The Veritas.
               </p>

@@ -753,89 +753,47 @@ export default function TheVeritasShowcase({
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
           </div>
 
-          <div className={`grid gap-4 ${shorts.length > 1 ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" : ""}`}>
-            <div
-              className="overflow-hidden rounded-[1.75rem] border bg-neutral-950 shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
-              style={{ borderColor: "rgba(222, 2, 22, 0.28)" }}
-            >
-              <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-neutral-500">
+          <div className="veritas-shorts-row flex gap-4 overflow-x-auto pb-4">
+            {shorts.map((short, index) => (
+              <div
+                key={short.href}
+                className="flex w-[220px] flex-shrink-0 flex-col overflow-hidden rounded-[1.25rem] border bg-neutral-900 sm:w-[240px]"
+                style={{
+                  borderColor: "rgba(222, 2, 22, 0.25)",
+                  marginTop: index % 3 === 1 ? "12px" : index % 3 === 2 ? "24px" : "0px"
+                }}
+              >
+                <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-400">
                     Featured Short
-                  </div>
-                  <div className="mt-1 font-serif text-xl text-white">
-                    {shorts[0]?.type === "youtube" ? "YouTube Short" : "Instagram Reel"}
-                  </div>
+                  </span>
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: "var(--veritas-red)" }}
+                  />
+                </div>
+
+                <div className="relative bg-black" style={{ aspectRatio: "9 / 16" }}>
+                  <iframe
+                    src={short.embed}
+                    title={`Short ${short.href}`}
+                    className="absolute inset-0 h-full w-full"
+                    loading="lazy"
+                    allowTransparency={true}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                  />
                 </div>
                 <a
-                  href={shorts[0]?.href}
+                  href={short.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white transition-colors hover:text-[var(--veritas-red)]"
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
                 >
-                  Open
+                  Open Short
                 </a>
               </div>
-
-              <div className="relative bg-black" style={{ aspectRatio: "16 / 9" }}>
-                <iframe
-                  src={shorts[0]?.embed}
-                  title={`${shorts[0]?.type === "youtube" ? "YouTube short" : "Instagram reel"} ${shorts[0]?.href}`}
-                  className="absolute inset-0 h-full w-full"
-                  loading="lazy"
-                  allowTransparency={true}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-
-            {shorts.length > 1 ? (
-              <div className="veritas-shorts-row flex gap-4 overflow-x-auto pb-4 lg:pb-2">
-                {shorts.slice(1).map((short, index) => (
-                  <div
-                    key={short.href}
-                    className="flex w-[220px] flex-shrink-0 flex-col overflow-hidden rounded-[1.5rem] border bg-neutral-900/95 transition-transform duration-300 hover:-translate-y-1 sm:w-[235px]"
-                    style={{
-                      borderColor: "rgba(222, 2, 22, 0.25)",
-                      transform: `translateY(${index % 2 === 0 ? "0px" : "14px"})`
-                    }}
-                  >
-                    <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-400">
-                        {short.type === "youtube" ? "YouTube" : "Instagram"}
-                      </span>
-                      <span
-                        className="h-2.5 w-2.5 rounded-full"
-                        style={{ backgroundColor: "var(--veritas-red)" }}
-                      />
-                    </div>
-
-                    <div className="relative bg-black" style={{ aspectRatio: "9 / 16" }}>
-                      <iframe
-                        src={short.embed}
-                        title={`${short.type === "youtube" ? "YouTube short" : "Instagram reel"} ${short.href}`}
-                        className="absolute inset-0 h-full w-full"
-                        loading="lazy"
-                        allowTransparency={true}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                      />
-                    </div>
-
-                    <a
-                      href={short.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
-                    >
-                      <span>{short.type === "youtube" ? "Watch Short" : "Watch Reel"}</span>
-                      <span aria-hidden="true">↗</span>
-                    </a>
-                  </div>
-                ))}
-              </div>
-            ) : null}
+            ))}
           </div>
         </section>
       )}

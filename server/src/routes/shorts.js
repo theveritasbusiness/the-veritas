@@ -40,14 +40,15 @@ function parseShortUrl(rawUrl = "") {
   const pathname = url.pathname || "";
 
   if (host === "instagram.com") {
-    const match = pathname.match(/^\/reel\/([^/]+)\/?/i);
+    const match = pathname.match(/^\/(?:reel|p)\/([^/]+)\/?/i);
 
     if (!match?.[1]) {
-      throw new Error("Instagram reel link is invalid");
+      throw new Error("Instagram link is invalid");
     }
 
     const code = match[1];
-    const href = `https://www.instagram.com/reel/${code}/`;
+    const routeType = pathname.toLowerCase().includes("/p/") ? "p" : "reel";
+    const href = `https://www.instagram.com/${routeType}/${code}/`;
 
     return {
       platform: "instagram",
@@ -86,7 +87,7 @@ function parseShortUrl(rawUrl = "") {
     };
   }
 
-  throw new Error("Only Instagram reels and YouTube shorts are supported");
+  throw new Error("Only Instagram and YouTube short links are supported");
 }
 
 router.get("/", async (_req, res) => {

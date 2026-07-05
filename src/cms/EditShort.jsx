@@ -5,8 +5,8 @@ import { fetchAdminShort, updateShort } from "../api";
 function detectPlatform(url = "") {
   const value = String(url).toLowerCase();
 
-  if (value.includes("instagram.com/reel/")) {
-    return "Instagram Reel";
+  if (value.includes("instagram.com/reel/") || value.includes("instagram.com/p/")) {
+    return "Instagram";
   }
 
   if (
@@ -14,7 +14,7 @@ function detectPlatform(url = "") {
     value.includes("youtu.be/") ||
     value.includes("youtube.com/watch")
   ) {
-    return "YouTube Short";
+    return "YouTube";
   }
 
   return "Supported short";
@@ -76,7 +76,7 @@ export default function EditShort() {
       <div className="mx-auto max-w-2xl rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
         <h1 className="mb-2 font-serif text-3xl">Edit Short</h1>
         <p className="mb-6 text-sm leading-relaxed text-neutral-400">
-          Update the Instagram reel or YouTube short link shown in the homepage Latest Videos section.
+          Update the Instagram or YouTube short link shown in the homepage Latest Videos section.
         </p>
 
         <div className="space-y-4">
