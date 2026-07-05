@@ -58,7 +58,7 @@ export default function Layout({ children }) {
 
             <Link to="/" className="flex justify-center" aria-label="Go to The Veritas homepage">
               <img
-                src="/Logo_Edit_4.png"
+                src="/Full_Logo.png"
                 className="h-16 lg:h-20 w-auto object-contain"
                 alt="The Veritas"
               />
@@ -93,7 +93,7 @@ export default function Layout({ children }) {
           <div className="md:hidden flex items-center justify-between gap-3">
             <Link to="/" className="flex min-w-0 flex-1" aria-label="Go to The Veritas homepage">
               <img
-                src="/Logo_Edit_4.png"
+                src="/Full_Logo.png"
                 className="h-10 w-auto max-w-[220px] object-contain"
                 alt="The Veritas"
               />
@@ -183,7 +183,7 @@ export default function Layout({ children }) {
             {/* Logo + tagline + socials */}
             <div className="veritas-footer-brand">
               <Link to="/" aria-label="The Veritas homepage">
-                <img src="/Logo_Edit_4.png" alt="The Veritas" className="veritas-footer-logo" />
+                <img src="/Full_Logo.png" alt="The Veritas" className="veritas-footer-logo" />
               </Link>
               <p className="veritas-footer-tagline">
                 Where the truth speaks itself.
@@ -787,7 +787,7 @@ export default function Layout({ children }) {
             <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-900">
               <Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center">
                 <img
-                  src="/Logo_Edit_4.png"
+                  src="/Full_Logo.png"
                   alt="The Veritas"
                   className="h-10 w-auto object-contain"
                 />

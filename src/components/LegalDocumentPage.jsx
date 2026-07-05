@@ -44,7 +44,7 @@ export default function LegalDocumentPage({
 
           <div className="mx-auto mt-4 max-w-3xl text-center">
             <img
-              src="/Logo_Edit_4.png"
+              src="/Full_Logo.png"
               alt="The Veritas"
               className="mx-auto w-full max-w-[560px] object-contain"
             />

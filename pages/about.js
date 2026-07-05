@@ -49,7 +49,7 @@ export default function AboutPage({ authors = [], articleCount = 0 }) {
           <section className="overflow-hidden rounded-[34px] border border-neutral-800 bg-[radial-gradient(circle_at_top,#2a0408_0%,#0d0d0d_42%,#030303_80%)]">
             <div className="px-6 py-10 sm:px-8 lg:px-12 lg:py-14">
               <img
-                src="/Logo_Edit_4.png"
+                src="/Full_Logo.png"
                 alt="The Veritas"
                 className="h-16 w-auto object-contain sm:h-20"
               />
