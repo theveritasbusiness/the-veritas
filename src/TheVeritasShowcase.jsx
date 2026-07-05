@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "./lib/router";
 import {
   fetchArticles,
   fetchBreaking,
+  fetchShorts,
   fetchSubcategories,
   loadCachedArticles,
   loadCachedBreaking
@@ -37,6 +38,7 @@ export default function TheVeritasShowcase({
   initialArticles = [],
   initialBreaking = [],
   initialSubcategories = [],
+  initialShorts = [],
   initialLoadError = "",
   forcedCategory = "",
   pageTitle = HOME_TITLE,
@@ -46,6 +48,7 @@ export default function TheVeritasShowcase({
   const [articles, setArticles] = useState(initialArticles);
   const [breaking, setBreaking] = useState(initialBreaking);
   const [subcategories, setSubcategories] = useState(initialSubcategories);
+  const [shorts, setShorts] = useState(initialShorts);
   const [loading, setLoading] = useState(
     initialArticles.length === 0 && initialBreaking.length === 0 && !initialLoadError
   );
@@ -182,19 +185,6 @@ export default function TheVeritasShowcase({
       .filter(Boolean);
   }, [articles, shouldShowSubcategorySections, subcategories]);
 
-  const shorts = [
-    {
-      type: "instagram",
-      href: "https://www.instagram.com/reel/DUllbZmEjM4/",
-      embed: "https://www.instagram.com/reel/DUllbZmEjM4/embed"
-    },
-    {
-      type: "youtube",
-      href: "https://www.youtube.com/shorts/h9919flODY8",
-      embed: "https://www.youtube.com/embed/h9919flODY8"
-    }
-  ];
-
   useEffect(() => {
     async function loadData() {
       const cachedArticles = loadCachedArticles();
@@ -206,10 +196,14 @@ export default function TheVeritasShowcase({
       try {
         if (articles.length === 0 && breaking.length === 0) setLoading(true);
         const [allArticles, breakingArticles] = await Promise.all([fetchArticles(), fetchBreaking()]);
-        const subcategoryData = await fetchSubcategories().catch(() => []);
+        const [subcategoryData, shortData] = await Promise.all([
+          fetchSubcategories().catch(() => []),
+          fetchShorts().catch(() => [])
+        ]);
         setArticles(allArticles);
         setBreaking(breakingArticles);
         setSubcategories(Array.isArray(subcategoryData) ? subcategoryData : []);
+        setShorts(Array.isArray(shortData) ? shortData : []);
         setLoadError("");
       } catch (err) {
         console.error("Failed to load articles:", err);
@@ -219,12 +213,17 @@ export default function TheVeritasShowcase({
       }
     }
 
-    if (initialArticles.length === 0 || initialBreaking.length === 0 || initialSubcategories.length === 0) {
+    if (
+      initialArticles.length === 0 ||
+      initialBreaking.length === 0 ||
+      initialSubcategories.length === 0 ||
+      initialShorts.length === 0
+    ) {
       loadData();
     } else {
       setLoading(false);
     }
-  }, [initialArticles.length, initialBreaking.length, initialSubcategories.length]);
+  }, [initialArticles.length, initialBreaking.length, initialSubcategories.length, initialShorts.length]);
 
   const extendedSlides = useMemo(() => {
     if (heroSlides.length <= 1) return heroSlides;
@@ -754,34 +753,89 @@ export default function TheVeritasShowcase({
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
           </div>
 
-          <div className="veritas-shorts-row flex gap-4 overflow-x-auto pb-4">
-            {shorts.map((short) => (
-              <div
-                key={short.href}
-                className="w-[240px] flex-shrink-0 overflow-hidden rounded-md border bg-neutral-900 sm:w-[260px]"
-                style={{ borderColor: "rgba(222, 2, 22, 0.25)" }}
-              >
-                <div className="relative bg-black" style={{ aspectRatio: "9 / 16" }}>
-                  <iframe
-                    src={short.embed}
-                    title={`${short.type === "youtube" ? "YouTube short" : "Instagram reel"} ${short.href}`}
-                    className="absolute inset-0 h-full w-full"
-                    loading="lazy"
-                    allowTransparency={true}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                  />
+          <div className={`grid gap-4 ${shorts.length > 1 ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" : ""}`}>
+            <div
+              className="overflow-hidden rounded-[1.75rem] border bg-neutral-950 shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
+              style={{ borderColor: "rgba(222, 2, 22, 0.28)" }}
+            >
+              <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-neutral-500">
+                    Featured Short
+                  </div>
+                  <div className="mt-1 font-serif text-xl text-white">
+                    {shorts[0]?.type === "youtube" ? "YouTube Short" : "Instagram Reel"}
+                  </div>
                 </div>
                 <a
-                  href={short.href}
+                  href={shorts[0]?.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
+                  className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white transition-colors hover:text-[var(--veritas-red)]"
                 >
-                  {short.type === "youtube" ? "Watch Short" : "Watch Reel"}
+                  Open
                 </a>
               </div>
-            ))}
+
+              <div className="relative bg-black" style={{ aspectRatio: "16 / 9" }}>
+                <iframe
+                  src={shorts[0]?.embed}
+                  title={`${shorts[0]?.type === "youtube" ? "YouTube short" : "Instagram reel"} ${shorts[0]?.href}`}
+                  className="absolute inset-0 h-full w-full"
+                  loading="lazy"
+                  allowTransparency={true}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+
+            {shorts.length > 1 ? (
+              <div className="veritas-shorts-row flex gap-4 overflow-x-auto pb-4 lg:pb-2">
+                {shorts.slice(1).map((short, index) => (
+                  <div
+                    key={short.href}
+                    className="flex w-[220px] flex-shrink-0 flex-col overflow-hidden rounded-[1.5rem] border bg-neutral-900/95 transition-transform duration-300 hover:-translate-y-1 sm:w-[235px]"
+                    style={{
+                      borderColor: "rgba(222, 2, 22, 0.25)",
+                      transform: `translateY(${index % 2 === 0 ? "0px" : "14px"})`
+                    }}
+                  >
+                    <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-400">
+                        {short.type === "youtube" ? "YouTube" : "Instagram"}
+                      </span>
+                      <span
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: "var(--veritas-red)" }}
+                      />
+                    </div>
+
+                    <div className="relative bg-black" style={{ aspectRatio: "9 / 16" }}>
+                      <iframe
+                        src={short.embed}
+                        title={`${short.type === "youtube" ? "YouTube short" : "Instagram reel"} ${short.href}`}
+                        className="absolute inset-0 h-full w-full"
+                        loading="lazy"
+                        allowTransparency={true}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    </div>
+
+                    <a
+                      href={short.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-white transition-colors hover:text-[var(--veritas-red)]"
+                    >
+                      <span>{short.type === "youtube" ? "Watch Short" : "Watch Reel"}</span>
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         </section>
       )}

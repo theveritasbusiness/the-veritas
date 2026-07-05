@@ -119,6 +119,45 @@ export async function createSubcategory(payload) {
   });
 }
 
+export async function fetchShorts() {
+  return fetchJson("/shorts");
+}
+
+export async function createShort(payload) {
+  return fetchJson("/shorts", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function fetchAdminShorts() {
+  return fetchJson("/shorts/admin", {
+    headers: authHeaders()
+  });
+}
+
+export async function fetchAdminShort(id) {
+  return fetchJson(`/shorts/admin/${id}`, {
+    headers: authHeaders()
+  });
+}
+
+export async function updateShort(id, payload) {
+  return fetchJson(`/shorts/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteShort(id) {
+  return fetchJson(`/shorts/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  });
+}
+
 export function authHeaders() {
   return {
     "Content-Type": "application/json",

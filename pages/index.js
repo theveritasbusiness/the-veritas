@@ -41,16 +41,18 @@ function minimizeArticle(article) {
 
 export async function getStaticProps() {
   try {
-    const [articlesRes, breakingRes, subcategoriesRes] = await Promise.all([
+    const [articlesRes, breakingRes, subcategoriesRes, shortsRes] = await Promise.all([
       fetch(`${API_BASE}/articles`),
       fetch(`${API_BASE}/articles/breaking`),
-      fetch(`${API_BASE}/subcategories`)
+      fetch(`${API_BASE}/subcategories`),
+      fetch(`${API_BASE}/shorts`)
     ]);
 
-    const [initialArticles, initialBreaking, initialSubcategories] = await Promise.all([
+    const [initialArticles, initialBreaking, initialSubcategories, initialShorts] = await Promise.all([
       articlesRes.ok ? articlesRes.json() : [],
       breakingRes.ok ? breakingRes.json() : [],
-      subcategoriesRes.ok ? subcategoriesRes.json() : []
+      subcategoriesRes.ok ? subcategoriesRes.json() : [],
+      shortsRes.ok ? shortsRes.json() : []
     ]);
 
     const minimizedArticles = (Array.isArray(initialArticles) ? initialArticles : [])
@@ -67,6 +69,7 @@ export async function getStaticProps() {
         initialArticles: minimizedArticles,
         initialBreaking: minimizedBreaking,
         initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
+        initialShorts: Array.isArray(initialShorts) ? initialShorts : [],
         initialLoadError: ""
       },
       revalidate: 60
@@ -77,6 +80,7 @@ export async function getStaticProps() {
         initialArticles: [],
         initialBreaking: [],
         initialSubcategories: [],
+        initialShorts: [],
         initialLoadError: ""
       },
       revalidate: 60
