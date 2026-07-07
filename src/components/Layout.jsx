@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate, useSearchParams } from "../lib/router";
+import { useRouter } from "next/router";
 import { LIVE_MONITOR_URL } from "../api";
 import { getCategoryPath } from "../content/categories";
 
@@ -13,25 +14,56 @@ const categories = [
   "Markets",
   "Tech",
   "Legal",
-  "Lifestyle",
-  "Sports",
   "About Us"
 ];
 
 export default function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const router = useRouter();
   const [searchParams] = useSearchParams();
   const selectedCategory = searchParams.get("category");
   const querySearch = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(querySearch);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const burgerRef = useRef(null);
+  const desktopSearchInputRef = useRef(null);
+  const mobileSearchInputRef = useRef(null);
   const isExternalLiveUrl = /^https?:\/\//i.test(LIVE_MONITOR_URL);
   const isTrendingRoute = location.pathname === "/trending";
 
   useEffect(() => {
     setSearchQuery(querySearch);
   }, [querySearch]);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleClickOutside = (e) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target) &&
+        burgerRef.current &&
+        !burgerRef.current.contains(e.target)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   const liveButtonProps = isExternalLiveUrl
     ? {
@@ -67,13 +99,19 @@ export default function Layout({ children }) {
             <div className="flex items-center justify-end gap-3">
               <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
                 <input
+                  ref={desktopSearchInputRef}
                   type="search"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => {
                     const nextQuery = e.target.value;
                     setSearchQuery(nextQuery);
-                    navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
+                    const targetPath = nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/";
+                    if (router.pathname === "/") {
+                      router.replace(targetPath, undefined, { shallow: true });
+                    } else {
+                      navigate(targetPath);
+                    }
                   }}
                 />
                 <i className="fa fa-search" />
@@ -102,13 +140,19 @@ export default function Layout({ children }) {
             <div className="flex items-center justify-end gap-2 shrink-0">
               <form className="veritas-search" onSubmit={(e) => e.preventDefault()}>
                 <input
+                  ref={mobileSearchInputRef}
                   type="search"
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => {
                     const nextQuery = e.target.value;
                     setSearchQuery(nextQuery);
-                    navigate(nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/");
+                    const targetPath = nextQuery ? `/?search=${encodeURIComponent(nextQuery)}` : "/";
+                    if (router.pathname === "/") {
+                      router.replace(targetPath, undefined, { shallow: true });
+                    } else {
+                      navigate(targetPath);
+                    }
                   }}
                 />
                 <i className="fa fa-search" />
@@ -127,14 +171,16 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      <nav className="border-b border-neutral-800">
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 overflow-x-auto no-scrollbar">
+      <nav className="border-b border-neutral-800 relative">
+        <div className={`max-w-6xl mx-auto px-3 sm:px-4 no-scrollbar ${isMenuOpen ? "overflow-visible" : "overflow-x-auto"}`}>
           <ul className="flex w-max min-w-full justify-start md:justify-center gap-5 sm:gap-7 py-3 text-sm whitespace-nowrap">
             {/* Burger Menu Button (Only icon, clean & bold) */}
             <li
+              ref={burgerRef}
               className="cursor-pointer transition-colors text-white/90 hover:text-[var(--veritas-red)] flex items-center pr-1.5"
-              onClick={() => setIsMenuOpen(true)}
-              aria-label="Open navigation menu"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              aria-expanded={isMenuOpen}
+              aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
               <i className="fa fa-bars veritas-burger-icon" />
             </li>
@@ -171,6 +217,154 @@ export default function Layout({ children }) {
             })}
           </ul>
         </div>
+
+        {isMenuOpen && (
+          <div
+            ref={dropdownRef}
+            className="veritas-menu-dropdown"
+            role="menu"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="veritas-menu-dropdown-container">
+              {/* Left Panel: Categories Grid */}
+              <div className="veritas-menu-left">
+                <div className="veritas-menu-categories-grid">
+                  {[
+                    { label: "Environment", path: "/environment-climate" },
+                    { label: "Society & Culture", path: "/society-culture" },
+                    { label: "Editorials", path: "/editorials" },
+                    { label: "The Veritas Explains", path: "/the-veritas-explains" },
+                    { label: "Health", path: "/health" },
+                    { label: "Science", path: "/science" },
+                    { label: "Lifestyle", path: "/lifestyle" },
+                    { label: "Sports", path: "/sports" },
+                    { label: "The Veritas Originals", path: "/originals" }
+                  ].map((cat) => (
+                    <Link
+                      key={cat.label}
+                      to={cat.path}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="veritas-menu-category-item font-serif"
+                      role="menuitem"
+                    >
+                      {cat.label}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Left Panel Footer: Socials + CTA */}
+                <div className="veritas-menu-left-footer">
+                  <span className="veritas-menu-connect-label">Connect with us</span>
+                  <div className="veritas-menu-socials">
+                    <a href="https://www.instagram.com/thedailyveritas/" target="_blank" rel="noreferrer noopener" aria-label="The Veritas on Instagram">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><circle cx="12" cy="12" r="4.5" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
+                    </a>
+                    <a href="https://www.facebook.com/profile.php?id=61591541364176&mibextid=wwXIfr" target="_blank" rel="noreferrer noopener" aria-label="The Veritas on Facebook">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1V12h3v3h-3v6.8c4.56-.93 8-4.96 8-9.8z" /></svg>
+                    </a>
+                    <a href="https://www.linkedin.com/company/theveritas/" target="_blank" rel="noreferrer noopener" aria-label="The Veritas on LinkedIn">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
+                    </a>
+                    <a href="https://twitter.com/thedailyveritas" target="_blank" rel="noreferrer noopener" aria-label="The Veritas on X / Twitter">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+                    </a>
+                    <a href="https://www.youtube.com/channel/UCD1zd5OIOBKFWEzi6CB25DQ" target="_blank" rel="noreferrer noopener" aria-label="The Veritas on YouTube">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 00-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.94 1.96C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58z" /><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="black" /></svg>
+                    </a>
+                  </div>
+                  <span className="veritas-menu-footer-divider">|</span>
+                  <Link
+                    to="/trending"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="veritas-menu-footer-cta font-serif"
+                  >
+                    The Veritas Desk &rarr;
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Panel: Specials */}
+              <div className="veritas-menu-right">
+                <div className="veritas-menu-specials-grid">
+                  {/* Column 1 */}
+                  <div className="veritas-menu-specials-col">
+                    <a
+                      href={LIVE_MONITOR_URL}
+                      {...(isExternalLiveUrl ? { target: "_blank", rel: "noreferrer" } : {})}
+                      onClick={() => setIsMenuOpen(false)}
+                      className="veritas-menu-special-link"
+                      role="menuitem"
+                    >
+                      <span className="veritas-menu-live-indicator"><span className="veritas-menu-live-indicator-dot" /></span>
+                      Live Monitor
+                    </a>
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsMenuOpen(false);
+                        setTimeout(() => {
+                          if (window.innerWidth >= 768 && desktopSearchInputRef.current) {
+                            desktopSearchInputRef.current.focus();
+                            desktopSearchInputRef.current.select();
+                          } else if (mobileSearchInputRef.current) {
+                            mobileSearchInputRef.current.focus();
+                            mobileSearchInputRef.current.select();
+                          }
+                        }, 80);
+                      }}
+                      className="veritas-menu-special-link"
+                      role="menuitem"
+                    >
+                      <i className="fa fa-search" />
+                      Search Articles
+                    </a>
+                    <Link
+                      to="/about"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="veritas-menu-special-link"
+                      role="menuitem"
+                    >
+                      <i className="fa fa-info-circle" />
+                      About Us
+                    </Link>
+                  </div>
+
+                  {/* Column 2 */}
+                  <div className="veritas-menu-specials-col">
+                    <a
+                      href="mailto:theveritasbusiness@gmail.com"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="veritas-menu-special-link"
+                      role="menuitem"
+                    >
+                      <i className="fa fa-envelope" />
+                      Contact Us
+                    </a>
+                    <a
+                      href="mailto:advertise@theveritas.in"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="veritas-menu-special-link"
+                      role="menuitem"
+                    >
+                      <i className="fa fa-handshake-o" />
+                      Advertise
+                    </a>
+                    <Link
+                      to="/terms"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="veritas-menu-special-link"
+                      role="menuitem"
+                    >
+                      <i className="fa fa-gavel" />
+                      Terms &amp; Conditions
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {children || <Outlet />}
@@ -736,19 +930,7 @@ export default function Layout({ children }) {
   .veritas-footer-legal { flex-wrap: wrap; }
 }
 
-/* Drawer & Burger Animations */
-@keyframes veritasSlideIn {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-.veritas-animate-slide-in {
-  animation: veritasSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
+/* Burger Icon and Mega Dropdown Menu */
 .veritas-burger-icon {
   font-size: 1.25rem;
   font-weight: 900;
@@ -756,150 +938,243 @@ export default function Layout({ children }) {
   line-height: 1;
 }
 
-/* Custom scrollbar hiding for drawer contents */
-.drawer-no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.veritas-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 820px;
+  background: #0c0c0e;
+  border: 1px solid #1f1f23;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 
+    0 20px 40px -15px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  z-index: 100;
+  animation: veritasMenuDropdownIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding: 1.75rem 2rem;
+  pointer-events: auto;
 }
-.drawer-no-scrollbar::-webkit-scrollbar {
-  display: none;
+
+@keyframes veritasMenuDropdownIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.veritas-menu-dropdown-container {
+  display: flex;
+  gap: 1.25rem;
+}
+
+/* Left Section: Categories Grid */
+.veritas-menu-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.veritas-menu-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem 1rem;
+}
+
+.veritas-menu-category-item {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #e4e4e7;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.veritas-menu-category-item:hover {
+  color: var(--veritas-red);
+}
+
+/* Left Section Footer */
+.veritas-menu-left-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid #1f1f23;
+  padding-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.veritas-menu-connect-label {
+  font-size: 0.8rem;
+  color: #71717a;
+  font-weight: 500;
+}
+
+.veritas-menu-socials {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.veritas-menu-socials a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: #18181b;
+  color: #a1a1aa;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.veritas-menu-socials a:hover {
+  background: #27272a;
+  color: #ffffff;
+}
+
+.veritas-menu-socials a svg {
+  display: block;
+}
+
+.veritas-menu-footer-divider {
+  color: #27272a;
+  font-size: 0.9rem;
+}
+
+.veritas-menu-footer-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0.45rem 1.15rem;
+  background: #de0216;
+  border: 1px solid #de0216;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(222, 2, 22, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.veritas-menu-footer-cta:hover {
+  filter: brightness(1.12);
+  box-shadow: 
+    0 0 18px rgba(222, 2, 22, 0.45),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Right Section: Specials Column */
+.veritas-menu-right {
+  width: 250px;
+  border-left: 1px solid #1f1f23;
+  padding-left: 1.25rem;
+  flex-shrink: 0;
+}
+
+.veritas-menu-specials-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 0.75rem;
+}
+
+.veritas-menu-specials-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.veritas-menu-special-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #a1a1aa;
+  text-decoration: none;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #18181b;
+  transition: all 0.2s ease;
+}
+
+.veritas-menu-special-link:hover {
+  color: #ffffff;
+}
+
+.veritas-menu-special-link i {
+  font-size: 0.95rem;
+  color: #71717a;
+  width: 16px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.veritas-menu-special-link:hover i {
+  color: var(--veritas-red);
+}
+
+/* Live Indicator Dot */
+.veritas-menu-live-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.veritas-menu-live-indicator-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--veritas-red);
+  border-radius: 50%;
+  animation: liveBlink 1.05s ease-in-out infinite;
+}
+
+/* Responsive Rules */
+@media (max-width: 1024px) {
+  .veritas-menu-right {
+    width: 200px;
+    padding-left: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .veritas-menu-dropdown {
+    width: calc(100% - 16px);
+    padding: 1.5rem;
+  }
+  .veritas-menu-dropdown-container {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .veritas-menu-categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 1rem;
+  }
+  .veritas-menu-right {
+    width: 100%;
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid #1f1f23;
+    padding-top: 1.5rem;
+  }
+  .veritas-menu-specials-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
       `}</style>
-
-      {/* Slide-out Navigation Drawer */}
-      {isMenuOpen && (
-        <div
-          className="fixed inset-0 z-50 flex"
-          role="dialog"
-          aria-modal="true"
-        >
-          {/* Backdrop overlay */}
-          <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity duration-300"
-            onClick={() => setIsMenuOpen(false)}
-          />
-
-          {/* Drawer content panel */}
-          <div
-            className="relative w-full max-w-sm sm:max-w-md bg-neutral-950 border-r border-neutral-800 h-full flex flex-col justify-between shadow-2xl z-10 transition-transform duration-300 veritas-animate-slide-in mr-auto"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-900">
-              <Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center">
-                <img
-                  src="/Full_Logo.png"
-                  alt="The Veritas"
-                  className="h-10 w-auto object-contain"
-                />
-              </Link>
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="text-neutral-400 hover:text-white transition-colors p-2 -mr-2"
-                aria-label="Close menu"
-              >
-                <i className="fa fa-times text-xl" />
-              </button>
-            </div>
-
-            {/* Scrollable Categories List */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 drawer-no-scrollbar">
-              {/* Menu Sections (Expanded) */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500 mb-4">
-                  Featured Sections
-                </h3>
-                <div className="space-y-3">
-                  {[
-                    {
-                      label: "Environment & Climate",
-                      path: "/environment-climate",
-                      desc: "Ecology, policy, sustainability"
-                    },
-                    {
-                      label: "Society & Culture",
-                      path: "/society-culture",
-                      desc: "Social movements, lifestyle, human interest"
-                    },
-                    {
-                      label: "Editorials",
-                      path: "/editorials",
-                      desc: "Columns, op-eds, commentary"
-                    },
-                    {
-                      label: "The Veritas Explains",
-                      path: "/the-veritas-explains",
-                      desc: "In-depth explanations of complex issues"
-                    },
-                    {
-                      label: "Health",
-                      path: "/health",
-                      desc: "Public health, medicine, policy"
-                    },
-                    {
-                      label: "Business & Economy",
-                      path: "/business",
-                      desc: "Business, corporate updates, economic policies"
-                    }
-                  ].map((sec) => (
-                    <Link
-                      key={sec.label}
-                      to={sec.path}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="group block p-3.5 rounded-lg bg-neutral-900/40 hover:bg-neutral-900 border border-neutral-900 hover:border-neutral-800 transition-all duration-200"
-                    >
-                      <div className="font-serif text-base text-neutral-100 group-hover:text-[var(--veritas-red)] transition-colors">
-                        {sec.label}
-                      </div>
-                      <div className="text-xs text-neutral-400 mt-1 font-sans">
-                        {sec.desc}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* All Sections Directory */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-neutral-500 mb-4">
-                  All Sections
-                </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { label: "Home", path: "/" },
-                    { label: "The Veritas Desk", path: "/trending" },
-                    { label: "World", path: "/world" },
-                    { label: "India", path: "/india" },
-                    { label: "Politics", path: "/politics" },
-                    { label: "Business", path: "/business" },
-                    { label: "Markets", path: "/markets" },
-                    { label: "Tech", path: "/tech" },
-                    { label: "Legal", path: "/legal" },
-                    { label: "Lifestyle", path: "/lifestyle" },
-                    { label: "Sports", path: "/sports" },
-                    { label: "About Us", path: "/about" }
-                  ].map((sec) => (
-                    <Link
-                      key={sec.label}
-                      to={sec.path}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="block py-2 px-3 text-sm text-neutral-300 hover:text-white hover:bg-neutral-900 rounded transition-colors font-sans"
-                    >
-                      {sec.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Footer inside drawer */}
-            <div className="p-6 border-t border-neutral-900 bg-neutral-950/80">
-              <div className="text-[10px] text-neutral-500 text-center font-sans">
-                © {new Date().getFullYear()} The Veritas. All rights reserved.
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
