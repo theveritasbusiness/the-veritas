@@ -37,6 +37,7 @@ function minimizeArticle(article) {
     published_at: article.published_at || null,
     published_ago: article.published_ago || null,
     show_on_slider: Boolean(article.show_on_slider),
+    show_on_category_slider: Boolean(article.show_on_category_slider),
     subheadline: article.subheadline || "",
     image_caption: article.image_caption || "",
     photo_credit: article.photo_credit || "",

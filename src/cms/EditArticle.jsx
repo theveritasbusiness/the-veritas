@@ -92,6 +92,7 @@ function normalizeEditorArticle(article) {
     bibliography: typeof article?.bibliography === "string" ? article.bibliography : "",
     is_breaking: Boolean(article?.is_breaking),
     show_on_slider: Boolean(article?.show_on_slider),
+    show_on_category_slider: Boolean(article?.show_on_category_slider),
     is_editorial: Boolean(article?.is_editorial)
   };
 }
@@ -293,6 +294,7 @@ export default function EditArticle() {
           bibliography: article.bibliography,
           is_breaking: article.is_breaking || false,
           show_on_slider: article.show_on_slider ?? false,
+          show_on_category_slider: article.show_on_category_slider ?? false,
           is_editorial: article.is_editorial ?? false
         })
       });
@@ -716,6 +718,14 @@ export default function EditArticle() {
             onChange={(e) => setArticle({ ...article, show_on_slider: e.target.checked })}
           />
           Show on Homepage Slider
+        </label>
+        <label className="flex gap-2">
+          <input
+            type="checkbox"
+            checked={article.show_on_category_slider ?? false}
+            onChange={(e) => setArticle({ ...article, show_on_category_slider: e.target.checked })}
+          />
+          Show on Category Page Slider
         </label>
 
         <label className="flex gap-2">

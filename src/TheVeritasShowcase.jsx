@@ -94,7 +94,13 @@ export default function TheVeritasShowcase({
     );
   });
 
-  const sliderArticles = finalArticles.filter((article) => article.show_on_slider === true);
+  const sliderArticles = useMemo(() => {
+    if (forcedCategory) {
+      return finalArticles.filter((article) => article.show_on_category_slider === true);
+    }
+
+    return finalArticles.filter((article) => article.show_on_slider === true);
+  }, [finalArticles, forcedCategory]);
   const heroSlides = useMemo(() => {
     if (sliderArticles.length > 0) return sliderArticles;
     return finalArticles[0] ? [finalArticles[0]] : [];

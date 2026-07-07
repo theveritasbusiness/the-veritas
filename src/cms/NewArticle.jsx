@@ -27,6 +27,7 @@ export default function NewArticle() {
   const [bibliography, setBibliography] = useState("");
   const [breaking, setBreaking] = useState(false);
   const [showOnSlider, setShowOnSlider] = useState(false);
+  const [showOnCategorySlider, setShowOnCategorySlider] = useState(false);
   const [isEditorial, setIsEditorial] = useState(false);
   const [contentBlocks, setContentBlocks] = useState([{ type: "paragraph", text: "" }]);
   const navigate = useNavigate();
@@ -237,6 +238,7 @@ export default function NewArticle() {
           bibliography,
           is_breaking: breaking,
           show_on_slider: showOnSlider,
+          show_on_category_slider: showOnCategorySlider,
           is_editorial: isEditorial
         })
       });
@@ -599,6 +601,10 @@ export default function NewArticle() {
         <label className="flex gap-2">
           <input type="checkbox" onChange={(e) => setShowOnSlider(e.target.checked)} />
           Show on Homepage Slider
+        </label>
+        <label className="flex gap-2">
+          <input type="checkbox" onChange={(e) => setShowOnCategorySlider(e.target.checked)} />
+          Show on Category Page Slider
         </label>
         <label className="flex gap-2">
           <input type="checkbox" onChange={(e) => setIsEditorial(e.target.checked)} />

@@ -360,6 +360,7 @@ router.post("/", requireAuth, async (req, res) => {
       bibliography,
       is_breaking,
       show_on_slider,
+      show_on_category_slider,
       is_editorial,
       content_blocks
     } = req.body;
@@ -378,6 +379,7 @@ router.post("/", requireAuth, async (req, res) => {
     columns = await ensureArticleColumn("subcategory_slug", "TEXT");
     columns = await ensureArticleColumn("hero_focus", "TEXT DEFAULT 'auto'");
     columns = await ensureArticleColumn("hero_crop", "TEXT");
+    columns = await ensureArticleColumn("show_on_category_slider", "BOOLEAN DEFAULT FALSE");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
     const insertColumns = [
       "title",
@@ -395,6 +397,7 @@ router.post("/", requireAuth, async (req, res) => {
       "content",
       "content_blocks",
       "show_on_slider",
+      "show_on_category_slider",
       "is_editorial",
       "approved",
       "status",
@@ -416,6 +419,7 @@ router.post("/", requireAuth, async (req, res) => {
       content,
       contentBlocksJSON,
       show_on_slider || false,
+      show_on_category_slider || false,
       is_editorial || false,
       true,
       "published",
@@ -474,6 +478,7 @@ router.put("/:id", requireAuth, async (req, res) => {
       bibliography,
       is_breaking,
       show_on_slider,
+      show_on_category_slider,
       is_editorial,
       content_blocks
     } = req.body;
@@ -492,6 +497,7 @@ router.put("/:id", requireAuth, async (req, res) => {
     columns = await ensureArticleColumn("subcategory_slug", "TEXT");
     columns = await ensureArticleColumn("hero_focus", "TEXT DEFAULT 'auto'");
     columns = await ensureArticleColumn("hero_crop", "TEXT");
+    columns = await ensureArticleColumn("show_on_category_slider", "BOOLEAN DEFAULT FALSE");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
     const updateEntries = [
       ["title", title],
@@ -508,6 +514,7 @@ router.put("/:id", requireAuth, async (req, res) => {
       ["content", content],
       ["content_blocks", contentBlocksJSON],
       ["show_on_slider", show_on_slider ?? false],
+      ["show_on_category_slider", show_on_category_slider ?? false],
       ["is_editorial", is_editorial ?? false]
     ];
 
