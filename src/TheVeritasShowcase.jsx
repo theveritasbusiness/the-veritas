@@ -34,6 +34,17 @@ function EditorialBadge({ className = "" }) {
   );
 }
 
+function LiveBadge({ className = "" }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full bg-[var(--veritas-red)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white ${className}`.trim()}
+    >
+      <span className="h-2 w-2 rounded-full bg-white" />
+      Live
+    </span>
+  );
+}
+
 export default function TheVeritasShowcase({
   initialArticles = [],
   initialBreaking = [],
@@ -362,9 +373,10 @@ export default function TheVeritasShowcase({
                       decoding="async"
                     />
 
-                    {slide.is_editorial ? (
-                      <div className="absolute right-4 top-4 z-[1]">
-                        <EditorialBadge />
+                    {(slide.is_editorial || slide.is_live) ? (
+                      <div className="absolute right-4 top-4 z-[1] flex flex-wrap justify-end gap-2">
+                        {slide.is_live ? <LiveBadge /> : null}
+                        {slide.is_editorial ? <EditorialBadge /> : null}
                       </div>
                     ) : null}
 
@@ -472,6 +484,7 @@ export default function TheVeritasShowcase({
                       >
                         {article.category?.toUpperCase()}
                       </div>
+                      {article.is_live ? <LiveBadge className="mt-2" /> : null}
                       <h3
                         className="mt-1.5 text-sm font-bold leading-snug group-hover:underline sm:text-[0.95rem]"
                         style={{
@@ -671,6 +684,7 @@ export default function TheVeritasShowcase({
                   >
                     {article.category?.toUpperCase()}
                   </div>
+                  {article.is_live ? <LiveBadge className="mt-2" /> : null}
                   <h3 className="mt-2 font-serif text-xl font-bold leading-snug group-hover:underline sm:text-2xl text-white">
                     {article.title}
                   </h3>
@@ -720,6 +734,7 @@ export default function TheVeritasShowcase({
                   >
                     {article.category?.toUpperCase()}
                   </div>
+                  {article.is_live ? <LiveBadge className="mt-2" /> : null}
                   <h3
                     className="mt-1.5 text-[0.9rem] font-bold leading-snug group-hover:underline text-white"
                     style={{
@@ -1015,6 +1030,7 @@ export default function TheVeritasShowcase({
                             <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--veritas-red)]">
                               {article.category}
                             </div>
+                            {article.is_live ? <LiveBadge className="mt-2" /> : null}
                             <h4
                               className="mt-2 text-base font-semibold leading-snug text-white hover:underline"
                               style={{

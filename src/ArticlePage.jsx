@@ -20,6 +20,34 @@ function EditorialBadge() {
   );
 }
 
+function LiveBadge({ className = "" }) {
+  return (
+    <span className={`inline-flex items-center gap-2 rounded-full bg-[var(--veritas-red)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white ${className}`}>
+      <span className="h-2 w-2 rounded-full bg-white" />
+      Live
+    </span>
+  );
+}
+
+function formatLiveUpdateTimestamp(input) {
+  const timestamp = input ? new Date(input) : null;
+  if (!timestamp || Number.isNaN(timestamp.getTime())) {
+    return "LIVE UPDATE";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Calcutta"
+  })
+    .format(timestamp)
+    .toUpperCase();
+}
+
 function titleFromSlug(slug = "") {
   return String(slug || "")
     .replace(/-/g, " ")
@@ -81,6 +109,7 @@ export default function ArticlePage({
   if (!article) return <div className="p-6 text-white">Loading...</div>;
 
   const articleTitle = article.title?.trim() || titleFromSlug(article.slug || slug);
+  const isLiveArticle = Boolean(article.is_live);
   const authorProfile = getAuthorProfile(article.author_name || "The Veritas Desk");
   const isDeskAuthor = /(bureau|desk)$/i.test(authorProfile.name || "");
   const articleAuthorSchema = isDeskAuthor
@@ -136,7 +165,7 @@ export default function ArticlePage({
     description: articleDescription,
     image: article.hero_image ? [getStoryImageUrl(article.hero_image)] : undefined,
     datePublished: article.published_at || undefined,
-    dateModified: article.updated_at || article.published_at || undefined,
+    dateModified: article.live_updated_at || article.updated_at || article.published_at || undefined,
     articleSection: article.category || undefined,
     mainEntityOfPage: `https://www.theveritas.in/article/${article.slug}`,
     author: articleAuthorSchema,
@@ -154,6 +183,7 @@ export default function ArticlePage({
   };
 
   const renderedBlocks = (article.content_blocks || []).filter(Boolean);
+  const liveUpdates = Array.isArray(article.live_updates) ? article.live_updates : [];
   const paragraphIndexes = renderedBlocks.reduce((accumulator, block, index) => {
     if (block.type === "paragraph" || (!block.type && typeof block.text === "string")) {
       accumulator.push(index);
@@ -211,7 +241,10 @@ export default function ArticlePage({
           <div className="text-sm uppercase tracking-wide" style={{ color: "var(--veritas-red)" }}>
             {article.category}
           </div>
-          {article.is_editorial && <EditorialBadge />}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {isLiveArticle ? <LiveBadge /> : null}
+            {article.is_editorial && <EditorialBadge />}
+          </div>
         </div>
 
         <h1 className="break-words font-serif text-2xl font-bold leading-[1.6] tracking-tight sm:text-3xl md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] text-left w-full">
@@ -234,23 +267,46 @@ export default function ArticlePage({
       </div>
 
       <div className="min-w-0 md:col-start-3 md:col-span-7">
-        <img
-          src={getStoryImageUrl(article.hero_image)}
-          className="my-6 max-h-[380px] w-full rounded-2xl object-cover shadow-lg sm:my-8"
-          style={{
-            ...getImagePresentation(article.hero_focus, article.hero_crop),
-            aspectRatio: "16/9",
-            width: "100%"
-          }}
-          alt={article.hero_caption || articleTitle || "Article image"}
-          loading="eager"
-          decoding="async"
-        />
+        {article.hero_image ? (
+          <img
+            src={getStoryImageUrl(article.hero_image)}
+            className="my-6 max-h-[380px] w-full rounded-2xl object-cover shadow-lg sm:my-8"
+            style={{
+              ...getImagePresentation(article.hero_focus, article.hero_crop),
+              aspectRatio: "16/9",
+              width: "100%"
+            }}
+            alt={article.hero_caption || articleTitle || "Article image"}
+            loading="eager"
+            decoding="async"
+          />
+        ) : null}
         {article.hero_caption ? (
           <div className="-mt-2 mb-6 text-sm leading-6 text-neutral-400 sm:mb-8">{article.hero_caption}</div>
         ) : null}
-        <div className="space-y-5 break-words font-serif text-[17px] leading-[1.9] text-white sm:space-y-6 sm:text-[18px]">
-          {renderedBlocks.map((block, index) => {
+        {isLiveArticle ? (
+          <div className="space-y-6">
+            {liveUpdates.map((update, index) => (
+              <div key={update.id || `${update.created_at}-${index}`} className="relative pl-8">
+                <div className="absolute bottom-0 left-[9px] top-0 w-px bg-white/20" />
+                <div className="absolute left-0 top-1.5 h-5 w-5 rounded-full border-2 border-white bg-black" />
+                <div className="pb-6">
+                  <div className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--veritas-red)]">
+                    {formatLiveUpdateTimestamp(update.created_at)}
+                  </div>
+                  <h2 className="mt-3 font-serif text-2xl font-bold leading-tight text-white sm:text-[2rem]">
+                    {update.heading}
+                  </h2>
+                  <p className="mt-4 whitespace-pre-line font-serif text-[18px] leading-[1.9] text-white">
+                    {update.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-5 break-words font-serif text-[17px] leading-[1.9] text-white sm:space-y-6 sm:text-[18px]">
+            {renderedBlocks.map((block, index) => {
             const text = typeof block.text === "string" ? block.text : "";
 
             if (block.type === "subheading") {
@@ -380,8 +436,9 @@ export default function ArticlePage({
                 )}
               </React.Fragment>
             );
-          })}
-        </div>
+            })}
+          </div>
+        )}
 
         {article.bibliography ? (
           <section className="mt-10 rounded-2xl border border-white/15 bg-neutral-950/80 p-5 sm:p-6">

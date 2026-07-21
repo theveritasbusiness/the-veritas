@@ -107,6 +107,22 @@ export async function fetchAdminArticle(id) {
   });
 }
 
+export async function createArticle(payload) {
+  return fetchJson("/articles", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateArticle(id, payload) {
+  return fetchJson(`/articles/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+}
+
 export async function fetchSubcategories() {
   return fetchJson("/subcategories");
 }
