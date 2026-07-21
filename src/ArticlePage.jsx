@@ -378,6 +378,21 @@ export default function ArticlePage({
               );
             }
 
+            if (block.type === "tweet" && block.href) {
+              const href = String(block.href).trim();
+              return (
+                <div key={index} className="my-8 overflow-hidden rounded-2xl border border-white/15 bg-neutral-950/90 p-3 sm:p-4">
+                  <div className="mb-3 text-[11px] uppercase tracking-[0.24em] text-[var(--veritas-red)]">Tweet</div>
+                  <iframe
+                    title={`Embedded tweet ${index + 1}`}
+                    src={`https://twitframe.com/show?url=${encodeURIComponent(href)}`}
+                    className="h-[620px] w-full rounded-xl border-0 bg-white"
+                    loading="lazy"
+                  />
+                </div>
+              );
+            }
+
             if (block.type === "table") {
               const headers = Array.isArray(block.headers) ? block.headers : [];
               const rows = Array.isArray(block.rows) ? block.rows : [];
