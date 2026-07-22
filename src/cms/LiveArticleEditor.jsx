@@ -14,7 +14,10 @@ function createUpdate() {
     id: `live-update-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     heading: "",
     description: "",
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    tweet_url: "",
+    showTweetField: false,
+    showDateTimeField: false
   };
 }
 
@@ -37,7 +40,10 @@ function normalizeLiveUpdates(value) {
       id: item.id || `live-update-${index}-${Date.now()}`,
       heading: typeof item.heading === "string" ? item.heading : "",
       description: typeof item.description === "string" ? item.description : "",
-      created_at: item.created_at || new Date().toISOString()
+      created_at: item.created_at || new Date().toISOString(),
+      tweet_url: typeof item.tweet_url === "string" ? item.tweet_url : "",
+      showTweetField: Boolean(item.tweet_url),
+      showDateTimeField: false
     }))
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -135,6 +141,31 @@ export default function LiveArticleEditor({ mode = "create" }) {
     );
   }
 
+  function formatDateTimeInputValue(input) {
+    const timestamp = input ? new Date(input) : null;
+    if (!timestamp || Number.isNaN(timestamp.getTime())) {
+      return "";
+    }
+
+    const formatter = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Asia/Calcutta",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    });
+
+    return formatter.format(timestamp).replace(" ", "T");
+  }
+
+  function parseDateTimeInputValue(value) {
+    if (!value) return new Date().toISOString();
+    const nextDate = new Date(`${value}:00+05:30`);
+    return Number.isNaN(nextDate.getTime()) ? new Date().toISOString() : nextDate.toISOString();
+  }
+
   function removeUpdate(index) {
     setUpdates((current) => {
       if (current.length === 1) {
@@ -158,9 +189,11 @@ export default function LiveArticleEditor({ mode = "create" }) {
 
     const cleanedUpdates = updates
       .map((item) => ({
-        ...item,
+        id: item.id,
         heading: item.heading.trim(),
-        description: item.description.trim()
+        description: item.description.trim(),
+        created_at: item.created_at || new Date().toISOString(),
+        tweet_url: item.tweet_url?.trim() || ""
       }))
       .filter((item) => item.heading || item.description);
 
@@ -355,6 +388,20 @@ export default function LiveArticleEditor({ mode = "create" }) {
                   <div className="flex gap-2">
                     <button
                       type="button"
+                      onClick={() => updateLiveUpdate(index, "showTweetField", !update.showTweetField)}
+                      className="rounded border border-neutral-700 px-3 py-1 text-xs text-neutral-300"
+                    >
+                      Add Tweet
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateLiveUpdate(index, "showDateTimeField", !update.showDateTimeField)}
+                      className="rounded border border-neutral-700 px-3 py-1 text-xs text-neutral-300"
+                    >
+                      Customise date and time
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => updateLiveUpdate(index, "created_at", new Date().toISOString())}
                       className="rounded border border-neutral-700 px-3 py-1 text-xs text-neutral-300"
                     >
@@ -388,6 +435,32 @@ export default function LiveArticleEditor({ mode = "create" }) {
                       className="min-h-[120px] w-full rounded border border-neutral-700 bg-black px-3 py-2"
                     />
                   </div>
+
+                  {update.showTweetField ? (
+                    <div>
+                      <label className="mb-2 block text-sm text-neutral-300">Tweet / X post URL</label>
+                      <input
+                        value={update.tweet_url || ""}
+                        onChange={(event) => updateLiveUpdate(index, "tweet_url", event.target.value)}
+                        className="w-full rounded border border-neutral-700 bg-black px-3 py-2"
+                        placeholder="https://x.com/... or https://twitter.com/..."
+                      />
+                    </div>
+                  ) : null}
+
+                  {update.showDateTimeField ? (
+                    <div>
+                      <label className="mb-2 block text-sm text-neutral-300">Custom date and time</label>
+                      <input
+                        type="datetime-local"
+                        value={formatDateTimeInputValue(update.created_at)}
+                        onChange={(event) =>
+                          updateLiveUpdate(index, "created_at", parseDateTimeInputValue(event.target.value))
+                        }
+                        className="w-full rounded border border-neutral-700 bg-black px-3 py-2"
+                      />
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))}

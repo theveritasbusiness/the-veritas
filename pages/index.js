@@ -59,7 +59,7 @@ export async function getStaticProps() {
     ]);
 
     const minimizedArticles = (Array.isArray(initialArticles) ? initialArticles : [])
-      .slice(0, 100)
+      .slice(0, 60)
       .map(minimizeArticle)
       .filter(Boolean);
 
@@ -72,7 +72,7 @@ export async function getStaticProps() {
         initialArticles: minimizedArticles,
         initialBreaking: minimizedBreaking,
         initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
-        initialShorts: Array.isArray(initialShorts) ? initialShorts : [],
+        initialShorts: Array.isArray(initialShorts) ? initialShorts.slice(0, 6) : [],
         initialLoadError: ""
       },
       revalidate: 60

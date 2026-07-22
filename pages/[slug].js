@@ -71,7 +71,7 @@ export async function getStaticProps({ params }) {
     ]);
 
     const minimizedArticles = (Array.isArray(initialArticles) ? initialArticles : [])
-      .slice(0, 100)
+      .slice(0, 60)
       .map(minimizeArticle)
       .filter(Boolean);
 

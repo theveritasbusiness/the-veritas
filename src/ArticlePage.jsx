@@ -300,6 +300,17 @@ export default function ArticlePage({
                   <p className="mt-4 whitespace-pre-line font-serif text-[18px] leading-[1.9] text-white">
                     {update.description}
                   </p>
+                  {update.tweet_url ? (
+                    <div className="mt-5 overflow-hidden rounded-2xl border border-white/15 bg-neutral-950/90 p-3 sm:p-4">
+                      <div className="mb-3 text-[11px] uppercase tracking-[0.24em] text-[var(--veritas-red)]">Tweet</div>
+                      <iframe
+                        title={`Live update tweet ${index + 1}`}
+                        src={`https://twitframe.com/show?url=${encodeURIComponent(update.tweet_url)}`}
+                        className="h-[620px] w-full rounded-xl border-0 bg-white"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ))}
