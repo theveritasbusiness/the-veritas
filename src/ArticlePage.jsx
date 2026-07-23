@@ -11,6 +11,16 @@ import { getAuthorProfile } from "./content/authors";
 import { getImagePresentation, getStoryImageUrl } from "./utils/cloudinary";
 import { formatPublishedDateTime } from "./utils/time";
 
+function getTweetEmbedUrl(input = "") {
+  const href = String(input || "").trim();
+  if (!href) return "";
+
+  const match = href.match(/(?:twitter|x)\.com\/[^/]+\/status\/(\d+)/i);
+  if (!match) return href;
+
+  return `https://twitter.com/i/status/${match[1]}`;
+}
+
 function EditorialBadge() {
   return (
     <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white backdrop-blur">
@@ -69,6 +79,19 @@ export default function ArticlePage({
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isMounted) {
+      return undefined;
+    }
+
+    const twitterWidgets = window.twttr?.widgets;
+    if (twitterWidgets?.load) {
+      twitterWidgets.load();
+    }
+
+    return undefined;
+  }, [article, isMounted]);
 
   useEffect(() => {
     if (initialArticle) setArticle(initialArticle);
@@ -218,22 +241,25 @@ export default function ArticlePage({
       ) : null}
 
       {isMounted && (
-        <Script
-          src="https://news.google.com/swg/js/v1/swg-basic.js"
-          strategy="lazyOnload"
-          onLoad={() => {
-            if (!window.SWG_BASIC) return;
-            window.SWG_BASIC.push((basicSubscriptions) => {
-              if (!basicSubscriptions) return;
-              basicSubscriptions.init({
-                type: "NewsArticle",
-                isPartOfType: ["Product"],
-                isPartOfProductId: "CAow96zGDA:openaccess",
-                clientOptions: { theme: "light", lang: "en" }
+        <>
+          <Script
+            src="https://news.google.com/swg/js/v1/swg-basic.js"
+            strategy="lazyOnload"
+            onLoad={() => {
+              if (!window.SWG_BASIC) return;
+              window.SWG_BASIC.push((basicSubscriptions) => {
+                if (!basicSubscriptions) return;
+                basicSubscriptions.init({
+                  type: "NewsArticle",
+                  isPartOfType: ["Product"],
+                  isPartOfProductId: "CAow96zGDA:openaccess",
+                  clientOptions: { theme: "light", lang: "en" }
+                });
               });
-            });
-          }}
-        />
+            }}
+          />
+          <Script src="https://platform.twitter.com/widgets.js" strategy="lazyOnload" />
+        </>
       )}
 
       <div className="min-w-0 md:col-start-3 md:col-span-7">
@@ -303,12 +329,9 @@ export default function ArticlePage({
                   {update.tweet_url ? (
                     <div className="mt-5 overflow-hidden rounded-2xl border border-white/15 bg-neutral-950/90 p-3 sm:p-4">
                       <div className="mb-3 text-[11px] uppercase tracking-[0.24em] text-[var(--veritas-red)]">Tweet</div>
-                      <iframe
-                        title={`Live update tweet ${index + 1}`}
-                        src={`https://twitframe.com/show?url=${encodeURIComponent(update.tweet_url)}`}
-                        className="h-[620px] w-full rounded-xl border-0 bg-white"
-                        loading="lazy"
-                      />
+                      <blockquote className="twitter-tweet" data-theme="dark" data-dnt="true">
+                        <a href={getTweetEmbedUrl(update.tweet_url)}>{update.tweet_url}</a>
+                      </blockquote>
                     </div>
                   ) : null}
                 </div>
@@ -394,12 +417,9 @@ export default function ArticlePage({
               return (
                 <div key={index} className="my-8 overflow-hidden rounded-2xl border border-white/15 bg-neutral-950/90 p-3 sm:p-4">
                   <div className="mb-3 text-[11px] uppercase tracking-[0.24em] text-[var(--veritas-red)]">Tweet</div>
-                  <iframe
-                    title={`Embedded tweet ${index + 1}`}
-                    src={`https://twitframe.com/show?url=${encodeURIComponent(href)}`}
-                    className="h-[620px] w-full rounded-xl border-0 bg-white"
-                    loading="lazy"
-                  />
+                  <blockquote className="twitter-tweet" data-theme="dark" data-dnt="true">
+                    <a href={getTweetEmbedUrl(href)}>{href}</a>
+                  </blockquote>
                 </div>
               );
             }
