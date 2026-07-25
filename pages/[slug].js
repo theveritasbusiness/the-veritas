@@ -1,9 +1,19 @@
 import Layout from "../src/components/Layout";
 import TheVeritasShowcase from "../src/TheVeritasShowcase";
+import MarketsPage from "../src/MarketsPage";
 import { CATEGORY_CONFIG, getCategoryConfigBySlug } from "../src/content/categories";
 import { API_BASE } from "../src/lib/env";
 
 export default function CategoryPage(props) {
+  // Render the dedicated Markets page for the "markets" slug
+  if (props.forcedCategory === "Markets") {
+    return (
+      <Layout>
+        <MarketsPage initialArticles={props.initialArticles} />
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <TheVeritasShowcase {...props} />
