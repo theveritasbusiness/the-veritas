@@ -128,6 +128,7 @@ function isPublishedArticle(article, columns) {
 
 function normalizeArticle(article, columns) {
   const cleanSlug = cleanArticleSlug(article.slug);
+  const liveUpdates = parseLiveUpdates(article);
   let heroCrop = article.hero_crop;
   if (typeof heroCrop === "string") {
     try {
@@ -144,6 +145,9 @@ function normalizeArticle(article, columns) {
     subcategory: article.subcategory || "",
     subcategory_slug: article.subcategory_slug || "",
     hero_crop: heroCrop,
+    is_live: Boolean(article.is_live),
+    live_updates: liveUpdates,
+    live_updated_at: liveUpdates[0]?.created_at || article.updated_at || article.published_at || null,
     content_blocks: parseContentBlocks(article),
     published_ago: hasColumn(columns, "published_at")
       ? computePublishedAgo(article.published_at)
@@ -202,6 +206,29 @@ function parseContentBlocks(article) {
   return [];
 }
 
+function parseLiveUpdates(article) {
+  if (Array.isArray(article.live_updates)) {
+    return article.live_updates
+      .filter(Boolean)
+      .sort((a, b) => {
+        const timeA = parseTimestamp(a?.created_at)?.getTime() ?? 0;
+        const timeB = parseTimestamp(b?.created_at)?.getTime() ?? 0;
+        return timeB - timeA;
+      });
+  }
+
+  if (typeof article.live_updates === "string" && article.live_updates.trim()) {
+    try {
+      const parsed = JSON.parse(article.live_updates);
+      return parseLiveUpdates({ live_updates: parsed });
+    } catch {
+      return [];
+    }
+  }
+
+  return [];
+}
+
 router.get("/", async (req, res) => {
   try {
     const columns = await getArticleColumns();
@@ -252,6 +279,7 @@ router.get("/admin", requireAuth, async (req, res) => {
       hasColumn(columns, "slug") ? "slug" : null,
       hasColumn(columns, "status") ? "status" : null,
       hasColumn(columns, "approved") ? "approved" : null,
+      hasColumn(columns, "is_live") ? "is_live" : null,
       hasColumn(columns, "is_editorial") ? "is_editorial" : null,
       hasColumn(columns, "published_at") ? "published_at" : null,
       hasColumn(columns, "priority") ? "priority" : null
@@ -362,6 +390,8 @@ router.post("/", requireAuth, async (req, res) => {
       show_on_slider,
       show_on_category_slider,
       is_editorial,
+      is_live,
+      live_updates,
       content_blocks
     } = req.body;
 
@@ -381,6 +411,8 @@ router.post("/", requireAuth, async (req, res) => {
     columns = await ensureArticleColumn("hero_crop", "TEXT");
     columns = await ensureArticleColumn("show_on_category_slider", "BOOLEAN DEFAULT FALSE");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
+    columns = await ensureArticleColumn("is_live", "BOOLEAN DEFAULT FALSE");
+    columns = await ensureArticleColumn("live_updates", "TEXT");
     const insertColumns = [
       "title",
       "subheadline",
@@ -399,6 +431,8 @@ router.post("/", requireAuth, async (req, res) => {
       "show_on_slider",
       "show_on_category_slider",
       "is_editorial",
+      "is_live",
+      "live_updates",
       "approved",
       "status",
       "published_at"
@@ -421,6 +455,8 @@ router.post("/", requireAuth, async (req, res) => {
       show_on_slider || false,
       show_on_category_slider || false,
       is_editorial || false,
+      is_live || false,
+      JSON.stringify(Array.isArray(live_updates) ? live_updates : []),
       true,
       "published",
       new Date()
@@ -480,6 +516,8 @@ router.put("/:id", requireAuth, async (req, res) => {
       show_on_slider,
       show_on_category_slider,
       is_editorial,
+      is_live,
+      live_updates,
       content_blocks
     } = req.body;
 
@@ -499,6 +537,8 @@ router.put("/:id", requireAuth, async (req, res) => {
     columns = await ensureArticleColumn("hero_crop", "TEXT");
     columns = await ensureArticleColumn("show_on_category_slider", "BOOLEAN DEFAULT FALSE");
     columns = await ensureArticleColumn("is_editorial", "BOOLEAN DEFAULT FALSE");
+    columns = await ensureArticleColumn("is_live", "BOOLEAN DEFAULT FALSE");
+    columns = await ensureArticleColumn("live_updates", "TEXT");
     const updateEntries = [
       ["title", title],
       ["subheadline", subheadline],
@@ -515,7 +555,9 @@ router.put("/:id", requireAuth, async (req, res) => {
       ["content_blocks", contentBlocksJSON],
       ["show_on_slider", show_on_slider ?? false],
       ["show_on_category_slider", show_on_category_slider ?? false],
-      ["is_editorial", is_editorial ?? false]
+      ["is_editorial", is_editorial ?? false],
+      ["is_live", is_live ?? false],
+      ["live_updates", JSON.stringify(Array.isArray(live_updates) ? live_updates : [])]
     ];
 
     if (hasColumn(columns, "author_name")) {

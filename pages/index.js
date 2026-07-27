@@ -23,11 +23,13 @@ function minimizeArticle(article) {
     hero_focus: article.hero_focus || null,
     hero_crop: article.hero_crop || null,
     is_breaking: Boolean(article.is_breaking),
+    is_live: Boolean(article.is_live),
     is_editorial: Boolean(article.is_editorial),
     is_exclusive: Boolean(article.is_exclusive),
     exclusive: Boolean(article.exclusive),
     published_at: article.published_at || null,
     published_ago: article.published_ago || null,
+    live_updated_at: article.live_updated_at || null,
     show_on_slider: Boolean(article.show_on_slider),
     show_on_category_slider: Boolean(article.show_on_category_slider),
     subheadline: article.subheadline || "",
@@ -57,7 +59,7 @@ export async function getStaticProps() {
     ]);
 
     const minimizedArticles = (Array.isArray(initialArticles) ? initialArticles : [])
-      .slice(0, 100)
+      .slice(0, 60)
       .map(minimizeArticle)
       .filter(Boolean);
 
@@ -70,7 +72,7 @@ export async function getStaticProps() {
         initialArticles: minimizedArticles,
         initialBreaking: minimizedBreaking,
         initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
-        initialShorts: Array.isArray(initialShorts) ? initialShorts : [],
+        initialShorts: Array.isArray(initialShorts) ? initialShorts.slice(0, 6) : [],
         initialLoadError: ""
       },
       revalidate: 60

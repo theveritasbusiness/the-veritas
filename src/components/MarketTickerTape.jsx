@@ -100,10 +100,8 @@ export default function MarketTickerTape() {
       </div>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
         .market-strip {
-          font-family: "Roboto", sans-serif;
+          font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
           box-shadow:
             inset 0 0 0 1px rgba(255, 255, 255, 0.02),
             0 8px 24px rgba(0, 0, 0, 0.16);
@@ -174,7 +172,7 @@ export default function MarketTickerTape() {
 
         .market-card-value,
         .market-card-change {
-          font-family: "Roboto", sans-serif;
+          font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
         .market-card-value {

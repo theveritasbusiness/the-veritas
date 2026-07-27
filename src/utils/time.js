@@ -34,6 +34,10 @@ export function formatRelativeTime(input) {
 }
 
 export function getArticleDisplayTime(article) {
+  if (article?.is_live && article?.live_updated_at) {
+    return formatRelativeTime(article.live_updated_at);
+  }
+
   if (article?.published_at) {
     return formatRelativeTime(article.published_at);
   }

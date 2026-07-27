@@ -96,6 +96,13 @@ export default function EditorDashboard() {
         </Link>
 
         <Link
+          to="/cms/live/new"
+          className="inline-block rounded border border-neutral-700 px-4 py-2 text-white"
+        >
+          Create Live Article
+        </Link>
+
+        <Link
           to="/cms/subcategories/new"
           className="inline-block rounded border border-neutral-700 px-4 py-2 text-white"
         >
@@ -124,6 +131,7 @@ export default function EditorDashboard() {
                 {article.status}
                 {article.approved ? " | approved" : " | pending approval"}
                 {article.is_editorial ? " | editorial" : ""}
+                {article.is_live ? " | live" : ""}
               </div>
             </div>
 
@@ -132,7 +140,7 @@ export default function EditorDashboard() {
                 View
               </Link>
 
-              <Link to={`/cms/edit/${article.id}`} className="text-yellow-400">
+              <Link to={article.is_live ? `/cms/live/edit/${article.id}` : `/cms/edit/${article.id}`} className="text-yellow-400">
                 Edit
               </Link>
 

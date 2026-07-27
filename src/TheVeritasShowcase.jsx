@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "./lib/router";
+import dynamic from "next/dynamic";
 import {
   fetchArticles,
   fetchBreaking,
@@ -9,15 +10,42 @@ import {
   loadCachedBreaking
 } from "./api";
 import AdSlot from "./components/AdSlot";
-import MarketTickerTape from "./components/MarketTickerTape";
 import Seo from "./components/Seo";
 import Head from "next/head";
 import { AD_SLOT_HOME_INLINE } from "./lib/env";
 import { getCategoryConfigByName, getCategoryPath, isCategoryMatch } from "./content/categories";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
-import ElectionResultsSection from "./ElectionResultsSection";
-import MarketsSection from "./components/MarketsSection";
+
+const DeferredMarketTickerTape = dynamic(() => import("./components/MarketTickerTape"), {
+  ssr: false,
+  loading: () => (
+    <section className="max-w-6xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6">
+      <div className="h-[58px] rounded-xl border border-neutral-800 bg-neutral-950 animate-pulse" />
+    </section>
+  )
+});
+
+const DeferredMarketsSection = dynamic(() => import("./components/MarketsSection"), {
+  ssr: false,
+  loading: () => (
+    <section className="mx-auto max-w-7xl px-3 sm:px-4 mt-6 sm:mt-8">
+      <div className="grid gap-5 lg:grid-cols-3">
+        <div className="h-[520px] rounded-md border border-neutral-800 bg-neutral-950 animate-pulse" />
+        <div className="h-[520px] rounded-md border border-neutral-800 bg-neutral-950 animate-pulse lg:col-span-2" />
+      </div>
+    </section>
+  )
+});
+
+const DeferredElectionResultsSection = dynamic(() => import("./ElectionResultsSection"), {
+  ssr: false,
+  loading: () => (
+    <section className="mx-auto max-w-7xl px-3 py-8 sm:px-4">
+      <div className="h-[460px] rounded-md border border-neutral-800 bg-neutral-950 animate-pulse" />
+    </section>
+  )
+});
 
 const HOME_TITLE = "The Veritas - Where the truth speaks itself";
 const HOME_DESCRIPTION =
@@ -31,6 +59,54 @@ function EditorialBadge({ className = "" }) {
       <span className="h-2 w-2 rounded-full" style={{ backgroundColor: "var(--veritas-red)" }} />
       Editorial
     </span>
+  );
+}
+
+function LiveBadge({ className = "" }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 rounded-full bg-[var(--veritas-red)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white ${className}`.trim()}
+    >
+      <span className="h-2 w-2 rounded-full bg-white" />
+      Live
+    </span>
+  );
+}
+
+function DeferredSection({ children, minHeightClass = "min-h-[240px]" }) {
+  const [shouldRender, setShouldRender] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    if (shouldRender) {
+      return undefined;
+    }
+
+    const node = sectionRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setShouldRender(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShouldRender(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px 0px" }
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, [shouldRender]);
+
+  return (
+    <div ref={sectionRef}>
+      {shouldRender ? children : <div className={`${minHeightClass} rounded-md bg-transparent`} aria-hidden="true" />}
+    </div>
   );
 }
 
@@ -324,7 +400,7 @@ export default function TheVeritasShowcase({
         </Head>
       ) : null}
 
-      <MarketTickerTape />
+      <DeferredMarketTickerTape />
 
       {/* ── HERO SLIDER (At the Top) ── */}
       {heroArticle && (
@@ -362,9 +438,10 @@ export default function TheVeritasShowcase({
                       decoding="async"
                     />
 
-                    {slide.is_editorial ? (
-                      <div className="absolute right-4 top-4 z-[1]">
-                        <EditorialBadge />
+                    {(slide.is_editorial || slide.is_live) ? (
+                      <div className="absolute right-4 top-4 z-[1] flex flex-wrap justify-end gap-2">
+                        {slide.is_live ? <LiveBadge /> : null}
+                        {slide.is_editorial ? <EditorialBadge /> : null}
                       </div>
                     ) : null}
 
@@ -472,6 +549,7 @@ export default function TheVeritasShowcase({
                       >
                         {article.category?.toUpperCase()}
                       </div>
+                      {article.is_live ? <LiveBadge className="mt-2" /> : null}
                       <h3
                         className="mt-1.5 text-sm font-bold leading-snug group-hover:underline sm:text-[0.95rem]"
                         style={{
@@ -630,7 +708,9 @@ export default function TheVeritasShowcase({
       )}
 
       {/* ── SECTION 2: MARKETS ACTION ── */}
-      <MarketsSection />
+      <DeferredSection minHeightClass="min-h-[520px]">
+        <DeferredMarketsSection />
+      </DeferredSection>
 
       {/* ── SECTION 2: Latest News ── */}
       {finalArticles.length > 0 && (
@@ -671,6 +751,7 @@ export default function TheVeritasShowcase({
                   >
                     {article.category?.toUpperCase()}
                   </div>
+                  {article.is_live ? <LiveBadge className="mt-2" /> : null}
                   <h3 className="mt-2 font-serif text-xl font-bold leading-snug group-hover:underline sm:text-2xl text-white">
                     {article.title}
                   </h3>
@@ -720,6 +801,7 @@ export default function TheVeritasShowcase({
                   >
                     {article.category?.toUpperCase()}
                   </div>
+                  {article.is_live ? <LiveBadge className="mt-2" /> : null}
                   <h3
                     className="mt-1.5 text-[0.9rem] font-bold leading-snug group-hover:underline text-white"
                     style={{
@@ -750,6 +832,7 @@ export default function TheVeritasShowcase({
 
       {/* ── SECTION 3: Latest Videos ── */}
       {shorts.length > 0 && (
+        <DeferredSection minHeightClass="min-h-[520px]">
         <section className="mx-auto max-w-7xl px-3 py-6 sm:px-4 sm:py-8">
           <div className="mb-5 flex items-center gap-4">
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
@@ -802,6 +885,7 @@ export default function TheVeritasShowcase({
             ))}
           </div>
         </section>
+        </DeferredSection>
       )}
 
       {/* ── SECTION 4: More Top Stories ── */}
@@ -942,12 +1026,17 @@ export default function TheVeritasShowcase({
         </section>
       )}
 
-      {forcedCategory.toLowerCase() === "politics" && <ElectionResultsSection />}
+      {forcedCategory.toLowerCase() === "politics" && (
+        <DeferredSection minHeightClass="min-h-[460px]">
+          <DeferredElectionResultsSection />
+        </DeferredSection>
+      )}
       {homepageSubcategorySections.length > 0 ? (
-        <section className="mx-auto max-w-7xl px-3 pb-10 sm:px-4">
-          <div className="space-y-6">
-            {homepageSubcategorySections.map((section) => (
-              <div key={section.slug} className="rounded-md border border-neutral-800 bg-neutral-950 p-3.5 sm:p-4">
+        <DeferredSection minHeightClass="min-h-[640px]">
+          <section className="mx-auto max-w-7xl px-3 pb-10 sm:px-4">
+            <div className="space-y-6">
+              {homepageSubcategorySections.map((section) => (
+                <div key={section.slug} className="rounded-md border border-neutral-800 bg-neutral-950 p-3.5 sm:p-4">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
                     <div className="text-xs uppercase tracking-[0.28em] text-neutral-400">
@@ -1015,6 +1104,7 @@ export default function TheVeritasShowcase({
                             <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--veritas-red)]">
                               {article.category}
                             </div>
+                            {article.is_live ? <LiveBadge className="mt-2" /> : null}
                             <h4
                               className="mt-2 text-base font-semibold leading-snug text-white hover:underline"
                               style={{
@@ -1054,10 +1144,11 @@ export default function TheVeritasShowcase({
                     More
                   </Link>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+                </div>
+              ))}
+            </div>
+          </section>
+        </DeferredSection>
       ) : null}
 
       <style>{`
