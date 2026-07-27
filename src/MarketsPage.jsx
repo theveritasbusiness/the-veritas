@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "./lib/router";
-import { API_BASE } from "./lib/env";
+import { API_BASE, AD_SLOT_HOME_INLINE } from "./lib/env";
 import { isCategoryMatch } from "./content/categories";
 import { getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import Head from "next/head";
 import MarketTickerTape from "./components/MarketTickerTape";
+import AdSlot from "./components/AdSlot";
 
 // ─── HELPERS ────────────────────────────────────────────────────────────────
 function fmtINR(val) {
@@ -400,11 +401,11 @@ export default function MarketsPage({ initialArticles = [] }) {
                 <span className="mp-breadcrumb-sep">&gt;</span>
                 <span className="mp-breadcrumb-text">MARKET INTELLIGENCE</span>
               </div>
-              <h1 className="mp-hero-title">Markets</h1>
-              <p className="mp-hero-subtitle">
+              <h1 className="mp-hero-title font-serif">Markets</h1>
+              <h2 className="mp-hero-subtitle">
                 Real-time data. Independent journalism.<br />
                 Global insights. Smarter investment decisions.
-              </p>
+              </h2>
             </div>
             {/* <div className="mp-customize-btn">
               <span>⚙ Customize Dashboard</span>
@@ -442,7 +443,7 @@ export default function MarketsPage({ initialArticles = [] }) {
         </section>
 
         {/* ════════════════ TAB NAVIGATION ════════════════ */}
-        <nav className="mp-tabs-nav">
+        {/* <nav className="mp-tabs-nav">
           <div className="mp-tabs-scroll">
             {TABS.map((tab) => (
               <button
@@ -456,7 +457,7 @@ export default function MarketsPage({ initialArticles = [] }) {
               </button>
             ))}
           </div>
-        </nav>
+        </nav> */}
 
         {/* ════════════════ INDEX CARDS + MARKET STATUS ════════════════ */}
         <section className="mp-indices-section">
@@ -476,9 +477,12 @@ export default function MarketsPage({ initialArticles = [] }) {
                 );
               })}
             </div>
+            <div className="mp-indices-ad" style={{ marginTop: "0.75rem" }}>
+              <AdSlot slot={AD_SLOT_HOME_INLINE} label="Sponsored" className="min-h-[140px] rounded-md !bg-[#0d0d0d] !border-[#262626]" />
+            </div>
           </div>
           <div className="mp-status-sidebar">
-            <div className="mp-status-block">
+            {/* <div className="mp-status-block">
               <h4 className="mp-status-title">MARKET STATUS</h4>
               <div className="mp-status-date">As on {DATE_STR}, {TIME_STR}</div>
               <div className="mp-status-grid">
@@ -510,7 +514,7 @@ export default function MarketsPage({ initialArticles = [] }) {
                   <span className="mp-red">{decPct}%</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="mp-movers-sidebar-block">
               <div className="mp-movers-sidebar-header">
@@ -959,6 +963,11 @@ export default function MarketsPage({ initialArticles = [] }) {
                 Market data is delayed by 15 minutes. Sources: NSE, BSE, Refinitiv, Investing.com
               </div>
             </div>
+
+            {/* Sponsored Block */}
+            <div className="mp-go-ad">
+              <AdSlot slot={AD_SLOT_HOME_INLINE} label="Sponsored" className="min-h-[140px] rounded-md !bg-[#0d0d0d] !border-[#262626]" />
+            </div>
           </div>
           <div className="mp-bottom-right">
             {/* Currency Converter */}
@@ -1053,6 +1062,7 @@ export default function MarketsPage({ initialArticles = [] }) {
         </section>
 
         {/* ════════════════ QUICK LINKS ════════════════ */}
+        {/* 
         <section className="mp-quick-links">
           {[
             { icon: "📅", title: "Earnings Calendar", desc: "Upcoming results & reports" },
@@ -1072,21 +1082,24 @@ export default function MarketsPage({ initialArticles = [] }) {
             </a>
           ))}
         </section>
+        */}
 
         {/* ════════════════ NEWSLETTER ════════════════ */}
-        <section className="mp-newsletter">
-          <div className="mp-newsletter-left">
-            <span className="mp-newsletter-icon">✉</span>
-            <div>
-              <h3 className="mp-newsletter-title">Stay ahead in the markets</h3>
-              <p className="mp-newsletter-sub">Get daily market updates, insights and breaking news delivered to your inbox.</p>
+        <div className="mp-newsletter-wrapper">
+          <section className="mp-newsletter">
+            <div className="mp-newsletter-left">
+              <span className="mp-newsletter-icon">✉</span>
+              <div>
+                <h3 className="mp-newsletter-title">Stay ahead in the markets</h3>
+                <p className="mp-newsletter-sub">Get daily market updates, insights and breaking news delivered to your inbox.</p>
+              </div>
             </div>
-          </div>
-          <div className="mp-newsletter-right">
-            <input type="email" placeholder="Enter your email address" className="mp-newsletter-input" />
-            <button className="mp-newsletter-btn">Subscribe</button>
-          </div>
-        </section>
+            <div className="mp-newsletter-right">
+              <input type="email" placeholder="Enter your email address" className="mp-newsletter-input" />
+              <button className="mp-newsletter-btn">Subscribe</button>
+            </div>
+          </section>
+        </div>
 
         {/* ════════════════ FOOTER DISCLAIMER ════════════════ */}
         <div className="mp-disclaimer">
@@ -1116,26 +1129,36 @@ export default function MarketsPage({ initialArticles = [] }) {
         .mp-hero-section {
           display: flex;
           gap: 0;
-          max-width: 1280px;
+          width: 100%;
           margin: 0 auto;
-          padding: 0 1rem;
+          padding: 0 1.5rem;
         }
 
         .mp-hero-main {
           flex: 1;
           position: relative;
-          background: #0d0d0d url('/markets-hero-bg.png') center/cover no-repeat;
+          background: #040404;
           border: 1px solid #262626;
           border-radius: 8px 0 0 8px;
-          padding: 2rem 2.5rem;
-          min-height: 280px;
+          padding: 0.85rem 1.5rem;
+          min-height: 135px;
           overflow: hidden;
+        }
+
+        .mp-hero-main::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: url('/markets-hero-bg.png') center/cover no-repeat;
+          filter: contrast(1.3) brightness(1.15) saturate(1.25);
+          opacity: 0.95;
+          pointer-events: none;
         }
 
         .mp-hero-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(90deg, rgba(10, 10, 10, 0.85) 0%, rgba(10, 10, 10, 0.45) 50%, rgba(10, 10, 10, 0.2) 100%);
+          background: linear-gradient(90deg, rgba(4, 4, 4, 0.75) 0%, rgba(4, 4, 4, 0.25) 35%, transparent 75%);
           pointer-events: none;
         }
 
@@ -1147,96 +1170,96 @@ export default function MarketsPage({ initialArticles = [] }) {
         .mp-breadcrumb {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          font-size: 0.65rem;
+          gap: 0.4rem;
+          font-size: 0.8rem;
           font-weight: 700;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          margin-bottom: 1rem;
+          margin-bottom: 0.25rem;
         }
         .mp-breadcrumb-red { color: #de0216; }
         .mp-breadcrumb-sep { color: #525252; }
         .mp-breadcrumb-text { color: #737373; }
 
         .mp-hero-title {
-          font-size: 3rem;
+          font-size: 5rem;
           font-weight: 900;
           color: #ffffff;
           line-height: 1.1;
-          margin: 0 0 0.75rem;
+          margin: 0 0 0.35rem;
           letter-spacing: -0.02em;
         }
 
         .mp-hero-subtitle {
-          font-size: 0.9rem;
+          font-size: 1rem;
           color: #a3a3a3;
-          line-height: 1.6;
+          line-height: 1.45;
           margin: 0;
         }
 
         .mp-customize-btn {
           position: absolute;
-          top: 2rem;
-          right: 2rem;
+          top: 0.85rem;
+          right: 1.25rem;
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.4rem;
           background: #171717;
           border: 1px solid #333;
           border-radius: 6px;
-          padding: 0.5rem 1rem;
+          padding: 0.25rem 0.6rem;
           color: #d4d4d4;
-          font-size: 0.8rem;
+          font-size: 0.7rem;
           font-weight: 600;
           cursor: pointer;
           z-index: 2;
           transition: border-color 0.2s;
         }
         .mp-customize-btn:hover { border-color: #525252; }
-        .mp-customize-chevron { font-size: 0.7rem; color: #737373; }
+        .mp-customize-chevron { font-size: 0.65rem; color: #737373; }
 
         /* ── PULSE SIDEBAR ── */
         .mp-pulse-sidebar {
-          width: 320px;
-          min-width: 320px;
-          background: #111111;
+          width: 310px;
+          min-width: 310px;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-left: none;
           border-radius: 0 8px 8px 0;
-          padding: 1.25rem;
+          padding: 0.65rem 0.85rem;
           display: flex;
           flex-direction: column;
         }
 
         .mp-pulse-header {
-          margin-bottom: 0.75rem;
+          margin-bottom: 0.4rem;
         }
 
         .mp-pulse-header h3 {
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           font-weight: 800;
           letter-spacing: 0.12em;
           text-transform: uppercase;
           color: #f5f5f5;
-          margin: 0 0 0.5rem;
+          margin: 0 0 0.25rem;
         }
 
         .mp-pulse-status {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.35rem;
         }
         .mp-pulse-dot {
-          width: 8px;
-          height: 8px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
         }
         .mp-pulse-dot--closed {
           background: #ef4444;
-          box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+          box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
         }
         .mp-pulse-status-text {
-          font-size: 0.7rem;
+          font-size: 0.65rem;
           font-weight: 700;
           color: #ef4444;
         }
@@ -1249,35 +1272,35 @@ export default function MarketsPage({ initialArticles = [] }) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.4rem 0;
+          padding: 0.25rem 0;
           border-bottom: 1px solid #1a1a1a;
-          font-size: 0.72rem;
+          font-size: 0.68rem;
         }
         .mp-pulse-label { color: #a3a3a3; font-weight: 500; flex: 1; }
-        .mp-pulse-value { color: #f5f5f5; font-weight: 700; font-family: 'Inter', monospace; margin-right: 0.75rem; }
-        .mp-pulse-change { font-weight: 700; font-size: 0.68rem; }
+        .mp-pulse-value { color: #f5f5f5; font-weight: 700; font-family: 'Inter', monospace; margin-right: 0.6rem; font-size: 0.68rem; }
+        .mp-pulse-change { font-weight: 700; font-size: 0.65rem; }
 
         .mp-outlook {
-          margin-top: 0.75rem;
-          padding-top: 0.75rem;
+          margin-top: 0.4rem;
+          padding-top: 0.4rem;
           border-top: 1px solid #262626;
         }
         .mp-outlook-title {
-          font-size: 0.65rem;
+          font-size: 0.6rem;
           font-weight: 800;
           letter-spacing: 0.12em;
           text-transform: uppercase;
           color: #de0216;
-          margin: 0 0 0.5rem;
+          margin: 0 0 0.25rem;
         }
         .mp-outlook-text {
-          font-size: 0.72rem;
+          font-size: 0.68rem;
           color: #a3a3a3;
-          line-height: 1.5;
-          margin: 0 0 0.5rem;
+          line-height: 1.35;
+          margin: 0 0 0.25rem;
         }
         .mp-outlook-link {
-          font-size: 0.68rem;
+          font-size: 0.65rem;
           font-weight: 700;
           color: #de0216;
           text-decoration: none;
@@ -1286,9 +1309,9 @@ export default function MarketsPage({ initialArticles = [] }) {
 
         /* ── TAB NAVIGATION ── */
         .mp-tabs-nav {
-          max-width: 1280px;
+          width: 100%;
           margin: 0 auto;
-          padding: 0 1rem;
+          padding: 0 1.5rem;
           border-bottom: 1px solid #262626;
         }
         .mp-tabs-scroll {
@@ -1326,9 +1349,9 @@ export default function MarketsPage({ initialArticles = [] }) {
         .mp-indices-section {
           display: flex;
           gap: 0;
-          max-width: 1280px;
+          width: 100%;
           margin: 0 auto;
-          padding: 1rem 1rem;
+          padding: 1rem 1.5rem;
         }
 
         .mp-indices-main {
@@ -1342,7 +1365,7 @@ export default function MarketsPage({ initialArticles = [] }) {
         }
 
         .mp-index-card {
-          background: #111111;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-radius: 6px;
           padding: 1rem 1.25rem;
@@ -1384,7 +1407,7 @@ export default function MarketsPage({ initialArticles = [] }) {
         }
 
         .mp-status-block {
-          background: #111111;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-radius: 6px;
           padding: 1rem 1.25rem;
@@ -1449,7 +1472,7 @@ export default function MarketsPage({ initialArticles = [] }) {
         }
 
         .mp-movers-sidebar-block {
-          background: #111111;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-radius: 6px;
           padding: 1rem 1.25rem;
@@ -1505,13 +1528,13 @@ export default function MarketsPage({ initialArticles = [] }) {
 
         /* ── LIVE BANNER ── */
         .mp-live-banner {
-          max-width: 1280px;
+          width: calc(100% - 3rem);
           margin: 0.75rem auto;
           padding: 0 1rem;
           display: flex;
           align-items: center;
           gap: 1rem;
-          background: #111111;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-radius: 6px;
           overflow: hidden;
@@ -1567,7 +1590,7 @@ export default function MarketsPage({ initialArticles = [] }) {
 
         /* ── PANELS (common) ── */
         .mp-panel {
-          background: #111111;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-radius: 6px;
           padding: 1.25rem;
@@ -1599,17 +1622,17 @@ export default function MarketsPage({ initialArticles = [] }) {
         .mp-news-section {
           display: flex;
           gap: 1rem;
-          max-width: 1280px;
+          width: 100%;
           margin: 1rem auto;
-          padding: 0 1rem;
+          padding: 0 1.5rem;
         }
-        .mp-news-main { flex: 1.3; }
+        .mp-news-main { flex: 1.8; }
         .mp-news-main .mp-panel { margin-top: 0; }
 
         .mp-news-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
+          grid-template-columns: 1.8fr 1fr;
+          gap: 1.25rem;
         }
 
         .mp-news-featured {
@@ -1621,7 +1644,7 @@ export default function MarketsPage({ initialArticles = [] }) {
           position: relative;
           border-radius: 6px;
           overflow: hidden;
-          height: 340px;
+          height: 420px;
         }
         .mp-news-featured-img {
           position: relative;
@@ -1641,19 +1664,19 @@ export default function MarketsPage({ initialArticles = [] }) {
           bottom: 0;
           left: 0;
           right: 0;
-          background: linear-gradient(transparent, rgba(0,0,0,0.9));
-          padding: 1.5rem;
+          background: linear-gradient(transparent 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,0.92) 100%);
+          padding: 1.75rem;
         }
         .mp-news-featured-title {
           color: white;
-          font-size: 1.2rem;
+          font-size: 1.35rem;
           font-weight: 800;
           line-height: 1.3;
           margin: 0.5rem 0;
         }
         .mp-news-featured-sub {
           color: #a3a3a3;
-          font-size: 0.75rem;
+          font-size: 0.78rem;
           line-height: 1.5;
           margin: 0 0 0.5rem;
         }
@@ -1721,9 +1744,9 @@ export default function MarketsPage({ initialArticles = [] }) {
 
         /* ── GAINERS & LOSERS ── */
         .mp-gainers-losers {
-          width: 380px;
-          min-width: 380px;
-          background: #111111;
+          width: 350px;
+          min-width: 350px;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-radius: 6px;
           padding: 1.25rem;
@@ -1753,9 +1776,9 @@ export default function MarketsPage({ initialArticles = [] }) {
         }
 
         .mp-gl-columns {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
         }
         .mp-gl-col-title {
           font-size: 0.68rem;
@@ -1782,9 +1805,9 @@ export default function MarketsPage({ initialArticles = [] }) {
           display: grid;
           grid-template-columns: 1fr 1fr 1fr;
           gap: 1rem;
-          max-width: 1280px;
+          width: 100%;
           margin: 1rem auto;
-          padding: 0 1rem;
+          padding: 0 1.5rem;
         }
 
         /* ── SECTOR PERFORMANCE ── */
@@ -1794,7 +1817,7 @@ export default function MarketsPage({ initialArticles = [] }) {
           gap: 0.5rem;
         }
         .mp-sector-card {
-          background: #0d0d0d;
+          background: #080808;
           border: 1px solid #262626;
           border-radius: 4px;
           padding: 0.6rem 0.5rem;
@@ -2002,7 +2025,7 @@ export default function MarketsPage({ initialArticles = [] }) {
           padding: 0.35rem 0.5rem;
           min-width: 50px;
           font-size: 0.6rem;
-          background: #0d0d0d;
+          background: #080808;
           border: 1px solid #262626;
           border-radius: 4px;
           color: #737373;
@@ -2068,9 +2091,9 @@ export default function MarketsPage({ initialArticles = [] }) {
         .mp-bottom-section {
           display: flex;
           gap: 1rem;
-          max-width: 1280px;
+          width: 100%;
           margin: 1rem auto;
-          padding: 0 1rem;
+          padding: 0 1.5rem;
         }
         .mp-bottom-left { flex: 1.3; display: flex; flex-direction: column; gap: 1rem; }
         .mp-bottom-right { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
@@ -2101,7 +2124,7 @@ export default function MarketsPage({ initialArticles = [] }) {
           gap: 0.75rem;
         }
         .mp-go-card {
-          background: #0d0d0d;
+          background: #080808;
           border: 1px solid #262626;
           border-radius: 4px;
           padding: 0.75rem;
@@ -2154,7 +2177,7 @@ export default function MarketsPage({ initialArticles = [] }) {
         .mp-currency-select {
           flex: 1.5;
           padding: 0.5rem;
-          background: #0d0d0d;
+          background: #080808;
           border: 1px solid #333;
           border-radius: 4px;
           color: #e5e5e5;
@@ -2163,11 +2186,11 @@ export default function MarketsPage({ initialArticles = [] }) {
           font-family: 'Inter', sans-serif;
           cursor: pointer;
         }
-        .mp-currency-select option { background: #0d0d0d; color: #e5e5e5; }
+        .mp-currency-select option { background: #080808; color: #e5e5e5; }
         .mp-currency-input {
           flex: 1;
           padding: 0.5rem;
-          background: #0d0d0d;
+          background: #080808;
           border: 1px solid #333;
           border-radius: 4px;
           color: #f5f5f5;
@@ -2223,15 +2246,15 @@ export default function MarketsPage({ initialArticles = [] }) {
           display: grid;
           grid-template-columns: repeat(6, 1fr);
           gap: 0.75rem;
-          max-width: 1280px;
+          width: 100%;
           margin: 1.25rem auto;
-          padding: 0 1rem;
+          padding: 0 1.5rem;
         }
         .mp-quick-link-card {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          background: #111111;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-radius: 6px;
           padding: 0.85rem;
@@ -2278,20 +2301,28 @@ export default function MarketsPage({ initialArticles = [] }) {
         }
         .mp-quick-link-card:hover .mp-quick-link-arrow { color: #de0216; }
 
+        /* ── SPONSORED AD WRAPPER ── */
+        .mp-ad-wrapper {
+          width: 100%;
+          margin: 1.25rem auto;
+          padding: 0 1.5rem;
+        }
+
         /* ── NEWSLETTER ── */
+        .mp-newsletter-wrapper {
+          width: 80%;
+          margin: 2rem auto;
+          padding: 0 1.5rem;
+        }
         .mp-newsletter {
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 2rem;
-          max-width: 1280px;
-          margin: 0 auto 1rem;
           padding: 1.25rem 1.5rem;
-          background: #111111;
+          background: #0d0d0d;
           border: 1px solid #262626;
           border-radius: 6px;
-          margin-left: 1rem;
-          margin-right: 1rem;
         }
         .mp-newsletter-left {
           display: flex;
@@ -2326,7 +2357,7 @@ export default function MarketsPage({ initialArticles = [] }) {
         }
         .mp-newsletter-input {
           padding: 0.5rem 0.75rem;
-          background: #0d0d0d;
+          background: #080808;
           border: 1px solid #333;
           border-radius: 4px;
           color: #e5e5e5;
@@ -2352,9 +2383,9 @@ export default function MarketsPage({ initialArticles = [] }) {
         .mp-disclaimer {
           display: flex;
           justify-content: space-between;
-          max-width: 1280px;
+          width: 100%;
           margin: 0 auto;
-          padding: 0.75rem 1rem;
+          padding: 0.75rem 1.5rem;
           font-size: 0.6rem;
           color: #404040;
         }
@@ -2402,8 +2433,8 @@ export default function MarketsPage({ initialArticles = [] }) {
         }
 
         @media (max-width: 768px) {
-          .mp-hero-title { font-size: 2rem; }
-          .mp-hero-main { padding: 1.5rem; min-height: 200px; }
+          .mp-hero-title { font-size: 1.85rem; }
+          .mp-hero-main { padding: 0.85rem 1rem; min-height: 130px; }
           .mp-customize-btn { display: none; }
           .mp-index-cards-grid {
             grid-template-columns: repeat(2, 1fr);
