@@ -1,0 +1,255 @@
+/* --- GLOBAL THEME --- */
+
+.veritas-body {
+  background: #000;
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+
+/* --- TOP BAR --- */
+
+.topbar {
+  background: #0b0b0b;
+  padding: 10px 20px;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-left {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo {
+  font-size: 26px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+/* --- SEARCH BAR --- */
+
+.search-container form {
+  position: relative;
+  width: 50px;
+  height: 40px;
+  background: #111;
+  border: 2px solid #1a1a1a;
+  border-radius: 5px;
+  transition: 0.4s ease;
+  padding: 5px;
+}
+
+.search-container input {
+  width: 0;
+  height: 28px;
+  border: 0;
+  outline: 0;
+  padding: 0 10px;
+  background: #111;
+  color: white;
+  font-size: 14px;
+  transition: 0.4s;
+}
+
+.search-container .fa {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  color: #888;
+  transition: 0.4s;
+}
+
+.search-container form:hover,
+.search-container form:focus-within {
+  width: 180px;
+  border-color: #444;
+}
+
+.search-container form:hover input,
+.search-container form:focus-within input {
+  width: 100%;
+}
+
+.search-container form:hover .fa,
+.search-container form:focus-within .fa {
+  color: red;
+}
+
+.search-container button {
+  display: none;
+}
+
+/* --- JOIN BUTTON --- */
+
+.btn-join {
+  background: red;
+  color: black;
+  border: none;
+  padding: 6px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-join:hover {
+  background: #ff5555;
+}
+
+/* --- NAV BAR --- */
+
+.nav {
+  border-bottom: 1px solid #1a1a1a;
+  background: black;
+}
+
+.nav ul {
+  display: flex;
+  gap: 20px;
+  padding: 12px 20px;
+  list-style: none;
+}
+
+.nav li {
+  cursor: pointer;
+  font-size: 14px;
+  color: #ccc;
+  transition: 0.3s;
+}
+
+.nav li:hover {
+  color: red;
+}
+
+/* --- TICKER --- */
+
+.ticker {
+  display: flex;
+  background: #0b0b0b;
+  border: 1px solid #1a1a1a;
+  margin: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.ticker-label {
+  color: red;
+  font-weight: bold;
+  margin-right: 15px;
+}
+
+.ticker-text {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.ticker-text p {
+  display: inline-block;
+  animation: tickerMove 12s linear infinite;
+}
+
+@keyframes tickerMove {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* --- HERO --- */
+
+.hero {
+  position: relative;
+  height: 420px;
+  border-radius: 8px;
+  margin: 20px;
+  overflow: hidden;
+}
+
+.hero-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.75);
+  transition: opacity 0.8s ease-in-out;
+}
+
+.hero-gradient {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 40px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+}
+
+.hero-content h1 {
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.hero-tag {
+  background: red;
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* --- HERO DOTS --- */
+
+.hero-dots {
+  position: absolute;
+  bottom: 15px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.hero-dots span {
+  width: 10px;
+  height: 10px;
+  background: #444;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.hero-dots .active {
+  background: white;
+}
+
+/* --- SHORTS / VIDEOS SCROLL ROW --- */
+
+.veritas-shorts-row {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(222, 2, 22, 0.4) transparent;
+}
+
+.veritas-shorts-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.veritas-shorts-row::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.veritas-shorts-row::-webkit-scrollbar-thumb {
+  background: rgba(222, 2, 22, 0.4);
+  border-radius: 3px;
+}
+
+.veritas-shorts-row::-webkit-scrollbar-thumb:hover {
+  background: rgba(222, 2, 22, 0.6);
+}

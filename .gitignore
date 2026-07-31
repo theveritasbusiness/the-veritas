@@ -1,0 +1,42 @@
+node_modules/
+.next/
+dist/
+worldmonitor-upstream/
+
+# Environment / secrets
+.env
+.env.* 
+.local
+*.local
+
+build/
+.cache/
+.npm/
+.pnp.*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs & coverage
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+reports/
+
+# Keys / certs
+*.pem
+*.key
+*.crt
+
+# Misc
+.vite/
+parcel-cache/
+.sass-cache/
+*.sqlite
+*.sqlite3
