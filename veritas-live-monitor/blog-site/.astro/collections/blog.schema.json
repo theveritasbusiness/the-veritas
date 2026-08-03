@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "metaTitle": {
+      "type": "string"
+    },
+    "keywords": {
+      "type": "string"
+    },
+    "audience": {
+      "type": "string"
+    },
+    "pubDate": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "heroImage": {
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "description",
+    "metaTitle",
+    "keywords",
+    "audience",
+    "pubDate"
+  ],
+  "additionalProperties": false
+}
