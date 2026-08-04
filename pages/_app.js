@@ -3,7 +3,6 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import "../src/index.css";
 import AnalyticsLoader from "../src/components/AnalyticsLoader";
-import { MONETAG_INPAGE_ZONE } from "../src/lib/env";
 
 const HOME_DESCRIPTION =
   "The Veritas is a fearless voice for truth and justice. In an age of misinformation, we practice unbiased, fact-checked, and responsible journalism. We uncover hidden realities, amplify marginalized voices, and hold power to account going beyond headlines to report stories that truly impact society. The Veritas is not just a media house; it is a movement where truth speaks and justice prevails.";
@@ -88,15 +87,7 @@ export default function VeritasApp({ Component, pageProps }) {
       {/* Load analytics only after user consents to cookies */}
       <AnalyticsLoader />
 
-      {!disableMonetag && MONETAG_INPAGE_ZONE ? (
-        <Script
-          id="monetag-inpage-push"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var s=document.createElement('script');s.dataset.zone='${MONETAG_INPAGE_ZONE}';s.src='https://nap5k.com/tag.min.js';(document.documentElement||document.body).appendChild(s);}())`
-          }}
-        />
-      ) : null}
+      
 
       <Component {...pageProps} />
     </>
