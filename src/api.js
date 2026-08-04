@@ -143,6 +143,13 @@ export async function createSubcategory(payload) {
   });
 }
 
+export async function deleteSubcategory(id) {
+  return fetchJson(`/subcategories/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  });
+}
+
 export async function fetchShorts() {
   return fetchJson("/shorts");
 }

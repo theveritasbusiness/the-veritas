@@ -12,7 +12,7 @@ import {
 import AdSlot from "./components/AdSlot";
 import Seo from "./components/Seo";
 import Head from "next/head";
-import { AD_SLOT_HOME_INLINE } from "./lib/env";
+import { AD_SLOT_HOME_INLINE, MONETAG_DIRECT_LINK } from "./lib/env";
 import { getCategoryConfigByName, getCategoryPath, isCategoryMatch } from "./content/categories";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
@@ -108,6 +108,19 @@ function DeferredSection({ children, minHeightClass = "min-h-[240px]" }) {
       {shouldRender ? children : <div className={`${minHeightClass} rounded-md bg-transparent`} aria-hidden="true" />}
     </div>
   );
+}
+
+function getHeroHeadlineClass(title = "") {
+  const wordCount = String(title || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean).length;
+
+  if (wordCount > 15) {
+    return "mt-2 break-words font-serif text-[2.1rem] font-bold leading-[1.02] sm:text-[2.45rem] md:text-[2.35rem] lg:text-[3rem] xl:text-[3.35rem] text-white";
+  }
+
+  return "mt-2 break-words font-serif text-[2.4rem] font-bold leading-[1.01] sm:text-[2.95rem] md:text-[2.8rem] lg:text-[3.5rem] xl:text-[4rem] text-white";
 }
 
 export default function TheVeritasShowcase({
@@ -451,7 +464,7 @@ export default function TheVeritasShowcase({
                           {slide.is_breaking ? "BREAKING" : "TOP STORY"}
                         </div>
 
-                        <h1 className="mt-2 break-words font-serif text-[2.4rem] font-bold leading-[1.01] sm:text-[2.95rem] md:text-[2.8rem] lg:text-[3.5rem] xl:text-[4rem] text-white">
+                        <h1 className={getHeroHeadlineClass(slide.title)}>
                           {slide.title || "Loading..."}
                         </h1>
 
@@ -505,11 +518,27 @@ export default function TheVeritasShowcase({
 
       {/* ── ADVERTISEMENT BANNER ── */}
       <div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
-        <div className="flex h-[120px] sm:h-[130px] w-full items-center justify-center rounded-md ">
-          <div className="text-[10.5px] uppercase tracking-[0.3em] text-neutral-500">
-            Advertisement
+        <a
+          href={MONETAG_DIRECT_LINK}
+          target="_blank"
+          rel="noreferrer"
+          className="flex h-[120px] w-full items-center justify-between rounded-md border border-[rgba(222,2,22,0.24)] bg-[linear-gradient(135deg,rgba(34,4,8,0.92),rgba(10,10,10,0.96))] px-5 py-4 transition hover:border-[rgba(222,2,22,0.5)] sm:h-[130px] sm:px-6"
+        >
+          <div>
+            <div className="text-[10.5px] uppercase tracking-[0.3em] text-neutral-500">
+              Sponsored
+            </div>
+            <div className="mt-2 font-serif text-xl text-white sm:text-2xl">
+              Discover partner offers and reader deals
+            </div>
+            <div className="mt-2 text-sm text-neutral-400">
+              Open curated external recommendations.
+            </div>
           </div>
-        </div>
+          <span className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
+            Open
+          </span>
+        </a>
       </div>
 
       {/* ── SECTION 1: 3-Column Grid below Hero Slider ── */}

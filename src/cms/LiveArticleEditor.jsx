@@ -176,6 +176,62 @@ export default function LiveArticleEditor({ mode = "create" }) {
     });
   }
 
+  async function convertToTimelineArticle() {
+    if (mode !== "edit" || !id) return;
+
+    const confirmConvert = window.confirm("Convert this live article into a timeline article?");
+    if (!confirmConvert) return;
+
+    const cleanedUpdates = updates
+      .map((item) => ({
+        heading: item.heading.trim(),
+        description: item.description.trim(),
+        tweet_url: item.tweet_url?.trim() || ""
+      }))
+      .filter((item) => item.heading || item.description || item.tweet_url);
+
+    const contentBlocks = cleanedUpdates.flatMap((item) => {
+      const blocks = [];
+      if (item.heading) blocks.push({ type: "subheading", text: item.heading });
+      if (item.description) blocks.push({ type: "paragraph", text: item.description });
+      if (item.tweet_url) blocks.push({ type: "tweet", href: item.tweet_url });
+      return blocks;
+    });
+
+    try {
+      setSubmitting(true);
+      setError("");
+
+      await updateArticle(id, {
+        title: title.trim(),
+        subheadline: description.trim(),
+        slug: slugifyTitle(title),
+        category,
+        author_name: authorName.trim() || "The Veritas Desk",
+        hero_image: heroImage.trim(),
+        hero_caption: heroCaption.trim(),
+        hero_focus: "auto",
+        hero_crop: null,
+        hashtags: [],
+        paragraphs: contentBlocks.filter((block) => block.type === "paragraph").map((block) => block.text),
+        bibliography: "",
+        is_breaking: isBreaking,
+        show_on_slider: showOnSlider,
+        show_on_category_slider: showOnCategorySlider,
+        is_editorial: false,
+        is_live: false,
+        live_updates: [],
+        content_blocks: contentBlocks
+      });
+
+      navigate("/cms", { replace: true });
+    } catch (convertError) {
+      setError(convertError.message || "Unable to convert article");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function handleSubmit() {
     if (!title.trim()) {
       setError("Article title is required");
@@ -479,6 +535,17 @@ export default function LiveArticleEditor({ mode = "create" }) {
         {error ? <div className="mt-5 text-sm text-[var(--veritas-red)]">{error}</div> : null}
 
         <div className="mt-8 flex flex-wrap gap-3">
+          {mode === "edit" ? (
+            <button
+              type="button"
+              onClick={convertToTimelineArticle}
+              disabled={submitting || uploading}
+              className="rounded border border-neutral-700 px-4 py-2 text-white disabled:opacity-60"
+            >
+              Convert to Timeline
+            </button>
+          ) : null}
+
           <button
             type="button"
             onClick={handleSubmit}

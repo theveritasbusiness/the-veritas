@@ -22,11 +22,11 @@ export function getAuthorInitials(name = "") {
 }
 
 const KNOWN_AUTHORS = {
-  [slugifyAuthor("Kavya Singhal")]: {
-    name: "Kavya Singhal",
+  [slugifyAuthor("Kavye Singhal")]: {
+    name: "Kavye Singhal",
     role: "Founder & Chief Executive Officer",
     linkedin: "https://www.linkedin.com/in/kavye-singhal-40237a403/",
-    bio: "Kavya Singhal leads The Veritas with a vision for impactful journalism, public trust, and long-term editorial growth.",
+    bio: "Kavye Singhal leads The Veritas with a vision for impactful journalism, public trust, and long-term editorial growth.",
     image: "/Kavya.PNG",
     lead: true
   },
@@ -61,18 +61,39 @@ const KNOWN_AUTHORS = {
     bio: "Sumit Bhatt leads core development work at The Veritas, strengthening the platform, publishing tools, and product reliability across the newsroom stack.",
     image: "/Sumit.jpeg"
   },
-  [slugifyAuthor("Alisha")]: {
-    name: "Alisha",
-    role: "Editor",
+  [slugifyAuthor("Madhavi")]: {
+    name: "Madhavi",
+    role: "News Correspondent",
     linkedin: "",
-    bio: "Alisha contributes to The Veritas with editorial judgment, newsroom coordination, and publication support across evolving stories.",
+    bio: "Madhavi contributes to The Veritas through ground reporting, developing stories, and newsroom inputs across key coverage areas.",
+    image: null
+  },
+  [slugifyAuthor("Debadrita Dey")]: {
+    name: "Debadrita Dey",
+    role: "News Correspondent",
+    linkedin: "",
+    bio: "Debadrita Dey contributes to The Veritas through reporting support, field-driven updates, and developing news coverage.",
+    image: null
+  },
+  [slugifyAuthor("Yashwardhan")]: {
+    name: "Yashwardhan",
+    role: "News Correspondent",
+    linkedin: "",
+    bio: "Yashwardhan contributes to The Veritas through developing reports, field inputs, and evolving story coverage.",
+    image: null
+  },
+  [slugifyAuthor("Alisha Chawla")]: {
+    name: "Alisha Chawla",
+    role: "Sports Correspondent",
+    linkedin: "",
+    bio: "Alisha Chawla contributes to The Veritas with sports reporting, match coverage, and timely updates across the sports desk.",
     image: "/Alisha_The-Veritas.png"
   },
   [slugifyAuthor("Madhvi")]: {
     name: "Madhvi",
-    role: "Editor",
+    role: "News Correspondent",
     linkedin: "",
-    bio: "Madhvi contributes to The Veritas with editorial support, reporting inputs, and category-specific newsroom work.",
+    bio: "Madhvi contributes to The Veritas through ground reporting, developing stories, and newsroom inputs across key coverage areas.",
     image: null
   },
   [slugifyAuthor("The Veritas Bureau")]: {
@@ -92,20 +113,25 @@ const KNOWN_AUTHORS = {
 };
 
 const AUTHOR_ALIASES = {
-  [slugifyAuthor("Kavye Singhal")]: slugifyAuthor("Kavya Singhal"),
+  [slugifyAuthor("Kavya Singhal")]: slugifyAuthor("Kavye Singhal"),
+  [slugifyAuthor("Kavye Singhal")]: slugifyAuthor("Kavye Singhal"),
   [slugifyAuthor("Soumyadeep Mondl")]: slugifyAuthor("Soumyadeep Mondal"),
   [slugifyAuthor("Tavisha Kausik")]: slugifyAuthor("Tavisha Kaushik"),
-  [slugifyAuthor("Madvie")]: slugifyAuthor("Madhvi")
+  [slugifyAuthor("Madvie")]: slugifyAuthor("Madhavi"),
+  [slugifyAuthor("Madhvi")]: slugifyAuthor("Madhavi"),
+  [slugifyAuthor("Alisha")]: slugifyAuthor("Alisha Chawla")
 };
 
 const ABOUT_VISIBLE_ORDER = [
-  slugifyAuthor("Kavya Singhal"),
+  slugifyAuthor("Kavye Singhal"),
   slugifyAuthor("Soumyadeep Mondal"),
-  slugifyAuthor("Tavisha Kaushik"),
   slugifyAuthor("Sidharth Sharma"),
+  slugifyAuthor("Tavisha Kaushik"),
   slugifyAuthor("Sumit Bhatt"),
-  slugifyAuthor("Alisha"),
-  slugifyAuthor("Madhvi")
+  slugifyAuthor("Madhavi"),
+  slugifyAuthor("Debadrita Dey"),
+  slugifyAuthor("Yashwardhan"),
+  slugifyAuthor("Alisha Chawla")
 ];
 
 const DEFAULT_PROFILE_ORDER = [

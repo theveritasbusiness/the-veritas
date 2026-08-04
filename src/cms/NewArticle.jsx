@@ -92,6 +92,13 @@ export default function NewArticle() {
     };
   }
 
+  function createArticleLinkBlock(type) {
+    return {
+      type,
+      href: ""
+    };
+  }
+
   function updateContentBlock(index, nextBlock) {
     setContentBlocks((prev) => prev.map((block, blockIndex) => (blockIndex === index ? nextBlock : block)));
   }
@@ -193,6 +200,10 @@ export default function NewArticle() {
       }
 
       if (block.type === "tweet") {
+        return block.href?.trim();
+      }
+
+      if (block.type === "also_read" || block.type === "read_more") {
         return block.href?.trim();
       }
 
@@ -443,6 +454,22 @@ export default function NewArticle() {
                   }}
                 />
               </div>
+            ) : block.type === "also_read" || block.type === "read_more" ? (
+              <div className="rounded border border-white/15 bg-neutral-950 p-4 space-y-3">
+                <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">
+                  {block.type === "also_read" ? "Also Read" : "Read More"}
+                </div>
+                <input
+                  className="w-full p-2 bg-black border"
+                  placeholder="Paste article URL..."
+                  value={block.href || ""}
+                  onChange={(e) => {
+                    const copy = [...contentBlocks];
+                    copy[i].href = e.target.value;
+                    setContentBlocks(copy);
+                  }}
+                />
+              </div>
             ) : (
               <div className="rounded border border-neutral-700 bg-black/60 p-3 space-y-4">
                 <input
@@ -622,6 +649,22 @@ export default function NewArticle() {
             className="bg-neutral-700 px-4 py-2 rounded"
           >
             + Tweet
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createArticleLinkBlock("also_read")])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + Also Read
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createArticleLinkBlock("read_more")])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + Read More
           </button>
         </div>
 

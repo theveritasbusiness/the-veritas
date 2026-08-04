@@ -65,6 +65,39 @@ function titleFromSlug(slug = "") {
     .trim();
 }
 
+function deriveRelatedArticleMeta(href = "") {
+  const trimmedHref = String(href || "").trim();
+  if (!trimmedHref) {
+    return { href: "", label: "" };
+  }
+
+  try {
+    const url = trimmedHref.startsWith("http")
+      ? new URL(trimmedHref)
+      : new URL(trimmedHref, "https://www.theveritas.in");
+    const match = url.pathname.match(/\/article\/([^/?#]+)/i);
+
+    if (match?.[1]) {
+      return {
+        href: `/article/${match[1]}`,
+        label: titleFromSlug(match[1])
+      };
+    }
+
+    return { href: trimmedHref, label: trimmedHref };
+  } catch {
+    const match = trimmedHref.match(/\/article\/([^/?#]+)/i);
+    if (match?.[1]) {
+      return {
+        href: `/article/${match[1]}`,
+        label: titleFromSlug(match[1])
+      };
+    }
+
+    return { href: trimmedHref, label: trimmedHref };
+  }
+}
+
 export default function ArticlePage({
   initialArticle = null,
   initialLatest = [],
@@ -273,7 +306,7 @@ export default function ArticlePage({
           </div>
         </div>
 
-        <h1 className="break-words font-serif text-2xl font-bold leading-[1.6] tracking-tight sm:text-3xl md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] text-left w-full">
+        <h1 className="break-words font-serif text-2xl font-bold leading-[0.94] tracking-tight sm:text-3xl md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] text-left w-full">
           {articleTitle}
         </h1>
         <p className="mt-3 text-base italic leading-relaxed text-neutral-400 sm:text-lg text-left max-w-2xl">
@@ -420,6 +453,37 @@ export default function ArticlePage({
                   <blockquote className="twitter-tweet" data-theme="dark" data-dnt="true">
                     <a href={getTweetEmbedUrl(href)}>{href}</a>
                   </blockquote>
+                </div>
+              );
+            }
+
+            if ((block.type === "also_read" || block.type === "read_more") && block.href) {
+              const linkMeta = deriveRelatedArticleMeta(block.href);
+              const heading = block.type === "also_read" ? "Also Read" : "Read More";
+              const isInternalArticle = linkMeta.href.startsWith("/article/");
+
+              return (
+                <div key={index} className="my-6 rounded-2xl border border-white/15 bg-neutral-950/90 p-4">
+                  <div className="text-[11px] uppercase tracking-[0.24em] text-[var(--veritas-red)]">{heading}</div>
+                  <div className="mt-3">
+                    {isInternalArticle ? (
+                      <Link
+                        to={linkMeta.href}
+                        className="font-serif text-lg leading-relaxed text-white underline decoration-white/30 underline-offset-4 transition hover:text-[var(--veritas-red)]"
+                      >
+                        {linkMeta.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={linkMeta.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-serif text-lg leading-relaxed text-white underline decoration-white/30 underline-offset-4 transition hover:text-[var(--veritas-red)]"
+                      >
+                        {linkMeta.label}
+                      </a>
+                    )}
+                  </div>
                 </div>
               );
             }

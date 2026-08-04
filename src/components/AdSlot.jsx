@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ADSENSE_CLIENT } from "../lib/env";
+import { ADSENSE_CLIENT, MONETAG_DIRECT_LINK } from "../lib/env";
 
 export default function AdSlot({
   slot = "",
@@ -7,7 +7,8 @@ export default function AdSlot({
   className = "",
   format = "auto",
   style = {},
-  fullWidthResponsive = true
+  fullWidthResponsive = true,
+  directLinkHref = MONETAG_DIRECT_LINK
 }) {
   const adRef = useRef(null);
 
@@ -64,6 +65,37 @@ export default function AdSlot({
       }
     };
   }, [slot]);
+
+  if (directLinkHref) {
+    return (
+      <div className={`rounded-2xl border border-neutral-800 bg-neutral-950 p-3 sm:p-4 ${className}`}>
+        <div className="mb-3 text-[10px] uppercase tracking-[0.28em] text-neutral-500">
+          {label}
+        </div>
+        <a
+          href={directLinkHref}
+          target="_blank"
+          rel="noreferrer"
+          className="group flex min-h-[120px] w-full items-center justify-between rounded-xl border border-[rgba(222,2,22,0.24)] bg-[linear-gradient(135deg,rgba(34,4,8,0.92),rgba(10,10,10,0.96))] px-5 py-4 text-left transition hover:border-[rgba(222,2,22,0.5)] hover:bg-[linear-gradient(135deg,rgba(46,6,11,0.98),rgba(12,12,12,0.98))]"
+        >
+          <div className="pr-4">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--veritas-red)]">
+              Partner Offer
+            </div>
+            <div className="mt-2 font-serif text-xl text-white sm:text-2xl">
+              Explore sponsored recommendations
+            </div>
+            <div className="mt-2 text-sm leading-relaxed text-neutral-400">
+              Curated commercial links matched for interested readers.
+            </div>
+          </div>
+          <span className="shrink-0 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white transition group-hover:border-[var(--veritas-red)] group-hover:text-[var(--veritas-red)]">
+            Open
+          </span>
+        </a>
+      </div>
+    );
+  }
 
   if (!ADSENSE_CLIENT || !slot) {
     return null;

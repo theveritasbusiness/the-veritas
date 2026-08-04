@@ -44,6 +44,13 @@ function normalizeEditorBlock(block) {
     };
   }
 
+  if (block.type === "also_read" || block.type === "read_more") {
+    return {
+      type: block.type,
+      href: typeof block.href === "string" ? block.href : ""
+    };
+  }
+
   if (block.type === "table") {
     const headers = Array.isArray(block.headers) && block.headers.length > 0
       ? block.headers.map((header) => (typeof header === "string" ? header : ""))
@@ -133,6 +140,13 @@ export default function EditArticle() {
   function createTweetBlock() {
     return {
       type: "tweet",
+      href: ""
+    };
+  }
+
+  function createArticleLinkBlock(type) {
+    return {
+      type,
       href: ""
     };
   }
@@ -273,6 +287,10 @@ export default function EditArticle() {
       }
 
       if (block.type === "tweet") {
+        return block.href?.trim();
+      }
+
+      if (block.type === "also_read" || block.type === "read_more") {
         return block.href?.trim();
       }
 
@@ -560,6 +578,22 @@ export default function EditArticle() {
                   }}
                 />
               </div>
+            ) : block.type === "also_read" || block.type === "read_more" ? (
+              <div className="rounded border border-white/15 bg-neutral-950 p-4 space-y-3">
+                <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">
+                  {block.type === "also_read" ? "Also Read" : "Read More"}
+                </div>
+                <input
+                  className="w-full p-2 bg-black border"
+                  value={block.href || ""}
+                  placeholder="Paste article URL"
+                  onChange={(e) => {
+                    const copy = [...contentBlocks];
+                    copy[i].href = e.target.value;
+                    setContentBlocks(copy);
+                  }}
+                />
+              </div>
             ) : (
               <div className="rounded border border-neutral-700 bg-black/60 p-3 space-y-4">
                 <input
@@ -739,6 +773,22 @@ export default function EditArticle() {
             className="bg-neutral-700 px-4 py-2 rounded"
           >
             + Tweet
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createArticleLinkBlock("also_read")])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + Also Read
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createArticleLinkBlock("read_more")])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + Read More
           </button>
         </div>
 

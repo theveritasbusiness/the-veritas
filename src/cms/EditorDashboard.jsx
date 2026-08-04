@@ -3,14 +3,19 @@ import { Link, useNavigate } from "../lib/router";
 import {
   API_BASE,
   authHeaders,
+  deleteSubcategory,
+  fetchAdminArticle,
   deleteShort,
   fetchAdminArticles,
-  fetchAdminShorts
+  fetchAdminShorts,
+  fetchSubcategories,
+  updateArticle
 } from "../api";
 
 export default function EditorDashboard() {
   const [articles, setArticles] = useState([]);
   const [shorts, setShorts] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -41,6 +46,16 @@ export default function EditorDashboard() {
         localStorage.removeItem("editorToken");
         navigate("/editors/login", { replace: true });
       }
+    }
+  }
+
+  async function loadSubcategories() {
+    try {
+      const data = await fetchSubcategories();
+      setSubcategories(Array.isArray(data) ? data : []);
+      setError("");
+    } catch (err) {
+      setError(err.message);
     }
   }
 
@@ -77,9 +92,76 @@ export default function EditorDashboard() {
     }
   }
 
+  async function handleDeleteSubcategory(id) {
+    const confirmDelete = window.confirm("Delete this subcategory?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteSubcategory(id);
+      await loadSubcategories();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function handleConvertLiveArticle(id) {
+    const confirmConvert = window.confirm("Convert this live article into a timeline article?");
+    if (!confirmConvert) return;
+
+    try {
+      const article = await fetchAdminArticle(id);
+      const liveUpdates = Array.isArray(article?.live_updates) ? article.live_updates : [];
+      const contentBlocks = liveUpdates.flatMap((update) => {
+        const blocks = [];
+
+        if (update?.heading) {
+          blocks.push({ type: "subheading", text: update.heading });
+        }
+
+        if (update?.description) {
+          blocks.push({ type: "paragraph", text: update.description });
+        }
+
+        if (update?.tweet_url) {
+          blocks.push({ type: "tweet", href: update.tweet_url });
+        }
+
+        return blocks;
+      });
+
+      await updateArticle(id, {
+        title: article.title || "",
+        subheadline: article.subheadline || "",
+        category: article.category || "",
+        subcategory: article.subcategory || "",
+        subcategory_slug: article.subcategory_slug || "",
+        hero_image: article.hero_image || "",
+        hero_caption: article.hero_caption || "",
+        hero_focus: article.hero_focus || "auto",
+        hero_crop: article.hero_crop || null,
+        author_name: article.author_name || "",
+        hashtags: Array.isArray(article.hashtags) ? article.hashtags : [],
+        content_blocks: contentBlocks,
+        paragraphs: contentBlocks.filter((block) => block.type === "paragraph").map((block) => block.text),
+        bibliography: article.bibliography || "",
+        is_breaking: article.is_breaking || false,
+        show_on_slider: article.show_on_slider ?? false,
+        show_on_category_slider: article.show_on_category_slider ?? false,
+        is_editorial: article.is_editorial ?? false,
+        is_live: false,
+        live_updates: []
+      });
+
+      await loadArticles();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   useEffect(() => {
     loadArticles();
     loadShorts();
+    loadSubcategories();
   }, []);
 
   return (
@@ -144,6 +226,15 @@ export default function EditorDashboard() {
                 Edit
               </Link>
 
+              {article.is_live ? (
+                <button
+                  onClick={() => handleConvertLiveArticle(article.id)}
+                  className="text-orange-300"
+                >
+                  Convert to Timeline
+                </button>
+              ) : null}
+
               <button
                 onClick={() => deleteArticle(article.id)}
                 style={{ color: "var(--veritas-red)" }}
@@ -153,6 +244,36 @@ export default function EditorDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-12">
+        <h2 className="mb-4 font-serif text-2xl">Subcategories</h2>
+        <div className="space-y-4">
+          {subcategories.map((subcategory) => (
+            <div
+              key={subcategory.id || subcategory.slug}
+              className="bg-neutral-900 border border-neutral-800 p-4 rounded flex justify-between items-center gap-4"
+            >
+              <div>
+                <div className="font-semibold">{subcategory.name}</div>
+                <div className="mt-1 text-sm text-neutral-400">{subcategory.category}</div>
+              </div>
+
+              <button
+                onClick={() => handleDeleteSubcategory(subcategory.id)}
+                style={{ color: "var(--veritas-red)" }}
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+
+          {subcategories.length === 0 ? (
+            <div className="rounded border border-dashed border-neutral-800 px-4 py-5 text-sm text-neutral-500">
+              No subcategories added yet.
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-12">
