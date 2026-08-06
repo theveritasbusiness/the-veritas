@@ -33,7 +33,6 @@ const websiteSchema = {
 
 export default function VeritasApp({ Component, pageProps }) {
   const router = useRouter();
-  const disableMonetag =
     router.pathname.startsWith("/cms") ||
     router.pathname.startsWith("/editors");
 

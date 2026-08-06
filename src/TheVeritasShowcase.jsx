@@ -12,7 +12,6 @@ import {
 import AdSlot from "./components/AdSlot";
 import Seo from "./components/Seo";
 import Head from "next/head";
-import { AD_SLOT_HOME_INLINE, MONETAG_DIRECT_LINK } from "./lib/env";
 import { getCategoryConfigByName, getCategoryPath, isCategoryMatch } from "./content/categories";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
 import { getArticleDisplayTime } from "./utils/time";
@@ -517,14 +516,7 @@ export default function TheVeritasShowcase({
       )}
 
       {/* ── ADVERTISEMENT BANNER ── */}
-      <div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
-        <a
-          href={MONETAG_DIRECT_LINK}
-          target="_blank"
-          rel="noreferrer"
-          className="flex h-[120px] w-full items-center justify-between rounded-md border border-[rgba(222,2,22,0.24)] bg-[linear-gradient(135deg,rgba(34,4,8,0.92),rgba(10,10,10,0.96))] px-5 py-4 transition hover:border-[rgba(222,2,22,0.5)] sm:h-[130px] sm:px-6"
-        >
-          <div>
+      <div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">          <div>
             <div className="text-[10.5px] uppercase tracking-[0.3em] text-neutral-500">
               Sponsored
             </div>
@@ -538,7 +530,7 @@ export default function TheVeritasShowcase({
           <span className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
             Open
           </span>
-        </a>
+        
       </div>
 
       {/* ── SECTION 1: 3-Column Grid below Hero Slider ── */}

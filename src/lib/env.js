@@ -10,10 +10,6 @@ export const CLOUDINARY_UPLOAD_PRESET =
 export const ADSENSE_CLIENT =
   process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-9106312967186703";
 
-
-export const MONETAG_DIRECT_LINK =
-  process.env.NEXT_PUBLIC_MONETAG_DIRECT_LINK || "https://omg10.com/4/11503330";
-
 export const AD_SLOT_HOME_INLINE =
   process.env.NEXT_PUBLIC_AD_SLOT_HOME_INLINE || "6379456147";
 

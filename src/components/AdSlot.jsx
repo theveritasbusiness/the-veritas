@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { ADSENSE_CLIENT, MONETAG_DIRECT_LINK } from "../lib/env";
 
 export default function AdSlot({
   slot = "",
@@ -8,7 +7,6 @@ export default function AdSlot({
   format = "auto",
   style = {},
   fullWidthResponsive = true,
-  directLinkHref = MONETAG_DIRECT_LINK
 }) {
   const adRef = useRef(null);
 
