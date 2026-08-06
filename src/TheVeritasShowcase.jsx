@@ -518,16 +518,15 @@ export default function TheVeritasShowcase({
       {/* ── ADVERTISEMENT BANNER ── */}
       <div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
         
-          <div>
-            <div className="text-[10.5px] uppercase tracking-[0.3em] text-neutral-500">
-              Sponsored
-            </div>
-            <div className="mt-2 font-serif text-xl text-white sm:text-2xl">
-              Discover partner offers and reader deals
-            </div>
-            <div className="mt-2 text-sm text-neutral-400">
-              Open curated external recommendations.
-            </div>
+          <div className="relative w-full overflow-hidden">
+            <img
+              src="/independence-day-ad.png"
+              alt="Independence Day Greetings - Advertisement"
+              className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
+            />
+            <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
+              Advertisement
+            </span>
           </div>
           <span className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
             Open
