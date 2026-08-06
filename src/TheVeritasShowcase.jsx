@@ -517,12 +517,7 @@ export default function TheVeritasShowcase({
 
       {/* ── ADVERTISEMENT BANNER ── */}
       <div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
-        <a
-          href={MONETAG_DIRECT_LINK}
-          target="_blank"
-          rel="noreferrer"
-          className="flex h-[120px] w-full items-center justify-between rounded-md border border-[rgba(222,2,22,0.24)] bg-[linear-gradient(135deg,rgba(34,4,8,0.92),rgba(10,10,10,0.96))] px-5 py-4 transition hover:border-[rgba(222,2,22,0.5)] sm:h-[130px] sm:px-6"
-        >
+        
           <div>
             <div className="text-[10.5px] uppercase tracking-[0.3em] text-neutral-500">
               Sponsored
@@ -537,7 +532,7 @@ export default function TheVeritasShowcase({
           <span className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
             Open
           </span>
-        </a>
+        
       </div>
 
       {/* ── SECTION 1: 3-Column Grid below Hero Slider ── */}
@@ -743,12 +738,7 @@ export default function TheVeritasShowcase({
       {/* ── SIDE-BY-SIDE AD BANNERS ── */}
       <div className="mx-auto mt-6 max-w-5xl px-3 sm:mt-8 sm:px-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-          <a
-            href={MONETAG_DIRECT_LINK}
-            target="_blank"
-            rel="noreferrer"
-            className="group relative block w-full overflow-hidden rounded-lg"
-          >
+          
             <div className="relative w-full overflow-hidden flex flex-col items-center justify-center">
               <img
                 src="/independence-day-ad-3.jpg"
@@ -759,14 +749,9 @@ export default function TheVeritasShowcase({
                 Advertisement
               </span>
             </div>
-          </a>
+          
 
-          <a
-            href={MONETAG_DIRECT_LINK}
-            target="_blank"
-            rel="noreferrer"
-            className="group relative block w-full overflow-hidden rounded-lg"
-          >
+          
             <div className="relative w-full overflow-hidden flex flex-col items-center justify-center">
               <img
                 src="/independence-day-ad-4.jpg"
@@ -777,7 +762,7 @@ export default function TheVeritasShowcase({
                 Advertisement
               </span>
             </div>
-          </a>
+          
         </div>
       </div>
 
@@ -894,12 +879,7 @@ export default function TheVeritasShowcase({
 
       {/* Inline Ad */}
       <div className="mx-auto my-6 max-w-7xl px-3 sm:my-8 sm:px-4">
-        <a
-          href={MONETAG_DIRECT_LINK}
-          target="_blank"
-          rel="noreferrer"
-          className="group relative block w-full overflow-hidden rounded-lg"
-        >
+        
           <div className="relative w-full overflow-hidden">
             <img
               src="/independence-day-ad-2.png"
@@ -910,7 +890,7 @@ export default function TheVeritasShowcase({
               Advertisement
             </span>
           </div>
-        </a>
+        
       </div>
 
       {/* ── SECTION 3: Latest Videos ── */}
