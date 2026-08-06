@@ -528,9 +528,6 @@ export default function TheVeritasShowcase({
               Advertisement
             </span>
           </div>
-          <span className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
-            Open
-          </span>
         
       </div>
 
