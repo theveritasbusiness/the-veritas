@@ -5,7 +5,7 @@ import { Link, useParams } from "./lib/router";
 import { fetchArticleBySlug, fetchArticles } from "./api";
 import AdSlot from "./components/AdSlot";
 import Seo from "./components/Seo";
-import { AD_SLOT_ARTICLE_INLINE, AD_SLOT_ARTICLE_SIDEBAR } from "./lib/env";
+import { AD_SLOT_ARTICLE_INLINE, AD_SLOT_ARTICLE_SIDEBAR, MONETAG_DIRECT_LINK } from "./lib/env";
 import { getCategoryPath } from "./content/categories";
 import { getAuthorProfile } from "./content/authors";
 import { getImagePresentation, getStoryImageUrl } from "./utils/cloudinary";
@@ -247,11 +247,9 @@ export default function ArticlePage({
     return accumulator;
   }, []);
 
-  const adInsertionIndexes = new Set();
-  if (paragraphIndexes.length > 3) {
-    adInsertionIndexes.add(paragraphIndexes[0]);
-    adInsertionIndexes.add(paragraphIndexes[2]);
-  }
+  const targetAd3Index = paragraphIndexes.length >= 7
+    ? paragraphIndexes[6]
+    : (paragraphIndexes.length > 3 ? paragraphIndexes[paragraphIndexes.length - 1] : null);
 
   return (
     <div className="mx-auto grid w-full md:max-w-[85%] xl:max-w-7xl grid-cols-1 gap-6 overflow-x-hidden px-3 py-6 sm:gap-10 sm:px-4 sm:py-10 md:grid-cols-12">
@@ -541,8 +539,68 @@ export default function ArticlePage({
                 >
                   {text}
                 </p>
-                {adInsertionIndexes.has(index) && (
-                  <AdSlot slot={AD_SLOT_ARTICLE_INLINE} label="Advertisement" className="my-2 min-h-[180px]" />
+                {index === paragraphIndexes[0] && (
+                  <div className="my-6 w-full">
+                    <a
+                      href={MONETAG_DIRECT_LINK}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group relative block w-full overflow-hidden rounded-lg"
+                    >
+                      <div className="relative w-full overflow-hidden">
+                        <img
+                          src="/independence-day-ad.png"
+                          alt="Independence Day Greetings - Advertisement"
+                          className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
+                        />
+                        <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
+                          Advertisement
+                        </span>
+                      </div>
+                    </a>
+                  </div>
+                )}
+                {index === paragraphIndexes[2] && (
+                  <div className="my-6 w-full">
+                    <a
+                      href={MONETAG_DIRECT_LINK}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group relative block w-full overflow-hidden rounded-lg"
+                    >
+                      <div className="relative w-full overflow-hidden">
+                        <img
+                          src="/independence-day-ad-2.png"
+                          alt="Independence Day Greetings - Advertisement"
+                          className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
+                        />
+                        <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
+                          Advertisement
+                        </span>
+                      </div>
+                    </a>
+                  </div>
+                )}
+                {targetAd3Index !== null && index === targetAd3Index && index !== paragraphIndexes[0] && index !== paragraphIndexes[2] && (
+                  <div className="my-6 w-full">
+                    <a
+                      href={MONETAG_DIRECT_LINK}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group relative block w-full overflow-hidden rounded-lg"
+                    >
+                      <div className="relative w-full overflow-hidden flex items-center justify-center">
+                        <img
+                          src="/independence-day-ad-4.jpg"
+                          alt="Independence Day Greetings - Advertisement"
+                          className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
+                        />
+                        <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
+                          Advertisement
+                        </span>
+                      </div>
+                    </a>
+                  </div>
                 )}
               </React.Fragment>
             );
@@ -579,7 +637,25 @@ export default function ArticlePage({
             ))}
           </ul>
         </div>
-                <AdSlot slot={AD_SLOT_ARTICLE_SIDEBAR} label="Advertisement" className="min-h-[250px]" />
+        <div className="w-full">
+          <a
+            href={MONETAG_DIRECT_LINK}
+            target="_blank"
+            rel="noreferrer"
+            className="group relative block w-full overflow-hidden rounded-lg"
+          >
+            <div className="relative w-full overflow-hidden flex items-center justify-center">
+              <img
+                src="/independence-day-ad-3.jpg"
+                alt="Independence Day Greetings - Advertisement"
+                className="w-full h-auto max-h-[360px] object-contain mx-auto"
+              />
+              <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
+                Advertisement
+              </span>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   );
