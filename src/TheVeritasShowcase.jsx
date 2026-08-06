@@ -522,22 +522,18 @@ export default function TheVeritasShowcase({
           href={MONETAG_DIRECT_LINK}
           target="_blank"
           rel="noreferrer"
-          className="flex h-[120px] w-full items-center justify-between rounded-md border border-[rgba(222,2,22,0.24)] bg-[linear-gradient(135deg,rgba(34,4,8,0.92),rgba(10,10,10,0.96))] px-5 py-4 transition hover:border-[rgba(222,2,22,0.5)] sm:h-[130px] sm:px-6"
+          className="group relative block w-full overflow-hidden rounded-lg"
         >
-          <div>
-            <div className="text-[10.5px] uppercase tracking-[0.3em] text-neutral-500">
-              Sponsored
-            </div>
-            <div className="mt-2 font-serif text-xl text-white sm:text-2xl">
-              Discover partner offers and reader deals
-            </div>
-            <div className="mt-2 text-sm text-neutral-400">
-              Open curated external recommendations.
-            </div>
+          <div className="relative w-full overflow-hidden">
+            <img
+              src="/independence-day-ad.png"
+              alt="Independence Day Greetings - Advertisement"
+              className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
+            />
+            <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
+              Advertisement
+            </span>
           </div>
-          <span className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white">
-            Open
-          </span>
         </a>
       </div>
 
@@ -741,6 +737,47 @@ export default function TheVeritasShowcase({
         <DeferredMarketsSection />
       </DeferredSection>
 
+      {/* ── SIDE-BY-SIDE AD BANNERS ── */}
+      <div className="mx-auto mt-6 max-w-5xl px-3 sm:mt-8 sm:px-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+          <a
+            href={MONETAG_DIRECT_LINK}
+            target="_blank"
+            rel="noreferrer"
+            className="group relative block w-full overflow-hidden rounded-lg"
+          >
+            <div className="relative w-full overflow-hidden flex flex-col items-center justify-center">
+              <img
+                src="/independence-day-ad-3.jpg"
+                alt="Independence Day Greetings - Advertisement"
+                className="w-full h-auto max-h-[180px] sm:max-h-[220px] md:max-h-[250px] object-contain mx-auto"
+              />
+              <span className="mt-1.5 text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                Advertisement
+              </span>
+            </div>
+          </a>
+
+          <a
+            href={MONETAG_DIRECT_LINK}
+            target="_blank"
+            rel="noreferrer"
+            className="group relative block w-full overflow-hidden rounded-lg"
+          >
+            <div className="relative w-full overflow-hidden flex flex-col items-center justify-center">
+              <img
+                src="/independence-day-ad-4.jpg"
+                alt="Independence Day Greetings - Advertisement"
+                className="w-full h-auto max-h-[180px] sm:max-h-[220px] md:max-h-[250px] object-contain mx-auto"
+              />
+              <span className="mt-1.5 text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+                Advertisement
+              </span>
+            </div>
+          </a>
+        </div>
+      </div>
+
       {/* ── SECTION 2: Latest News ── */}
       {finalArticles.length > 0 && (
         <section className="mx-auto max-w-7xl px-3 py-8 sm:px-4 sm:py-10">
@@ -853,11 +890,25 @@ export default function TheVeritasShowcase({
       )}
 
       {/* Inline Ad */}
-      {finalArticles.length > 0 && (
-        <div className="mx-auto max-w-7xl px-3 sm:px-4">
-          <AdSlot slot={AD_SLOT_HOME_INLINE} label="Sponsored" className="min-h-[140px] rounded-md" />
-        </div>
-      )}
+      <div className="mx-auto my-6 max-w-7xl px-3 sm:my-8 sm:px-4">
+        <a
+          href={MONETAG_DIRECT_LINK}
+          target="_blank"
+          rel="noreferrer"
+          className="group relative block w-full overflow-hidden rounded-lg"
+        >
+          <div className="relative w-full overflow-hidden">
+            <img
+              src="/independence-day-ad-2.png"
+              alt="Independence Day Greetings - Advertisement"
+              className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
+            />
+            <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
+              Advertisement
+            </span>
+          </div>
+        </a>
+      </div>
 
       {/* ── SECTION 3: Latest Videos ── */}
       {shorts.length > 0 && (
