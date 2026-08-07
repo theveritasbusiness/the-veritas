@@ -61,7 +61,11 @@ export default function VeritasDesk() {
     }
 
     loadData();
-    const refresh = window.setInterval(loadData, 120000);
+    const refresh = window.setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        loadData();
+      }
+    }, 300000);
 
     return () => {
       cancelled = true;
