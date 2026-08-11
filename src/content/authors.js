@@ -64,16 +64,16 @@ const KNOWN_AUTHORS = {
   [slugifyAuthor("Madhavi")]: {
     name: "Madhavi",
     role: "News Correspondent",
-    linkedin: "",
+    linkedin: "https://www.linkedin.com/in/madhvi-gautam-0346a521b/",
     bio: "Madhavi contributes to The Veritas through ground reporting, developing stories, and newsroom inputs across key coverage areas.",
-    image: null
+    image: "/Madhvi.png"
   },
   [slugifyAuthor("Debadrita Dey")]: {
     name: "Debadrita Dey",
     role: "News Correspondent",
-    linkedin: "",
+    linkedin: "https://www.linkedin.com/in/debadrita-dey-16605b271/",
     bio: "Debadrita Dey contributes to The Veritas through reporting support, field-driven updates, and developing news coverage.",
-    image: null
+    image: "/Debadrita.png"
   },
   [slugifyAuthor("Yashwardhan")]: {
     name: "Yashwardhan",
