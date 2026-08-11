@@ -66,7 +66,7 @@ const KNOWN_AUTHORS = {
     role: "News Correspondent",
     linkedin: "https://www.linkedin.com/in/madhvi-gautam-0346a521b/",
     bio: "Madhavi contributes to The Veritas through ground reporting, developing stories, and newsroom inputs across key coverage areas.",
-    image: "/Madhvi.png"
+    image: "/Madhavi.png"
   },
   [slugifyAuthor("Debadrita Dey")]: {
     name: "Debadrita Dey",
