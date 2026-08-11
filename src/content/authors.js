@@ -61,6 +61,13 @@ const KNOWN_AUTHORS = {
     bio: "Sumit Bhatt leads core development work at The Veritas, strengthening the platform, publishing tools, and product reliability across the newsroom stack.",
     image: "/Sumit.jpeg"
   },
+  [slugifyAuthor("Manish Kumar Kushwaha")]: {
+    name: "Manish Kumar Kushwaha",
+    role: "Solution Engineer",
+    linkedin: "https://www.linkedin.com/in/mkumarkushwaha8/",
+    bio: "Manish Kumar Kushwaha leads solution engineering efforts at The Veritas, driving the development and implementation of innovative solutions across the newsroom stack.",
+    image: null
+  },
   [slugifyAuthor("Madhavi")]: {
     name: "Madhavi",
     role: "News Correspondent",
@@ -128,6 +135,7 @@ const ABOUT_VISIBLE_ORDER = [
   slugifyAuthor("Sidharth Sharma"),
   slugifyAuthor("Tavisha Kaushik"),
   slugifyAuthor("Sumit Bhatt"),
+  slugifyAuthor("Manish Kumar Kushwaha"),
   slugifyAuthor("Madhavi"),
   slugifyAuthor("Debadrita Dey"),
   slugifyAuthor("Yashwardhan"),
