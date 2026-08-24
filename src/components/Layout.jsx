@@ -505,6 +505,8 @@ export default function Layout({ children }) {
               <span aria-hidden="true">·</span>
               <Link to="/terms" className="veritas-footer-legal-link">Terms &amp; Conditions</Link>
               <span aria-hidden="true">·</span>
+              <Link to="/editorial-policy" className="veritas-footer-legal-link">Editorial Policy</Link>
+              <span aria-hidden="true">·</span>
               <Link to="/sitemap.xml" className="veritas-footer-legal-link">Sitemap</Link>
             </nav>
             <p className="veritas-footer-reg">

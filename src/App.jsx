@@ -14,6 +14,7 @@ import ProtectedRoute from "./ProtectedRoutes";
 
 import Terms from "./Terms";
 import Privacy from "./Privacy";
+import EditorialPolicy from "./EditorialPolicy";
 
 function HashRouteCompat() {
   const navigate = useNavigate();
@@ -81,6 +82,7 @@ function App() {
 
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/editorial-policy" element={<EditorialPolicy />} />
 
       </Routes>
     </Router>

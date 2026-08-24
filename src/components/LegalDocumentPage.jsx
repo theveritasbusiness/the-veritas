@@ -27,7 +27,15 @@ export default function LegalDocumentPage({
   path,
   intro,
   sections,
+  document,
 }) {
+  const isHeading = (paragraph) => {
+    const wordCount = paragraph.trim().split(/\s+/).length;
+    const uppercase = paragraph === paragraph.toUpperCase() && /[A-Z]/.test(paragraph);
+
+    return uppercase || wordCount <= 7;
+  };
+
   return (
     <>
       <Seo title={title} description={description} path={path} />
@@ -55,13 +63,30 @@ export default function LegalDocumentPage({
               {title}
             </h1>
 
-            <div className="mt-6 space-y-5 font-serif text-xl leading-10 text-neutral-100 max-sm:text-lg max-sm:leading-9">
-              {intro.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
+            {document ? (
+              <div className="mt-8 space-y-5 font-serif text-lg leading-8 text-neutral-200 sm:text-xl sm:leading-10">
+                {document.map((paragraph, index) =>
+                  isHeading(paragraph) ? (
+                    <h2
+                      key={`${index}-${paragraph}`}
+                      className="pt-6 font-serif text-2xl font-semibold leading-tight text-white sm:text-3xl"
+                    >
+                      {paragraph}
+                    </h2>
+                  ) : (
+                    <p key={`${index}-${paragraph}`}>{paragraph}</p>
+                  ),
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="mt-6 space-y-5 font-serif text-xl leading-10 text-neutral-100 max-sm:text-lg max-sm:leading-9">
+                  {intro.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </div>
 
-            <div className="mt-12 divide-y divide-white/10 border-y border-white/10 bg-neutral-950/80 backdrop-blur-sm">
+                <div className="mt-12 divide-y divide-white/10 border-y border-white/10 bg-neutral-950/80 backdrop-blur-sm">
               {sections.map((section, index) => (
                 <details
                   key={section.title}
@@ -81,7 +106,9 @@ export default function LegalDocumentPage({
                   </div>
                 </details>
               ))}
-            </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
