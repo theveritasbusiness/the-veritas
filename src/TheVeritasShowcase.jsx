@@ -518,7 +518,7 @@ export default function TheVeritasShowcase({
 
       {/* ── ADVERTISEMENT BANNER ── */}
       <div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
-        
+
         <HighRevenueAd format="banner" />
       </div>
 
@@ -1041,7 +1041,10 @@ export default function TheVeritasShowcase({
           </div>
         </section>
       )}
-
+<div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
+        
+        <HighRevenueAd format="banner" />
+      </div>
       {forcedCategory.toLowerCase() === "politics" && (
         <DeferredSection minHeightClass="min-h-[460px]">
           <DeferredElectionResultsSection />
