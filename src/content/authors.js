@@ -43,7 +43,7 @@ const KNOWN_AUTHORS = {
     role: "Chief Technology Officer",
     linkedin: "https://www.linkedin.com/in/siddy-kahanikaar/",
     bio: "Sidharth Sharma is the Chief Technology Officer of The Veritas, driving the organization's digital innovation and technical strategy.",
-    image: "/Sidharth.png.png",
+    image: "/Sidharth.png",
     lead: true
   },
   [slugifyAuthor("Tavisha Kaushik")]: {

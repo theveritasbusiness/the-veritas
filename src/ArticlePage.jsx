@@ -4,6 +4,7 @@ import Head from "next/head";
 import { Link, useParams } from "./lib/router";
 import { fetchArticleBySlug, fetchArticles } from "./api";
 import AdSlot from "./components/AdSlot";
+import HighRevenueAd from "./components/HighRevenueAd";
 import Seo from "./components/Seo";
 import { getCategoryPath } from "./content/categories";
 import { getAuthorProfile } from "./content/authors";
@@ -540,47 +541,17 @@ export default function ArticlePage({
                 </p>
                 {index === paragraphIndexes[0] && (
                   <div className="my-6 w-full">
-                    
-                      <div className="relative w-full overflow-hidden">
-                        <img
-                          src="/independence-day-ad.png"
-                          alt="Independence Day Greetings - Advertisement"
-                          className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
-                        />
-                        <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
-                          Advertisement
-                        </span>
-                      </div>
+                    <HighRevenueAd format="banner" />
                   </div>
                 )}
                 {index === paragraphIndexes[2] && (
                   <div className="my-6 w-full">
-                      <div className="relative w-full overflow-hidden">
-                        <img
-                          src="/independence-day-ad-2.png"
-                          alt="Independence Day Greetings - Advertisement"
-                          className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
-                        />
-                        <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
-                          Advertisement
-                        </span>
-                      </div>
-                    
+                    <HighRevenueAd format="banner" />
                   </div>
                 )}
                 {targetAd3Index !== null && index === targetAd3Index && index !== paragraphIndexes[0] && index !== paragraphIndexes[2] && (
                   <div className="my-6 w-full">
-                    
-                      <div className="relative w-full overflow-hidden flex items-center justify-center">
-                        <img
-                          src="/independence-day-ad-4.jpg"
-                          alt="Independence Day Greetings - Advertisement"
-                          className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
-                        />
-                        <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
-                          Advertisement
-                        </span>
-                      </div>
+                    <HighRevenueAd format="rectangle" />
                   </div>
                 )}
               </React.Fragment>
@@ -619,16 +590,7 @@ export default function ArticlePage({
           </ul>
         </div>
         <div className="w-full">
-            <div className="relative w-full overflow-hidden flex items-center justify-center">
-              <img
-                src="/independence-day-ad-3.jpg"
-                alt="Independence Day Greetings - Advertisement"
-                className="w-full h-auto max-h-[360px] object-contain mx-auto"
-              />
-              <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
-                Advertisement
-              </span>
-            </div>
+          <HighRevenueAd format="rectangle" />
         </div>
       </div>
     </div>

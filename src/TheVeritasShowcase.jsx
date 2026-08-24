@@ -10,6 +10,7 @@ import {
   loadCachedBreaking
 } from "./api";
 import AdSlot from "./components/AdSlot";
+import HighRevenueAd from "./components/HighRevenueAd";
 import Seo from "./components/Seo";
 import Head from "next/head";
 import { getCategoryConfigByName, getCategoryPath, isCategoryMatch } from "./content/categories";
@@ -517,18 +518,7 @@ export default function TheVeritasShowcase({
 
       {/* ── ADVERTISEMENT BANNER ── */}
       <div className="mx-auto mt-4 max-w-7xl px-3 sm:mt-6 sm:px-4">
-        
-          <div className="relative w-full overflow-hidden">
-            <img
-              src="/independence-day-ad.png"
-              alt="Independence Day Greetings - Advertisement"
-              className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
-            />
-            <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
-              Advertisement
-            </span>
-          </div>
-        
+        <HighRevenueAd format="banner" />
       </div>
 
       {/* ── SECTION 1: 3-Column Grid below Hero Slider ── */}
@@ -734,31 +724,8 @@ export default function TheVeritasShowcase({
       {/* ── SIDE-BY-SIDE AD BANNERS ── */}
       <div className="mx-auto mt-6 max-w-5xl px-3 sm:mt-8 sm:px-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-          
-            <div className="relative w-full overflow-hidden flex flex-col items-center justify-center">
-              <img
-                src="/independence-day-ad-3.jpg"
-                alt="Independence Day Greetings - Advertisement"
-                className="w-full h-auto max-h-[180px] sm:max-h-[220px] md:max-h-[250px] object-contain mx-auto"
-              />
-              <span className="mt-1.5 text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-                Advertisement
-              </span>
-            </div>
-          
-
-          
-            <div className="relative w-full overflow-hidden flex flex-col items-center justify-center">
-              <img
-                src="/independence-day-ad-4.jpg"
-                alt="Independence Day Greetings - Advertisement"
-                className="w-full h-auto max-h-[180px] sm:max-h-[220px] md:max-h-[250px] object-contain mx-auto"
-              />
-              <span className="mt-1.5 text-center text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
-                Advertisement
-              </span>
-            </div>
-          
+          <HighRevenueAd format="rectangle" />
+          <HighRevenueAd format="rectangle" />
         </div>
       </div>
 
@@ -875,18 +842,7 @@ export default function TheVeritasShowcase({
 
       {/* Inline Ad */}
       <div className="mx-auto my-6 max-w-7xl px-3 sm:my-8 sm:px-4">
-        
-          <div className="relative w-full overflow-hidden">
-            <img
-              src="/independence-day-ad-2.png"
-              alt="Independence Day Greetings - Advertisement"
-              className="w-full h-auto max-h-[180px] sm:max-h-[240px] md:max-h-[280px] object-contain mx-auto"
-            />
-            <span className="absolute top-2 right-2 rounded bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-300 backdrop-blur-md border border-white/10">
-              Advertisement
-            </span>
-          </div>
-        
+        <HighRevenueAd format="banner" />
       </div>
 
       {/* ── SECTION 3: Latest Videos ── */}
