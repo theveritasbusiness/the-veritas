@@ -3,9 +3,8 @@ import { useNavigate, useParams } from "../lib/router";
 import {
   createArticle,
   fetchAdminArticle,
-  getCloudinaryUploadUrl,
   updateArticle,
-  CLOUDINARY_UPLOAD_PRESET
+  uploadMedia
 } from "../api";
 import { CATEGORY_CONFIG } from "../content/categories";
 
@@ -100,22 +99,9 @@ export default function LiveArticleEditor({ mode = "create" }) {
     if (!file) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
     try {
-      const response = await fetch(getCloudinaryUploadUrl("image"), {
-        method: "POST",
-        body: formData
-      });
-      const data = await response.json();
-
-      if (!response.ok || !data.secure_url) {
-        throw new Error(data.error?.message || "Image upload failed");
-      }
-
-      setHeroImage(data.secure_url);
+      setHeroImage(await uploadMedia(file, "image"));
       setError("");
     } catch (uploadError) {
       setError(uploadError.message || "Image upload failed");

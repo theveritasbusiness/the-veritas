@@ -7,6 +7,12 @@ export const CLOUDINARY_CLOUD_NAME =
 export const CLOUDINARY_UPLOAD_PRESET =
   process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "veritas_uploads";
 
+// "b2" routes uploads through our own backend to Cloudflare R2; "cloudinary"
+// keeps the old unsigned direct-to-Cloudinary path. Flipping this back is the
+// rollback for the upload half of the media migration.
+export const UPLOAD_BACKEND =
+  process.env.NEXT_PUBLIC_UPLOAD_BACKEND || "cloudinary";
+
 export const ADSENSE_CLIENT =
   process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-9106312967186703";
 

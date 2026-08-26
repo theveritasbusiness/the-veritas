@@ -2,11 +2,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "../lib/router";
 import {
   API_BASE,
-  CLOUDINARY_UPLOAD_PRESET,
   authHeaders,
   fetchAdminArticle,
   fetchSubcategories,
-  getCloudinaryUploadUrl
+  uploadMedia
 } from "../api";
 import HeroImageEditor from "../components/HeroImageEditor";
 import { CATEGORY_CONFIG, isCategoryMatch } from "../content/categories";
@@ -227,22 +226,9 @@ export default function EditArticle() {
     if (!file) return null;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
     try {
-      const res = await fetch(getCloudinaryUploadUrl(resourceType), {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-
-      if (!res.ok || !data.secure_url) {
-        throw new Error(data.error?.message || `${resourceType} upload failed`);
-      }
-
-      return data.secure_url;
+      return await uploadMedia(file, resourceType);
     } catch (err) {
       alert(err.message);
       return null;

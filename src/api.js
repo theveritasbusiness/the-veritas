@@ -2,10 +2,17 @@ import {
   API_BASE,
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_UPLOAD_PRESET,
+  UPLOAD_BACKEND,
   LIVE_MONITOR_URL
 } from "./lib/env";
 
-export { API_BASE, CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET, LIVE_MONITOR_URL };
+export {
+  API_BASE,
+  CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_UPLOAD_PRESET,
+  UPLOAD_BACKEND,
+  LIVE_MONITOR_URL
+};
 const ARTICLES_CACHE_KEY = "veritas_articles_cache";
 const BREAKING_CACHE_KEY = "veritas_breaking_cache";
 
@@ -200,6 +207,51 @@ export function authHeaders() {
 
 export function getCloudinaryUploadUrl(resourceType = "image") {
   return `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`;
+}
+
+// Single upload path for every CMS screen. Returns the stored URL, or throws.
+//
+// The server generates AVIF/WebP derivatives and returns a JPEG URL, which is
+// what goes in the database: hero_image also feeds og:image, and the social
+// crawlers cannot decode AVIF.
+export async function uploadMedia(file, kind = "image") {
+  if (UPLOAD_BACKEND === "cloudinary") {
+    const legacyForm = new FormData();
+    legacyForm.append("file", file);
+    legacyForm.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+    const legacyRes = await fetch(getCloudinaryUploadUrl(kind), {
+      method: "POST",
+      body: legacyForm
+    });
+    const legacyData = await legacyRes.json();
+
+    if (!legacyRes.ok || !legacyData.secure_url) {
+      throw new Error(legacyData.error?.message || `${kind} upload failed`);
+    }
+
+    return legacyData.secure_url;
+  }
+
+  const token = localStorage.getItem("editorToken") || "";
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("kind", kind);
+
+  // No Content-Type header: the browser has to set the multipart boundary.
+  const res = await fetch(`${API_BASE}/media`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok || !data.secure_url) {
+    throw new Error(data.error || `${kind} upload failed`);
+  }
+
+  return data.secure_url;
 }
 
 export function loadCachedArticles() {

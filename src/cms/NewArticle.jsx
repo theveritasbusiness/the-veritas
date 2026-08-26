@@ -2,10 +2,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "../lib/router";
 import {
   API_BASE,
-  CLOUDINARY_UPLOAD_PRESET,
   authHeaders,
   fetchSubcategories,
-  getCloudinaryUploadUrl
+  uploadMedia
 } from "../api";
 import HeroImageEditor from "../components/HeroImageEditor";
 import { CATEGORY_CONFIG, isCategoryMatch } from "../content/categories";
@@ -108,22 +107,8 @@ export default function NewArticle() {
 
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
     try {
-      const res = await fetch(getCloudinaryUploadUrl(), {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-
-      if (!res.ok || !data.secure_url) {
-        throw new Error(data.error?.message || "Image upload failed");
-      }
-
-      return data.secure_url;
+      return await uploadMedia(file, "image");
     } catch (err) {
       alert(err.message);
       return null;
@@ -137,22 +122,8 @@ export default function NewArticle() {
 
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
     try {
-      const res = await fetch(getCloudinaryUploadUrl("video"), {
-        method: "POST",
-        body: formData
-      });
-      const data = await res.json();
-
-      if (!res.ok || !data.secure_url) {
-        throw new Error(data.error?.message || "Video upload failed");
-      }
-
-      return data.secure_url;
+      return await uploadMedia(file, "video");
     } catch (err) {
       alert(err.message);
       return null;
