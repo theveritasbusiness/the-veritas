@@ -2,6 +2,19 @@
   command = "npm run build"
   publish = ".next"
 
+[build.environment]
+  # Routes CMS uploads through the backend to Cloudflare R2 instead of posting
+  # straight to Cloudinary with an unsigned preset. Baked in at build time, so
+  # changing it needs a rebuild, not just a redeploy.
+  #
+  # Rollback is a commit, not a dashboard edit: values here override the
+  # Netlify UI, so a UI change would be silently ignored.
+  NEXT_PUBLIC_UPLOAD_BACKEND = "b2"
+
+  # Pinned so the build cannot drift onto a different major, the way the
+  # backend silently landed on Node 18 and could not load sharp.
+  NODE_VERSION = "22"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
