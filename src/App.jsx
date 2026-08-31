@@ -10,7 +10,9 @@ import EditorLogin from "./cms/EditorLogin";
 import EditorDashboard from "./cms/EditorDashboard";
 import NewArticle from "./cms/NewArticle";
 import EditArticle from "./cms/EditArticle";
+import OriginalEditor from "./cms/OriginalEditor";
 import ProtectedRoute from "./ProtectedRoutes";
+import OriginalsPage from "./OriginalsPage";
 
 import Terms from "./Terms";
 import Privacy from "./Privacy";
@@ -43,6 +45,7 @@ function App() {
           <Route path="/article/:slug" element={<ArticlePage />} />
           <Route path="/live" element={<VeritasDesk />} />
           <Route path="/trending" element={<VeritasDesk />} />
+          <Route path="/originals" element={<OriginalsPage />} />
         </Route>
 
         {/* ❌ WITHOUT NAVBAR */}
@@ -78,6 +81,14 @@ function App() {
               <EditArticle />
             </ProtectedRoute>
           }
+        />
+        <Route
+          path="/cms/originals/new"
+          element={<ProtectedRoute><OriginalEditor mode="create" /></ProtectedRoute>}
+        />
+        <Route
+          path="/cms/originals/edit/:id"
+          element={<ProtectedRoute><OriginalEditor mode="edit" /></ProtectedRoute>}
         />
 
         <Route path="/terms" element={<Terms />} />

@@ -10,6 +10,8 @@ import {
 import HeroImageEditor from "../components/HeroImageEditor";
 import { CATEGORY_CONFIG, isCategoryMatch } from "../content/categories";
 import { HERO_FOCUS_OPTIONS } from "../utils/cloudinary";
+import YouTubeEmbed from "../components/YouTubeEmbed";
+import { getYouTubeVideoId } from "../utils/youtube";
 
 export default function NewArticle() {
   const [title, setTitle] = useState("");
@@ -89,6 +91,15 @@ export default function NewArticle() {
     return {
       type: "tweet",
       href: ""
+    };
+  }
+
+  function createYouTubeBlock() {
+    return {
+      type: "youtube",
+      youtube_url: "",
+      youtube_video_id: "",
+      caption: ""
     };
   }
 
@@ -201,6 +212,10 @@ export default function NewArticle() {
 
       if (block.type === "tweet") {
         return block.href?.trim();
+      }
+
+      if (block.type === "youtube") {
+        return block.youtube_video_id || getYouTubeVideoId(block.youtube_url);
       }
 
       if (block.type === "also_read" || block.type === "read_more") {
@@ -416,6 +431,35 @@ export default function NewArticle() {
                   }}
                 />
               </div>
+            ) : block.type === "youtube" ? (
+              <div className="rounded border border-neutral-700 bg-black/60 p-3 space-y-3">
+                <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">YouTube video</div>
+                <input
+                  className="w-full p-2 bg-black border"
+                  placeholder="Paste a YouTube or youtu.be link..."
+                  value={block.youtube_url || ""}
+                  onChange={(e) => {
+                    const youtubeUrl = e.target.value;
+                    const copy = [...contentBlocks];
+                    copy[i] = {
+                      ...copy[i],
+                      youtube_url: youtubeUrl,
+                      youtube_video_id: getYouTubeVideoId(youtubeUrl)
+                    };
+                    setContentBlocks(copy);
+                  }}
+                />
+                {block.youtube_url && !block.youtube_video_id ? (
+                  <div className="text-sm text-red-400">Enter a valid YouTube video URL.</div>
+                ) : null}
+                <YouTubeEmbed videoId={block.youtube_video_id} title="YouTube preview" />
+                <input
+                  className="w-full p-2 bg-black border"
+                  placeholder="Video caption (optional)..."
+                  value={block.caption || ""}
+                  onChange={(e) => updateContentBlock(i, { ...block, caption: e.target.value })}
+                />
+              </div>
             ) : block.type === "source" ? (
               <div className="rounded border border-white/15 bg-neutral-950 p-4 space-y-3">
                 <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">Source</div>
@@ -616,6 +660,14 @@ export default function NewArticle() {
               onChange={(e) => handleInlineImageUpload(e.target.files?.[0])}
             />
           </label>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createYouTubeBlock()])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + YouTube
+          </button>
 
           <label className="bg-neutral-700 px-4 py-2 rounded cursor-pointer">
             + Video

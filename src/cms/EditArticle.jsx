@@ -11,6 +11,8 @@ import {
 import HeroImageEditor from "../components/HeroImageEditor";
 import { CATEGORY_CONFIG, isCategoryMatch } from "../content/categories";
 import { HERO_FOCUS_OPTIONS, normalizeHeroCrop } from "../utils/cloudinary";
+import YouTubeEmbed from "../components/YouTubeEmbed";
+import { getYouTubeVideoId } from "../utils/youtube";
 
 function normalizeEditorBlock(block) {
   if (typeof block === "string") {
@@ -41,6 +43,22 @@ function normalizeEditorBlock(block) {
     return {
       type: "tweet",
       href: typeof block.href === "string" ? block.href : ""
+    };
+  }
+
+  if (block.type === "youtube") {
+    const youtubeUrl = typeof block.youtube_url === "string"
+      ? block.youtube_url
+      : typeof block.text === "string"
+        ? block.text
+        : "";
+    return {
+      type: "youtube",
+      youtube_url: youtubeUrl,
+      youtube_video_id: typeof block.youtube_video_id === "string"
+        ? block.youtube_video_id
+        : getYouTubeVideoId(youtubeUrl),
+      caption: typeof block.caption === "string" ? block.caption : ""
     };
   }
 
@@ -142,6 +160,10 @@ export default function EditArticle() {
       type: "tweet",
       href: ""
     };
+  }
+
+  function createYouTubeBlock() {
+    return { type: "youtube", youtube_url: "", youtube_video_id: "", caption: "" };
   }
 
   function createArticleLinkBlock(type) {
@@ -288,6 +310,10 @@ export default function EditArticle() {
 
       if (block.type === "tweet") {
         return block.href?.trim();
+      }
+
+      if (block.type === "youtube") {
+        return block.youtube_video_id || getYouTubeVideoId(block.youtube_url);
       }
 
       if (block.type === "also_read" || block.type === "read_more") {
@@ -540,6 +566,33 @@ export default function EditArticle() {
                   }}
                 />
               </div>
+            ) : block.type === "youtube" ? (
+              <div className="rounded border border-neutral-700 bg-black/60 p-3 space-y-3">
+                <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">YouTube video</div>
+                <input
+                  className="w-full p-2 bg-black border"
+                  value={block.youtube_url || ""}
+                  placeholder="Paste a YouTube or youtu.be link"
+                  onChange={(e) => {
+                    const youtubeUrl = e.target.value;
+                    updateContentBlock(i, {
+                      ...block,
+                      youtube_url: youtubeUrl,
+                      youtube_video_id: getYouTubeVideoId(youtubeUrl)
+                    });
+                  }}
+                />
+                {block.youtube_url && !block.youtube_video_id ? (
+                  <div className="text-sm text-red-400">Enter a valid YouTube video URL.</div>
+                ) : null}
+                <YouTubeEmbed videoId={block.youtube_video_id} title="YouTube preview" />
+                <input
+                  className="w-full p-2 bg-black border"
+                  value={block.caption || ""}
+                  placeholder="Video caption (optional)"
+                  onChange={(e) => updateContentBlock(i, { ...block, caption: e.target.value })}
+                />
+              </div>
             ) : block.type === "source" ? (
               <div className="rounded border border-white/15 bg-neutral-950 p-4 space-y-3">
                 <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">Source</div>
@@ -740,6 +793,14 @@ export default function EditArticle() {
               onChange={(e) => handleInlineImageUpload(e.target.files?.[0])}
             />
           </label>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createYouTubeBlock()])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + YouTube
+          </button>
 
           <label className="bg-neutral-700 px-4 py-2 rounded cursor-pointer">
             + Video

@@ -5,11 +5,13 @@ import { Link, useParams } from "./lib/router";
 import { fetchArticleBySlug, fetchArticles } from "./api";
 import AdSlot from "./components/AdSlot";
 import HighRevenueAd from "./components/HighRevenueAd";
+import YouTubeEmbed from "./components/YouTubeEmbed";
 import Seo from "./components/Seo";
 import { getCategoryPath } from "./content/categories";
 import { getAuthorProfile } from "./content/authors";
 import { getImagePresentation, getStoryImageUrl } from "./utils/cloudinary";
 import { formatPublishedDateTime } from "./utils/time";
+import { getYouTubeVideoId } from "./utils/youtube";
 
 function getTweetEmbedUrl(input = "") {
   const href = String(input || "").trim();
@@ -412,6 +414,21 @@ export default function ArticlePage({
                     <source src={text} />
                     Your browser does not support embedded video playback.
                   </video>
+                  {block.caption ? (
+                    <figcaption className="text-sm text-neutral-400">{block.caption}</figcaption>
+                  ) : null}
+                </figure>
+              );
+            }
+
+            if (block.type === "youtube") {
+              const youtubeUrl = block.youtube_url || block.href || block.url || text;
+              const videoId = block.youtube_video_id || getYouTubeVideoId(youtubeUrl);
+              if (!videoId) return null;
+
+              return (
+                <figure key={index} className="my-8 space-y-3">
+                  <YouTubeEmbed videoId={videoId} title={block.caption || articleTitle} />
                   {block.caption ? (
                     <figcaption className="text-sm text-neutral-400">{block.caption}</figcaption>
                   ) : null}
