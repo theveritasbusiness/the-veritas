@@ -4,12 +4,15 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from "./lib/route
 import Layout from "./components/Layout";
 import TheVeritasShowcase from "./TheVeritasShowcase";
 import ArticlePage from "./ArticlePage";
+import OriginalsPage from "./OriginalsPage";
 import VeritasDesk from "./VeritasDesk";
 
 import EditorLogin from "./cms/EditorLogin";
 import EditorDashboard from "./cms/EditorDashboard";
 import NewArticle from "./cms/NewArticle";
 import EditArticle from "./cms/EditArticle";
+import NewOriginal from "./cms/NewOriginal";
+import EditOriginal from "./cms/EditOriginal";
 import ProtectedRoute from "./ProtectedRoutes";
 
 import Terms from "./Terms";
@@ -41,6 +44,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<TheVeritasShowcase />} />
           <Route path="/article/:slug" element={<ArticlePage />} />
+          <Route path="/originals" element={<OriginalsPage />} />
           <Route path="/live" element={<VeritasDesk />} />
           <Route path="/trending" element={<VeritasDesk />} />
         </Route>
@@ -76,6 +80,22 @@ function App() {
           element={
             <ProtectedRoute>
               <EditArticle />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cms/originals/new"
+          element={
+            <ProtectedRoute>
+              <NewOriginal />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cms/originals/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditOriginal />
             </ProtectedRoute>
           }
         />

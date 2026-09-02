@@ -196,6 +196,49 @@ export async function deleteShort(id) {
   });
 }
 
+export async function fetchOriginals() {
+  return fetchJson("/originals");
+}
+
+export async function fetchOriginal(id) {
+  return fetchJson(`/originals/${id}`);
+}
+
+export async function fetchAdminOriginals() {
+  return fetchJson("/originals/admin", {
+    headers: authHeaders()
+  });
+}
+
+export async function fetchAdminOriginal(id) {
+  return fetchJson(`/originals/admin/${id}`, {
+    headers: authHeaders()
+  });
+}
+
+export async function createOriginal(payload) {
+  return fetchJson("/originals", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function updateOriginal(id, payload) {
+  return fetchJson(`/originals/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteOriginal(id) {
+  return fetchJson(`/originals/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  });
+}
+
 export function authHeaders() {
   const token = localStorage.getItem("editorToken") || "";
 

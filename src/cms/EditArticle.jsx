@@ -8,8 +8,10 @@ import {
   uploadMedia
 } from "../api";
 import HeroImageEditor from "../components/HeroImageEditor";
+import YouTubeEmbed from "../components/YouTubeEmbed";
 import { CATEGORY_CONFIG, isCategoryMatch } from "../content/categories";
 import { HERO_FOCUS_OPTIONS, normalizeHeroCrop } from "../utils/cloudinary";
+import { getYouTubeVideoId, getYouTubeWatchUrl } from "../utils/youtube";
 
 function normalizeEditorBlock(block) {
   if (typeof block === "string") {
@@ -40,6 +42,18 @@ function normalizeEditorBlock(block) {
     return {
       type: "tweet",
       href: typeof block.href === "string" ? block.href : ""
+    };
+  }
+
+  if (block.type === "youtube") {
+    const href = typeof block.href === "string" ? block.href : "";
+    const videoId = typeof block.video_id === "string" ? block.video_id : "";
+
+    return {
+      type: "youtube",
+      href: href || (videoId ? `https://www.youtube.com/watch?v=${videoId}` : ""),
+      video_id: videoId || getYouTubeVideoId(href),
+      caption: typeof block.caption === "string" ? block.caption : ""
     };
   }
 
@@ -143,11 +157,30 @@ export default function EditArticle() {
     };
   }
 
+  function createYouTubeBlock() {
+    return {
+      type: "youtube",
+      href: "",
+      video_id: "",
+      caption: ""
+    };
+  }
+
   function createArticleLinkBlock(type) {
     return {
       type,
       href: ""
     };
+  }
+
+  function setYouTubeBlockUrl(index, rawUrl) {
+    setContentBlocks((prev) =>
+      prev.map((block, blockIndex) =>
+        blockIndex === index
+          ? { ...block, href: rawUrl, video_id: getYouTubeVideoId(rawUrl) }
+          : block
+      )
+    );
   }
 
   function updateContentBlock(index, nextBlock) {
@@ -276,6 +309,10 @@ export default function EditArticle() {
         return block.href?.trim();
       }
 
+      if (block.type === "youtube") {
+        return Boolean(getYouTubeVideoId(block.href));
+      }
+
       if (block.type === "also_read" || block.type === "read_more") {
         return block.href?.trim();
       }
@@ -290,6 +327,13 @@ export default function EditArticle() {
 
       return block.text?.trim();
     });
+
+    // YouTube blocks are stored with a canonical watch URL and its video id.
+    const savedBlocks = nonEmptyBlocks.map((block) =>
+      block.type === "youtube"
+        ? { ...block, href: getYouTubeWatchUrl(block.href), video_id: getYouTubeVideoId(block.href) }
+        : block
+    );
 
     const paragraphBlocks = nonEmptyBlocks.filter((block) => block.type === "paragraph");
 
@@ -311,7 +355,7 @@ export default function EditArticle() {
           hashtags: article.hashtags
             ? article.hashtags.split(",").map((item) => item.trim()).filter(Boolean)
             : [],
-          content_blocks: nonEmptyBlocks,
+          content_blocks: savedBlocks,
           paragraphs: paragraphBlocks.map((block) => block.text),
           bibliography: article.bibliography,
           is_breaking: article.is_breaking || false,
@@ -564,6 +608,34 @@ export default function EditArticle() {
                   }}
                 />
               </div>
+            ) : block.type === "youtube" ? (
+              <div className="rounded border border-white/15 bg-neutral-950 p-4 space-y-3">
+                <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">YouTube</div>
+                <input
+                  className="w-full p-2 bg-black border"
+                  value={block.href || ""}
+                  placeholder="YouTube link (youtube.com/watch?v=... or youtu.be/...)"
+                  onChange={(e) => setYouTubeBlockUrl(i, e.target.value)}
+                />
+                {block.href?.trim() && !getYouTubeVideoId(block.href) ? (
+                  <div className="text-sm text-[var(--veritas-red)]">
+                    That does not look like a YouTube link.
+                  </div>
+                ) : null}
+                {getYouTubeVideoId(block.href) ? (
+                  <YouTubeEmbed url={block.href} title={block.caption || "YouTube preview"} />
+                ) : null}
+                <input
+                  className="w-full p-2 bg-black border"
+                  value={block.caption || ""}
+                  placeholder="Video caption (optional)"
+                  onChange={(e) => {
+                    const copy = [...contentBlocks];
+                    copy[i] = { ...copy[i], caption: e.target.value };
+                    setContentBlocks(copy);
+                  }}
+                />
+              </div>
             ) : block.type === "also_read" || block.type === "read_more" ? (
               <div className="rounded border border-white/15 bg-neutral-950 p-4 space-y-3">
                 <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">
@@ -759,6 +831,14 @@ export default function EditArticle() {
             className="bg-neutral-700 px-4 py-2 rounded"
           >
             + Tweet
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createYouTubeBlock()])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + YouTube
           </button>
 
           <button

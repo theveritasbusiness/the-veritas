@@ -5,8 +5,10 @@ import {
   authHeaders,
   deleteSubcategory,
   fetchAdminArticle,
+  deleteOriginal,
   deleteShort,
   fetchAdminArticles,
+  fetchAdminOriginals,
   fetchAdminShorts,
   fetchSubcategories,
   updateArticle
@@ -15,6 +17,7 @@ import {
 export default function EditorDashboard() {
   const [articles, setArticles] = useState([]);
   const [shorts, setShorts] = useState([]);
+  const [originals, setOriginals] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -38,6 +41,21 @@ export default function EditorDashboard() {
     try {
       const data = await fetchAdminShorts();
       setShorts(Array.isArray(data) ? data : []);
+      setError("");
+    } catch (err) {
+      setError(err.message);
+
+      if (/401|403|token/i.test(err.message)) {
+        localStorage.removeItem("editorToken");
+        navigate("/editors/login", { replace: true });
+      }
+    }
+  }
+
+  async function loadOriginals() {
+    try {
+      const data = await fetchAdminOriginals();
+      setOriginals(Array.isArray(data) ? data : []);
       setError("");
     } catch (err) {
       setError(err.message);
@@ -87,6 +105,18 @@ export default function EditorDashboard() {
     try {
       await deleteShort(id);
       await loadShorts();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function handleDeleteOriginal(id) {
+    const confirmDelete = window.confirm("Delete this Original?");
+    if (!confirmDelete) return;
+
+    try {
+      await deleteOriginal(id);
+      await loadOriginals();
     } catch (err) {
       alert(err.message);
     }
@@ -161,6 +191,7 @@ export default function EditorDashboard() {
   useEffect(() => {
     loadArticles();
     loadShorts();
+    loadOriginals();
     loadSubcategories();
   }, []);
 
@@ -175,6 +206,14 @@ export default function EditorDashboard() {
           style={{ backgroundColor: "var(--veritas-red)" }}
         >
           Create New Article
+        </Link>
+
+        <Link
+          to="/cms/originals/new"
+          className="inline-block rounded px-4 py-2 text-black"
+          style={{ backgroundColor: "var(--veritas-red)" }}
+        >
+          Create New Original
         </Link>
 
         <Link
@@ -244,6 +283,46 @@ export default function EditorDashboard() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-12">
+        <h2 className="mb-4 font-serif text-2xl">The Veritas Originals</h2>
+        <div className="space-y-4">
+          {originals.map((original) => (
+            <div
+              key={original.id}
+              className="bg-neutral-900 border border-neutral-800 p-4 rounded flex justify-between items-center gap-4"
+            >
+              <div className="min-w-0">
+                <div className="font-semibold">{original.title}</div>
+                <div className="mt-1 break-all text-sm text-neutral-400">{original.youtube_url}</div>
+              </div>
+
+              <div className="flex gap-3 shrink-0">
+                <Link to="/originals" className="text-blue-400">
+                  View
+                </Link>
+
+                <Link to={`/cms/originals/edit/${original.id}`} className="text-yellow-400">
+                  Edit
+                </Link>
+
+                <button
+                  onClick={() => handleDeleteOriginal(original.id)}
+                  style={{ color: "var(--veritas-red)" }}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {originals.length === 0 ? (
+            <div className="rounded border border-dashed border-neutral-800 px-4 py-5 text-sm text-neutral-500">
+              No Originals added yet.
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-12">

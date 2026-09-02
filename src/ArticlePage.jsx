@@ -6,6 +6,7 @@ import { fetchArticleBySlug, fetchArticles } from "./api";
 import AdSlot from "./components/AdSlot";
 import HighRevenueAd from "./components/HighRevenueAd";
 import Seo from "./components/Seo";
+import YouTubeEmbed from "./components/YouTubeEmbed";
 import { getCategoryPath } from "./content/categories";
 import { getAuthorProfile } from "./content/authors";
 import { getImagePresentation, getStoryImageUrl } from "./utils/cloudinary";
@@ -452,6 +453,18 @@ export default function ArticlePage({
                     <a href={getTweetEmbedUrl(href)}>{href}</a>
                   </blockquote>
                 </div>
+              );
+            }
+
+            if (block.type === "youtube" && (block.href || block.video_id)) {
+              const source = block.href || `https://www.youtube.com/watch?v=${block.video_id}`;
+              return (
+                <figure key={index} className="my-8 space-y-3">
+                  <YouTubeEmbed url={source} title={block.caption || articleTitle || "YouTube video"} />
+                  {block.caption ? (
+                    <figcaption className="text-sm text-neutral-400">{block.caption}</figcaption>
+                  ) : null}
+                </figure>
               );
             }
 

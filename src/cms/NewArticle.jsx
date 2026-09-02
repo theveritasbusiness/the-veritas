@@ -7,8 +7,10 @@ import {
   uploadMedia
 } from "../api";
 import HeroImageEditor from "../components/HeroImageEditor";
+import YouTubeEmbed from "../components/YouTubeEmbed";
 import { CATEGORY_CONFIG, isCategoryMatch } from "../content/categories";
 import { HERO_FOCUS_OPTIONS } from "../utils/cloudinary";
+import { getYouTubeVideoId, getYouTubeWatchUrl } from "../utils/youtube";
 
 export default function NewArticle() {
   const [title, setTitle] = useState("");
@@ -91,11 +93,30 @@ export default function NewArticle() {
     };
   }
 
+  function createYouTubeBlock() {
+    return {
+      type: "youtube",
+      href: "",
+      video_id: "",
+      caption: ""
+    };
+  }
+
   function createArticleLinkBlock(type) {
     return {
       type,
       href: ""
     };
+  }
+
+  function setYouTubeBlockUrl(index, rawUrl) {
+    setContentBlocks((prev) =>
+      prev.map((block, blockIndex) =>
+        blockIndex === index
+          ? { ...block, href: rawUrl, video_id: getYouTubeVideoId(rawUrl) }
+          : block
+      )
+    );
   }
 
   function updateContentBlock(index, nextBlock) {
@@ -174,6 +195,10 @@ export default function NewArticle() {
         return block.href?.trim();
       }
 
+      if (block.type === "youtube") {
+        return Boolean(getYouTubeVideoId(block.href));
+      }
+
       if (block.type === "also_read" || block.type === "read_more") {
         return block.href?.trim();
       }
@@ -188,6 +213,13 @@ export default function NewArticle() {
 
       return block.text?.trim();
     });
+    // YouTube blocks are stored with a canonical watch URL and its video id.
+    const savedBlocks = nonEmptyBlocks.map((block) =>
+      block.type === "youtube"
+        ? { ...block, href: getYouTubeWatchUrl(block.href), video_id: getYouTubeVideoId(block.href) }
+        : block
+    );
+
     const paragraphBlocks = nonEmptyBlocks.filter((block) => block.type === "paragraph");
 
     if (paragraphBlocks.length === 0) {
@@ -226,7 +258,7 @@ export default function NewArticle() {
           hero_crop: heroCrop,
           author_name: authorName.trim(),
           hashtags: hashtags ? hashtags.split(",").map((item) => item.trim()).filter(Boolean) : [],
-          content_blocks: nonEmptyBlocks,
+          content_blocks: savedBlocks,
           paragraphs: paragraphBlocks.map((block) => block.text),
           bibliography,
           is_breaking: breaking,
@@ -421,6 +453,34 @@ export default function NewArticle() {
                   onChange={(e) => {
                     const copy = [...contentBlocks];
                     copy[i].href = e.target.value;
+                    setContentBlocks(copy);
+                  }}
+                />
+              </div>
+            ) : block.type === "youtube" ? (
+              <div className="rounded border border-white/15 bg-neutral-950 p-4 space-y-3">
+                <div className="text-xs uppercase tracking-[0.22em] text-[var(--veritas-red)]">YouTube</div>
+                <input
+                  className="w-full p-2 bg-black border"
+                  placeholder="YouTube link (youtube.com/watch?v=... or youtu.be/...)"
+                  value={block.href || ""}
+                  onChange={(e) => setYouTubeBlockUrl(i, e.target.value)}
+                />
+                {block.href?.trim() && !getYouTubeVideoId(block.href) ? (
+                  <div className="text-sm text-[var(--veritas-red)]">
+                    That does not look like a YouTube link.
+                  </div>
+                ) : null}
+                {getYouTubeVideoId(block.href) ? (
+                  <YouTubeEmbed url={block.href} title={block.caption || "YouTube preview"} />
+                ) : null}
+                <input
+                  className="w-full p-2 bg-black border"
+                  placeholder="Video caption (optional)..."
+                  value={block.caption || ""}
+                  onChange={(e) => {
+                    const copy = [...contentBlocks];
+                    copy[i] = { ...copy[i], caption: e.target.value };
                     setContentBlocks(copy);
                   }}
                 />
@@ -620,6 +680,14 @@ export default function NewArticle() {
             className="bg-neutral-700 px-4 py-2 rounded"
           >
             + Tweet
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setContentBlocks([...contentBlocks, createYouTubeBlock()])}
+            className="bg-neutral-700 px-4 py-2 rounded"
+          >
+            + YouTube
           </button>
 
           <button
