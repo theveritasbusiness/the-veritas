@@ -227,11 +227,6 @@ export default function NewArticle() {
       return;
     }
 
-    if (!heroImage.trim()) {
-      alert("Hero image URL required");
-      return;
-    }
-
     const slug = title
       .toLowerCase()
       .replace(/[^\w\s-]/g, "")

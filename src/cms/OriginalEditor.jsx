@@ -1,6 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "../lib/router";
-import { createOriginal, fetchAdminOriginal, updateOriginal } from "../api";
+import {
+  createOriginal,
+  fetchAdminArticles,
+  fetchAdminOriginal,
+  updateOriginal
+} from "../api";
 import YouTubeEmbed from "../components/YouTubeEmbed";
 import { getYouTubeVideoId } from "../utils/youtube";
 
@@ -14,12 +19,63 @@ export default function OriginalEditor({ mode = "create", originalId = null }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [articleId, setArticleId] = useState("");
+  const [articles, setArticles] = useState([]);
+  const [articleSearch, setArticleSearch] = useState("");
   const [loading, setLoading] = useState(isEditMode);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const videoId = useMemo(() => getYouTubeVideoId(youtubeUrl), [youtubeUrl]);
   const hasUrl = Boolean(youtubeUrl.trim());
+
+  // There are hundreds of articles, so the picker is a filter over the list
+  // rather than one very long dropdown.
+  const matchingArticles = useMemo(() => {
+    const term = articleSearch.trim().toLowerCase();
+    if (!term) return articles;
+    return articles.filter((article) =>
+      `${article.title || ""} ${article.slug || ""}`.toLowerCase().includes(term)
+    );
+  }, [articleSearch, articles]);
+
+  const connectedArticle = useMemo(
+    () => articles.find((article) => String(article.id) === String(articleId)) || null,
+    [articleId, articles]
+  );
+
+  // The connected article stays in the list even when a search would filter it
+  // out, so the dropdown never looks empty while a link is set.
+  const articleOptions = useMemo(() => {
+    if (!connectedArticle) return matchingArticles;
+    if (matchingArticles.some((article) => article.id === connectedArticle.id)) {
+      return matchingArticles;
+    }
+    return [connectedArticle, ...matchingArticles];
+  }, [connectedArticle, matchingArticles]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadArticles() {
+      try {
+        const data = await fetchAdminArticles();
+        if (isMounted) {
+          setArticles(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        // The article link is optional, so a failed list must not block a save.
+        if (isMounted) {
+          setArticles([]);
+        }
+      }
+    }
+
+    loadArticles();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isEditMode || !originalId) return undefined;
@@ -34,6 +90,7 @@ export default function OriginalEditor({ mode = "create", originalId = null }) {
         setTitle(data?.title || "");
         setDescription(data?.description || "");
         setYoutubeUrl(data?.youtube_url || "");
+        setArticleId(data?.article_id ? String(data.article_id) : "");
         setError("");
       } catch (loadError) {
         if (isMounted) {
@@ -69,7 +126,8 @@ export default function OriginalEditor({ mode = "create", originalId = null }) {
     const payload = {
       title: title.trim(),
       description: description.trim(),
-      youtube_url: youtubeUrl.trim()
+      youtube_url: youtubeUrl.trim(),
+      article_id: articleId ? Number(articleId) : null
     };
 
     try {
@@ -142,6 +200,58 @@ export default function OriginalEditor({ mode = "create", originalId = null }) {
             {videoId ? (
               <div className="mt-2 text-sm text-neutral-400">
                 Video ID detected: <span className="font-semibold text-white">{videoId}</span>
+              </div>
+            ) : null}
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm text-neutral-300">
+              Connect article <span className="text-neutral-500">(optional)</span>
+            </label>
+            <p className="mb-2 text-xs leading-relaxed text-neutral-500">
+              The Original&apos;s title links to this article on the Originals page.
+            </p>
+
+            <input
+              value={articleSearch}
+              onChange={(event) => setArticleSearch(event.target.value)}
+              disabled={loading}
+              className="mb-2 w-full rounded border border-neutral-700 bg-black px-3 py-2 disabled:opacity-60"
+              placeholder="Search articles by headline or slug..."
+            />
+
+            <select
+              value={articleId}
+              onChange={(event) => setArticleId(event.target.value)}
+              disabled={loading}
+              className="w-full rounded border border-neutral-700 bg-black px-3 py-2 disabled:opacity-60"
+            >
+              <option value="">No connected article</option>
+              {articleOptions.map((article) => (
+                <option key={article.id} value={article.id}>
+                  {article.title || article.slug || `Article ${article.id}`}
+                </option>
+              ))}
+            </select>
+
+            {articleSearch.trim() && matchingArticles.length === 0 ? (
+              <div className="mt-2 text-sm text-neutral-500">
+                No articles match that search.
+              </div>
+            ) : null}
+
+            {connectedArticle ? (
+              <div className="mt-2 text-sm text-neutral-400">
+                Links to{" "}
+                <span className="font-semibold text-white">{connectedArticle.title}</span>
+              </div>
+            ) : null}
+
+            {/* An Original saved against an article that has since been deleted. */}
+            {articleId && !connectedArticle && articles.length > 0 ? (
+              <div className="mt-2 text-sm text-[var(--veritas-red)]">
+                The connected article is no longer available. Pick another, or leave it
+                unconnected.
               </div>
             ) : null}
           </div>

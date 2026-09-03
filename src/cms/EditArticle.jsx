@@ -295,11 +295,6 @@ export default function EditArticle() {
   }
 
   async function updateArticle() {
-    if (!article.hero_image) {
-      alert("Image not uploaded yet");
-      return;
-    }
-
     const nonEmptyBlocks = contentBlocks.filter((block) => {
       if (block.type === "image" || block.type === "video") {
         return block.text?.trim();

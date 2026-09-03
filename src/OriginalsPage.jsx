@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "./lib/router";
 import Seo from "./components/Seo";
 import YouTubeEmbed from "./components/YouTubeEmbed";
 import { fetchOriginals } from "./api";
@@ -6,6 +7,24 @@ import { formatPublishedDateTime } from "./utils/time";
 
 const PAGE_DESCRIPTION =
   "The Veritas Original — ground reports, documentaries and video journalism produced by The Veritas newsroom.";
+
+// The title links to the connected article when one is set in the CMS.
+function OriginalTitle({ original }) {
+  const slug = String(original?.article_slug || "").trim();
+
+  if (!slug) {
+    return <>{original?.title}</>;
+  }
+
+  return (
+    <Link
+      to={`/article/${slug}`}
+      className="transition hover:text-[var(--veritas-red)]"
+    >
+      {original.title}
+    </Link>
+  );
+}
 
 export default function OriginalsPage({ initialOriginals = [], initialError = "" }) {
   const [originals, setOriginals] = useState(initialOriginals);
@@ -59,16 +78,14 @@ export default function OriginalsPage({ initialOriginals = [], initialError = ""
           >
             The Veritas Original
           </div>
-          <h1 className="mt-3 flex items-center gap-3 font-serif text-4xl leading-[0.98] sm:text-5xl lg:text-6xl">
-            Originals
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-              className="h-[0.62em] w-[0.62em] shrink-0"
-              fill="var(--veritas-red)"
-            >
-              <path d="M4 2.5 21 12 4 21.5z" />
-            </svg>
+          <h1 className="mt-3">
+            <img
+              src="/originals-logo.png"
+              alt="Originals"
+              className="h-9 w-auto sm:h-12 lg:h-14"
+              width={1434}
+              height={161}
+            />
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-8 text-neutral-400">
             Ground reports, documentaries and video journalism produced by The Veritas newsroom.
@@ -100,7 +117,7 @@ export default function OriginalsPage({ initialOriginals = [], initialError = ""
 
               <div className="min-w-0">
                 <h2 className="font-serif text-2xl font-bold leading-tight sm:text-3xl lg:text-[2.25rem]">
-                  {featured.title}
+                  <OriginalTitle original={featured} />
                 </h2>
                 <div className="my-4 w-16 border-b" style={{ borderColor: "var(--veritas-red)" }} />
                 {featured.description ? (
@@ -129,7 +146,7 @@ export default function OriginalsPage({ initialOriginals = [], initialError = ""
                 <article key={original.id} className="min-w-0">
                   <YouTubeEmbed url={original.youtube_url} title={original.title} />
                   <h3 className="mt-4 font-serif text-xl font-bold leading-snug">
-                    {original.title}
+                    <OriginalTitle original={original} />
                   </h3>
                   {original.description ? (
                     <p className="mt-3 whitespace-pre-line text-sm leading-7 text-neutral-400">

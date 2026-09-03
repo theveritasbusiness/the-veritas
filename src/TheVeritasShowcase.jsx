@@ -433,23 +433,29 @@ export default function TheVeritasShowcase({
                   className="relative h-full w-full flex-shrink-0 cursor-pointer"
                 >
                   <Link to={`/article/${slide.slug}`} className="block h-full w-full relative">
-                    <img
-                      src={getHeroImageUrl(slide.hero_image, slide.hero_focus) || "https://via.placeholder.com/1200x600"}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 h-full w-full object-cover blur-sm opacity-45"
-                      style={getImagePresentation(slide.hero_focus, slide.hero_crop)}
-                      loading={index === 1 ? "eager" : "lazy"}
-                      decoding="async"
-                    />
-                    <img
-                      src={getHeroImageUrl(slide.hero_image, slide.hero_focus) || "https://via.placeholder.com/1200x600"}
-                      alt={slide.title || "Top story"}
-                      className="absolute inset-0 h-full w-full object-contain"
-                      style={getImagePresentation(slide.hero_focus, slide.hero_crop)}
-                      loading={index === 1 ? "eager" : "lazy"}
-                      decoding="async"
-                    />
+                    {slide.hero_image ? (
+                      <>
+                        <img
+                          src={getHeroImageUrl(slide.hero_image, slide.hero_focus)}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 h-full w-full object-cover blur-sm opacity-45"
+                          style={getImagePresentation(slide.hero_focus, slide.hero_crop)}
+                          loading={index === 1 ? "eager" : "lazy"}
+                          decoding="async"
+                        />
+                        <img
+                          src={getHeroImageUrl(slide.hero_image, slide.hero_focus)}
+                          alt={slide.title || "Top story"}
+                          className="absolute inset-0 h-full w-full object-contain"
+                          style={getImagePresentation(slide.hero_focus, slide.hero_crop)}
+                          loading={index === 1 ? "eager" : "lazy"}
+                          decoding="async"
+                        />
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#2a0408_0%,#0d0d0d_55%,#030303_100%)]" />
+                    )}
 
                     {(slide.is_editorial || slide.is_live) ? (
                       <div className="absolute right-4 top-4 z-[1] flex flex-wrap justify-end gap-2">
