@@ -6,6 +6,7 @@ import { getCategoryPath } from "../content/categories";
 
 const categories = [
   "Home",
+  "Originals",
   "World",
   "India",
   "The Veritas Desk",
@@ -32,6 +33,7 @@ export default function Layout({ children }) {
   const mobileSearchInputRef = useRef(null);
   const isExternalLiveUrl = /^https?:\/\//i.test(LIVE_MONITOR_URL);
   const isTrendingRoute = location.pathname === "/trending";
+  const isOriginalsRoute = location.pathname === "/originals";
 
   useEffect(() => {
     setSearchQuery(querySearch);
@@ -186,9 +188,14 @@ export default function Layout({ children }) {
             </li>
             {categories.map((item) => {
               const isActive =
-                (item === "Home" && !selectedCategory && !isTrendingRoute) ||
+                (item === "Home" &&
+                  !selectedCategory &&
+                  !isTrendingRoute &&
+                  !isOriginalsRoute) ||
+                (item === "Originals" && isOriginalsRoute) ||
                 (item === "The Veritas Desk" && isTrendingRoute) ||
                 (item !== "Home" &&
+                  item !== "Originals" &&
                   item !== "The Veritas Desk" &&
                   item !== "About Us" &&
                   location.pathname === getCategoryPath(item)) ||
@@ -202,6 +209,8 @@ export default function Layout({ children }) {
                   onClick={() => {
                     if (item === "Home") {
                       navigate("/");
+                    } else if (item === "Originals") {
+                      navigate("/originals");
                     } else if (item === "The Veritas Desk") {
                       navigate("/trending");
                     } else if (item === "About Us") {
