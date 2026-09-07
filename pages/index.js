@@ -42,21 +42,36 @@ function minimizeArticle(article) {
   };
 }
 
+function minimizeOriginal(original) {
+  if (!original) return null;
+  return {
+    id: original.id || null,
+    title: original.title || "",
+    description: original.description || "",
+    youtube_url: original.youtube_url || "",
+    article_slug: original.article_slug || null,
+    created_at: original.created_at || null
+  };
+}
+
 export async function getStaticProps() {
   try {
-    const [articlesRes, breakingRes, subcategoriesRes, shortsRes] = await Promise.all([
+    const [articlesRes, breakingRes, subcategoriesRes, shortsRes, originalsRes] = await Promise.all([
       fetch(`${API_BASE}/articles`),
       fetch(`${API_BASE}/articles/breaking`),
       fetch(`${API_BASE}/subcategories`),
-      fetch(`${API_BASE}/shorts`)
+      fetch(`${API_BASE}/shorts`),
+      fetch(`${API_BASE}/originals`)
     ]);
 
-    const [initialArticles, initialBreaking, initialSubcategories, initialShorts] = await Promise.all([
-      articlesRes.ok ? articlesRes.json() : [],
-      breakingRes.ok ? breakingRes.json() : [],
-      subcategoriesRes.ok ? subcategoriesRes.json() : [],
-      shortsRes.ok ? shortsRes.json() : []
-    ]);
+    const [initialArticles, initialBreaking, initialSubcategories, initialShorts, initialOriginals] =
+      await Promise.all([
+        articlesRes.ok ? articlesRes.json() : [],
+        breakingRes.ok ? breakingRes.json() : [],
+        subcategoriesRes.ok ? subcategoriesRes.json() : [],
+        shortsRes.ok ? shortsRes.json() : [],
+        originalsRes.ok ? originalsRes.json() : []
+      ]);
 
     const minimizedArticles = (Array.isArray(initialArticles) ? initialArticles : [])
       .slice(0, 60)
@@ -73,6 +88,10 @@ export async function getStaticProps() {
         initialBreaking: minimizedBreaking,
         initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
         initialShorts: Array.isArray(initialShorts) ? initialShorts.slice(0, 6) : [],
+        initialOriginals: (Array.isArray(initialOriginals) ? initialOriginals : [])
+          .slice(0, 4)
+          .map(minimizeOriginal)
+          .filter(Boolean),
         initialLoadError: ""
       },
       revalidate: 60
@@ -84,6 +103,7 @@ export async function getStaticProps() {
         initialBreaking: [],
         initialSubcategories: [],
         initialShorts: [],
+        initialOriginals: [],
         initialLoadError: ""
       },
       revalidate: 60

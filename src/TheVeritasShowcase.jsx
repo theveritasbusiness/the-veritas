@@ -15,6 +15,8 @@ import Seo from "./components/Seo";
 import Head from "next/head";
 import { getCategoryConfigByName, getCategoryPath, isCategoryMatch } from "./content/categories";
 import { getCardImageUrl, getHeroImageUrl, getImagePresentation } from "./utils/cloudinary";
+import { getYouTubeThumbnailUrl } from "./utils/youtube";
+import YouTubeEmbed from "./components/YouTubeEmbed";
 import { getArticleDisplayTime } from "./utils/time";
 
 const DeferredMarketTickerTape = dynamic(() => import("./components/MarketTickerTape"), {
@@ -110,6 +112,15 @@ function DeferredSection({ children, minHeightClass = "min-h-[240px]" }) {
   );
 }
 
+function OriginalLink({ original, className = "", children }) {
+  const slug = String(original?.article_slug || "").trim();
+  return (
+    <Link to={slug ? `/article/${slug}` : "/originals"} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 function getHeroHeadlineClass(title = "") {
   const wordCount = String(title || "")
     .trim()
@@ -128,6 +139,7 @@ export default function TheVeritasShowcase({
   initialBreaking = [],
   initialSubcategories = [],
   initialShorts = [],
+  initialOriginals = [],
   initialLoadError = "",
   forcedCategory = "",
   pageTitle = HOME_TITLE,
@@ -155,6 +167,13 @@ export default function TheVeritasShowcase({
     (Boolean(searchQuery) ||
       Boolean(selectedCategory && selectedCategory !== "Home") ||
       Boolean(selectedSubcategory));
+
+  // Originals are their own content type rather than a category, so they belong
+  // to the unfiltered home view only. The list comes from the page's static
+  // props: it changes far too rarely to be worth a fetch on every visit.
+  const homeOriginals =
+    forcedCategory || isFilteredHomeView ? [] : initialOriginals.filter(Boolean);
+  const [featuredOriginal, ...otherOriginals] = homeOriginals;
 
   const searchedArticles = articles.filter((article) => {
     const query = searchQuery.toLowerCase();
@@ -735,6 +754,90 @@ export default function TheVeritasShowcase({
           <HighRevenueAd format="rectangle" />
         </div>
       </div>
+
+      {/* ── SECTION: The Veritas Original ── */}
+      {featuredOriginal && (
+        <section className="mx-auto max-w-7xl px-3 py-8 sm:px-4 sm:py-10">
+          <div className="mb-6 flex items-center gap-4">
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+            <Link to="/originals" className="shrink-0 transition hover:opacity-80">
+              <img
+                src="/originals-logo.png"
+                alt="Originals"
+                className="h-7 w-auto sm:h-9"
+                width={1434}
+                height={161}
+                loading="lazy"
+                decoding="async"
+              />
+            </Link>
+            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-[1.35fr,1fr] lg:items-start lg:gap-8">
+            {/* The player is the heaviest thing on the page, so it waits until
+                the section is nearly in view. The copy beside it renders now. */}
+            <DeferredSection minHeightClass="min-h-[220px] sm:min-h-[340px]">
+              <div className="rounded-[20px] border border-[rgba(222,2,22,0.7)] p-2">
+                <YouTubeEmbed url={featuredOriginal.youtube_url} title={featuredOriginal.title} />
+              </div>
+            </DeferredSection>
+
+            <div className="min-w-0">
+              <div
+                className="text-[11px] font-bold uppercase tracking-[0.2em]"
+                style={{ color: "var(--veritas-red)" }}
+              >
+                The Veritas Original
+              </div>
+              <h3 className="mt-2 font-serif text-2xl font-bold leading-tight text-white sm:text-3xl">
+                <OriginalLink
+                  original={featuredOriginal}
+                  className="transition hover:text-[var(--veritas-red)]"
+                >
+                  {featuredOriginal.title}
+                </OriginalLink>
+              </h3>
+              <div className="my-4 w-16 border-b" style={{ borderColor: "var(--veritas-red)" }} />
+              {featuredOriginal.description ? (
+                <p className="whitespace-pre-line font-serif text-[16px] leading-[1.85] text-neutral-300">
+                  {featuredOriginal.description}
+                </p>
+              ) : null}
+
+              {otherOriginals.length > 0 ? (
+                <div className="mt-6 space-y-3 border-t border-neutral-800 pt-5">
+                  {otherOriginals.map((original) => (
+                    <OriginalLink
+                      key={original.id}
+                      original={original}
+                      className="group flex items-center gap-3 transition-colors hover:text-[var(--veritas-red)]"
+                    >
+                      <img
+                        src={getYouTubeThumbnailUrl(original.youtube_url, "mqdefault")}
+                        alt=""
+                        className="h-12 w-[84px] flex-shrink-0 rounded object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <span className="min-w-0 font-serif text-sm leading-snug text-white transition-colors group-hover:text-[var(--veritas-red)]">
+                        {original.title}
+                      </span>
+                    </OriginalLink>
+                  ))}
+                </div>
+              ) : null}
+
+              <Link
+                to="/originals"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-neutral-400 transition-colors hover:text-[var(--veritas-red)]"
+              >
+                All Originals <span aria-hidden="true">&rarr;</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── SECTION 2: Latest News ── */}
       {finalArticles.length > 0 && (
