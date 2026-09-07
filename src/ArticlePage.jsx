@@ -240,6 +240,12 @@ export default function ArticlePage({
   };
 
   const renderedBlocks = (article.content_blocks || []).filter(Boolean);
+  // An article that opens with a YouTube video already leads with a visual, and
+  // the hero is usually that video's own thumbnail, so showing both stacks the
+  // still directly above the player it duplicates. This drops the hero from the
+  // body only: cards, og:image and the structured data still use it.
+  const leadsWithVideo = renderedBlocks[0]?.type === "youtube";
+  const showHeroImage = Boolean(article.hero_image) && !leadsWithVideo;
   const liveUpdates = Array.isArray(article.live_updates) ? article.live_updates : [];
   const paragraphIndexes = renderedBlocks.reduce((accumulator, block, index) => {
     if (block.type === "paragraph" || (!block.type && typeof block.text === "string")) {
@@ -266,7 +272,7 @@ export default function ArticlePage({
         tags={Array.isArray(article.hashtags) ? article.hashtags : []}
       />
 
-      {article.hero_image ? (
+      {showHeroImage ? (
         <Head>
           <link rel="preload" as="image" href={getStoryImageUrl(article.hero_image)} />
         </Head>
@@ -325,7 +331,7 @@ export default function ArticlePage({
       </div>
 
       <div className="min-w-0 md:col-start-3 md:col-span-7">
-        {article.hero_image ? (
+        {showHeroImage ? (
           <img
             src={getStoryImageUrl(article.hero_image)}
             className="my-6 max-h-[380px] w-full rounded-2xl object-cover shadow-lg sm:my-8"
@@ -339,7 +345,7 @@ export default function ArticlePage({
             decoding="async"
           />
         ) : null}
-        {article.hero_caption ? (
+        {showHeroImage && article.hero_caption ? (
           <div className="-mt-2 mb-6 text-sm leading-6 text-neutral-400 sm:mb-8">{article.hero_caption}</div>
         ) : null}
         {isLiveArticle ? (
