@@ -311,7 +311,7 @@ export default function ArticlePage({
           </div>
         </div>
 
-        <h1 className="break-words font-serif text-2xl font-bold leading-[0.94] tracking-tight sm:text-3xl md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] text-left w-full">
+        <h1 className="break-words font-serif text-2xl font-bold leading-[1.15] tracking-tight sm:text-3xl sm:leading-[1.14] md:text-[2.25rem] lg:text-[2.5rem] xl:text-[2.75rem] text-left w-full">
           {articleTitle}
         </h1>
         <p className="mt-3 text-base italic leading-relaxed text-neutral-400 sm:text-lg text-left max-w-2xl">

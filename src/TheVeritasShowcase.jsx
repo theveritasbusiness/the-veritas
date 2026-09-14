@@ -127,11 +127,12 @@ function getHeroHeadlineClass(title = "") {
     .split(/\s+/)
     .filter(Boolean).length;
 
+  // Desktop sizes stay compact and clamp to two lines so the headline never swallows the slide.
   if (wordCount > 15) {
-    return "mt-2 break-words font-serif text-[2.1rem] font-bold leading-[1.02] sm:text-[2.45rem] md:text-[2.35rem] lg:text-[3rem] xl:text-[3.35rem] text-white";
+    return "mt-2 break-words font-serif text-[2.1rem] font-bold leading-[1.02] sm:text-[2.45rem] md:line-clamp-2 md:text-[1.85rem] md:leading-[1.18] lg:text-[2rem] xl:text-[2.2rem] text-white";
   }
 
-  return "mt-2 break-words font-serif text-[2.4rem] font-bold leading-[1.01] sm:text-[2.95rem] md:text-[2.8rem] lg:text-[3.5rem] xl:text-[4rem] text-white";
+  return "mt-2 break-words font-serif text-[2.4rem] font-bold leading-[1.01] sm:text-[2.95rem] md:line-clamp-2 md:text-[2.05rem] md:leading-[1.15] lg:text-[2.3rem] xl:text-[2.5rem] text-white";
 }
 
 export default function TheVeritasShowcase({
@@ -483,9 +484,9 @@ export default function TheVeritasShowcase({
                       </div>
                     ) : null}
 
-                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black via-black/55 to-transparent p-5 sm:p-6 text-left">
-                      <div className="max-w-3xl">
-                        <div className="text-sm font-semibold sm:text-base" style={{ color: "var(--veritas-red)" }}>
+                    <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black via-black/55 to-transparent p-5 sm:p-6 md:px-16 md:pb-8 text-left">
+                      <div className="max-w-3xl lg:max-w-4xl">
+                        <div className="text-sm font-semibold sm:text-base md:text-xs md:tracking-[0.2em]" style={{ color: "var(--veritas-red)" }}>
                           {slide.is_breaking ? "BREAKING" : "TOP STORY"}
                         </div>
 
@@ -493,7 +494,7 @@ export default function TheVeritasShowcase({
                           {slide.title || "Loading..."}
                         </h1>
 
-                        <p className="mt-3 max-w-2xl text-base leading-relaxed text-neutral-300 sm:text-lg">
+                        <p className="mt-3 max-w-2xl text-base leading-relaxed text-neutral-300 sm:text-lg md:mt-2.5 md:line-clamp-2 md:text-base">
                           {slide.subheadline || slide.paragraphs?.[0]?.slice(0, 140)}
                         </p>
                       </div>
@@ -967,15 +968,12 @@ export default function TheVeritasShowcase({
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
           </div>
 
-          <div className="veritas-shorts-row flex gap-4 overflow-x-auto pb-4">
-            {shorts.map((short, index) => (
+          <div className="veritas-shorts-row flex items-start gap-4 overflow-x-auto pb-4">
+            {shorts.map((short) => (
               <div
                 key={short.href}
                 className="flex w-[220px] flex-shrink-0 flex-col overflow-hidden rounded-[1.25rem] border bg-neutral-900 sm:w-[240px]"
-                style={{
-                  borderColor: "rgba(222, 2, 22, 0.25)",
-                  marginTop: index % 3 === 1 ? "12px" : index % 3 === 2 ? "24px" : "0px"
-                }}
+                style={{ borderColor: "rgba(222, 2, 22, 0.25)" }}
               >
                 <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-neutral-400">

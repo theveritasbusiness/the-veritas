@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation } from "./lib/router";
 import { fetchArticles, fetchBreaking } from "./api";
 import Seo from "./components/Seo";
@@ -22,6 +22,9 @@ const regionBlueprint = [
   { region: "Eastern Europe", x: "51%", y: "24%", city: "Warsaw" }
 ];
 
+// Constant reading speed for the breaking ticker, regardless of how many headlines it holds.
+const TICKER_SPEED_PX_PER_SEC = 65;
+
 export default function VeritasDesk() {
   const location = useLocation();
   const [articles, setArticles] = useState([]);
@@ -29,6 +32,28 @@ export default function VeritasDesk() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [now, setNow] = useState(() => new Date());
+  const tickerRef = useRef(null);
+  const [tickerDuration, setTickerDuration] = useState(null);
+
+  const tickerText = useMemo(
+    () => (breaking.length ? breaking : articles.slice(0, 6)).map((item) => item.title).join("  |  "),
+    [breaking, articles]
+  );
+
+  useEffect(() => {
+    const el = tickerRef.current;
+    if (!el) return undefined;
+
+    const update = () => {
+      setTickerDuration(Math.max(20, el.offsetWidth / TICKER_SPEED_PX_PER_SEC));
+    };
+
+    update();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [tickerText]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1000);
@@ -212,10 +237,12 @@ export default function VeritasDesk() {
               Breaking Feed
             </div>
             <div className="overflow-hidden whitespace-nowrap flex-1 text-sm sm:text-base text-neutral-200">
-              <div className="live-ticker">
-                {(breaking.length ? breaking : articles.slice(0, 6))
-                  .map((item) => item.title)
-                  .join("  |  ")}
+              <div
+                ref={tickerRef}
+                className="live-ticker"
+                style={tickerDuration ? { animationDuration: `${tickerDuration}s` } : undefined}
+              >
+                {tickerText}
               </div>
             </div>
           </div>
@@ -524,6 +551,10 @@ export default function VeritasDesk() {
   display: inline-block;
   padding-left: 100%;
   animation: liveTicker 128s linear infinite;
+}
+
+.live-ticker:hover {
+  animation-play-state: paused;
 }
 
 .ops-map {
