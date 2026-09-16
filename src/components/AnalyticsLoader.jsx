@@ -23,14 +23,6 @@ export default function AnalyticsLoader() {
         crossOrigin="anonymous"
       />
 
-      <Script
-        strategy="afterInteractive"
-        src="https://www.googletagmanager.com/gtag/js?id=G-CGB4JKXZ8J"
-      />
-
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-CGB4JKXZ8J');`}
-      </Script>
     </>
   );
 }
