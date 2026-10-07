@@ -14,7 +14,19 @@ const organizationSchema = {
   logo: "https://www.theveritas.in/LOGO.jpeg",
   description: HOME_DESCRIPTION,
   email: "theveritasbusiness@gmail.com",
-  sameAs: ["https://www.instagram.com/thedailyveritas/"]
+  foundingDate: "2025",
+  foundingLocation: {
+    "@type": "Place",
+    name: "India"
+  },
+  publishingPrinciples: "https://www.theveritas.in/about",
+  sameAs: [
+    "https://www.instagram.com/thedailyveritas/",
+    "https://www.youtube.com/@thedailyveritas",
+    "https://x.com/Veritas_Openion",
+    "https://www.linkedin.com/company/the-veritas/",
+    "https://www.wikidata.org/wiki/Q141664708",
+  ]
 };
 
 const websiteSchema = {
