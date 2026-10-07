@@ -24,8 +24,10 @@ const organizationSchema = {
     "https://www.instagram.com/thedailyveritas/",
     "https://www.youtube.com/@thedailyveritas",
     "https://x.com/Veritas_Openion",
+    "https://www.facebook.com/people/The-Veritas/61591541364176/",
     "https://www.linkedin.com/company/the-veritas/",
     "https://www.wikidata.org/wiki/Q141664708",
+    "https://www.crunchbase.com/organization/the-veritas",
   ]
 };
 
