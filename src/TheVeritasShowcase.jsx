@@ -121,18 +121,20 @@ function OriginalLink({ original, className = "", children }) {
   );
 }
 
+
 function getHeroHeadlineClass(title = "") {
   const wordCount = String(title || "")
     .trim()
     .split(/\s+/)
     .filter(Boolean).length;
 
-  // Desktop sizes stay compact and clamp to two lines so the headline never swallows the slide.
+  // Long headlines: smaller on mobile, unchanged on desktop.
   if (wordCount > 15) {
-    return "mt-2 break-words font-serif text-[2.1rem] font-bold leading-[1.02] sm:text-[2.45rem] md:line-clamp-2 md:text-[1.85rem] md:leading-[1.18] lg:text-[2rem] xl:text-[2.2rem] text-white";
+    return "mt-2 break-words font-serif text-[1.65rem] font-bold leading-[1.08] line-clamp-4 sm:line-clamp-none sm:text-[2.45rem] md:line-clamp-2 md:text-[1.85rem] md:leading-[1.18] lg:text-[2rem] xl:text-[2.2rem] text-white";
   }
 
-  return "mt-2 break-words font-serif text-[2.4rem] font-bold leading-[1.01] sm:text-[2.95rem] md:line-clamp-2 md:text-[2.05rem] md:leading-[1.15] lg:text-[2.3rem] xl:text-[2.5rem] text-white";
+  // Regular headlines: compact on mobile, existing desktop sizing preserved.
+  return "mt-2 break-words font-serif text-[1.8rem] font-bold leading-[1.08] line-clamp-4 sm:line-clamp-none sm:text-[2.95rem] md:line-clamp-2 md:text-[2.05rem] md:leading-[1.15] lg:text-[2.3rem] xl:text-[2.5rem] text-white";
 }
 
 export default function TheVeritasShowcase({

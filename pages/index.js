@@ -87,7 +87,7 @@ export async function getStaticProps() {
         initialArticles: minimizedArticles,
         initialBreaking: minimizedBreaking,
         initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
-        initialShorts: Array.isArray(initialShorts) ? initialShorts.slice(0, 6) : [],
+        initialShorts: Array.isArray(initialShorts) ? initialShorts.slice(0, 10) : [],
         initialOriginals: (Array.isArray(initialOriginals) ? initialOriginals : [])
           .slice(0, 4)
           .map(minimizeOriginal)
