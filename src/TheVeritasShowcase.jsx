@@ -777,55 +777,93 @@ export default function TheVeritasShowcase({
             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-700 to-transparent" />
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[1.35fr,1fr] lg:items-start lg:gap-8">
-            {/* The player is the heaviest thing on the page, so it waits until
-                the section is nearly in view. The copy beside it renders now. */}
-            <DeferredSection minHeightClass="min-h-[220px] sm:min-h-[340px]">
-              <div className="rounded-[20px] border border-[rgba(222,2,22,0.7)] p-2">
-                <YouTubeEmbed url={featuredOriginal.youtube_url} title={featuredOriginal.title} />
-              </div>
-            </DeferredSection>
-
+          <div className="grid gap-8 lg:grid-cols-[1.7fr,1fr] lg:items-stretch lg:gap-10">
+            {/* Featured: player on top, its copy directly underneath. */}
             <div className="min-w-0">
-              <div
-                className="text-[11px] font-bold uppercase tracking-[0.2em]"
-                style={{ color: "var(--veritas-red)" }}
-              >
-                The Veritas Original
-              </div>
-              <h3 className="mt-2 font-serif text-2xl font-bold leading-tight text-white sm:text-3xl">
-                <OriginalLink
-                  original={featuredOriginal}
-                  className="transition hover:text-[var(--veritas-red)]"
-                >
-                  {featuredOriginal.title}
-                </OriginalLink>
-              </h3>
-              <div className="my-4 w-16 border-b" style={{ borderColor: "var(--veritas-red)" }} />
-              {featuredOriginal.description ? (
-                <p className="whitespace-pre-line font-serif text-[16px] leading-[1.85] text-neutral-300">
-                  {featuredOriginal.description}
-                </p>
-              ) : null}
+              {/* The player is the heaviest thing on the page, so it waits until
+                  the section is nearly in view. The copy below it renders now. */}
+              <DeferredSection minHeightClass="min-h-[220px] sm:min-h-[340px]">
+                <div className="rounded-[20px] border border-[rgba(222,2,22,0.7)] p-2">
+                  <YouTubeEmbed url={featuredOriginal.youtube_url} title={featuredOriginal.title} />
+                </div>
+              </DeferredSection>
 
+              <div className="mt-5 px-1">
+                <div
+                  className="text-[11px] font-bold uppercase tracking-[0.2em]"
+                  style={{ color: "var(--veritas-red)" }}
+                >
+                  The Veritas Original
+                </div>
+                <h3 className="mt-2 font-serif text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-[2.1rem]">
+                  <OriginalLink
+                    original={featuredOriginal}
+                    className="transition hover:text-[var(--veritas-red)]"
+                  >
+                    {featuredOriginal.title}
+                  </OriginalLink>
+                </h3>
+                <div className="my-4 w-16 border-b" style={{ borderColor: "var(--veritas-red)" }} />
+                {featuredOriginal.description ? (
+                  // Blank lines in the CMS text become tight paragraph breaks
+                  // rather than a full empty line at this line-height.
+                  <div className="max-w-3xl space-y-2 font-serif text-[16px] leading-[1.85] text-neutral-300">
+                    {featuredOriginal.description
+                      .split(/\n\s*\n/)
+                      .filter((para) => para.trim())
+                      .map((para, index) => (
+                        <p key={index} className="whitespace-pre-line">
+                          {para.trim()}
+                        </p>
+                      ))}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            {/* More Originals: thumbnail + title row, synopsis spanning the full
+                width beneath it. The column stretches to the featured block's
+                height so "All Originals" lands level with its last line. */}
+            <div className="flex min-w-0 flex-col">
               {otherOriginals.length > 0 ? (
-                <div className="mt-6 space-y-3 border-t border-neutral-800 pt-5">
+                <div className="flex flex-1 flex-col justify-between divide-y divide-neutral-800 border-t border-neutral-800">
                   {otherOriginals.map((original) => (
                     <OriginalLink
                       key={original.id}
                       original={original}
-                      className="group flex items-center gap-3 transition-colors hover:text-[var(--veritas-red)]"
+                      className="group block py-3"
                     >
-                      <img
-                        src={getYouTubeThumbnailUrl(original.youtube_url, "mqdefault")}
-                        alt=""
-                        className="h-12 w-[84px] flex-shrink-0 rounded object-cover"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <span className="min-w-0 font-serif text-sm leading-snug text-white transition-colors group-hover:text-[var(--veritas-red)]">
-                        {original.title}
-                      </span>
+                      <div className="flex items-start gap-4">
+                        <div className="relative w-[50%] flex-shrink-0 overflow-hidden rounded-lg border border-neutral-800 bg-neutral-950">
+                          <img
+                            src={getYouTubeThumbnailUrl(original.youtube_url, "mqdefault")}
+                            alt=""
+                            className="aspect-video w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          {/* YouTube-style play badge, centred like YouTube's own player. */}
+                          <svg
+                            className="absolute left-1/2 top-1/2 h-8 w-11 -translate-x-1/2 -translate-y-1/2 opacity-90 drop-shadow-md transition-opacity group-hover:opacity-100"
+                            viewBox="0 0 68 48"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55c-2.93.78-4.63 3.26-5.42 6.19C.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z"
+                              fill="#ff0000"
+                            />
+                            <path d="M45 24 27 14v20z" fill="#fff" />
+                          </svg>
+                        </div>
+                        <span className="min-w-0 font-serif text-[1.05rem] font-semibold leading-snug text-white transition-colors group-hover:text-[var(--veritas-red)] sm:text-[1.2rem]">
+                          {original.title}
+                        </span>
+                      </div>
+                      {original.description ? (
+                        <p className="mt-2 line-clamp-2 font-serif text-[15px] leading-[1.7] text-neutral-400">
+                          {original.description.replace(/\s+/g, " ").trim()}
+                        </p>
+                      ) : null}
                     </OriginalLink>
                   ))}
                 </div>
@@ -833,7 +871,7 @@ export default function TheVeritasShowcase({
 
               <Link
                 to="/originals"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-neutral-400 transition-colors hover:text-[var(--veritas-red)]"
+                className="mt-2 inline-flex items-center gap-2 border-t border-neutral-800 pt-4 text-sm font-semibold uppercase tracking-[0.16em] text-neutral-400 transition-colors hover:text-[var(--veritas-red)]"
               >
                 All Originals <span aria-hidden="true">&rarr;</span>
               </Link>
