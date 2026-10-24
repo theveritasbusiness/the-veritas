@@ -1,15 +1,21 @@
 import Layout from "../src/components/Layout";
 import TheVeritasShowcase from "../src/TheVeritasShowcase";
 import MarketsPage from "../src/MarketsPage";
-import { CATEGORY_CONFIG, getCategoryConfigBySlug } from "../src/content/categories";
+import FeaturedSections from "../src/components/FeaturedSections";
+import {
+  CATEGORY_CONFIG,
+  buildFeaturedSections,
+  getCategoryConfigBySlug
+} from "../src/content/categories";
 import { API_BASE } from "../src/lib/env";
 
-export default function CategoryPage(props) {
+export default function CategoryPage({ featuredSections = [], ...props }) {
   // Render the dedicated Markets page for the "markets" slug
   if (props.forcedCategory === "Markets") {
     return (
       <Layout>
         <MarketsPage initialArticles={props.initialArticles} />
+        <FeaturedSections sections={featuredSections} />
       </Layout>
     );
   }
@@ -17,6 +23,7 @@ export default function CategoryPage(props) {
   return (
     <Layout>
       <TheVeritasShowcase {...props} />
+      <FeaturedSections sections={featuredSections} />
     </Layout>
   );
 }
@@ -94,6 +101,10 @@ export async function getStaticProps({ params }) {
         initialArticles: minimizedArticles,
         initialBreaking: minimizedBreaking,
         initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
+        featuredSections: buildFeaturedSections(
+          Array.isArray(initialArticles) ? initialArticles : [],
+          category.name
+        ),
         initialLoadError: "",
         forcedCategory: category.name,
         pageTitle: `${category.title} | The Veritas`,
@@ -108,6 +119,7 @@ export async function getStaticProps({ params }) {
         initialArticles: [],
         initialBreaking: [],
         initialSubcategories: [],
+        featuredSections: [],
         initialLoadError: "",
         forcedCategory: category.name,
         pageTitle: `${category.title} | The Veritas`,
