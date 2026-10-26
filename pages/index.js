@@ -1,14 +1,11 @@
 import Layout from "../src/components/Layout";
 import TheVeritasShowcase from "../src/TheVeritasShowcase";
-import FeaturedSections from "../src/components/FeaturedSections";
-import { buildFeaturedSections } from "../src/content/categories";
 import { API_BASE } from "../src/lib/env";
 
-export default function HomePage({ featuredSections = [], ...props }) {
+export default function HomePage(props) {
   return (
     <Layout>
       <TheVeritasShowcase {...props} />
-      <FeaturedSections sections={featuredSections} />
     </Layout>
   );
 }
@@ -90,7 +87,6 @@ export async function getStaticProps() {
         initialArticles: minimizedArticles,
         initialBreaking: minimizedBreaking,
         initialSubcategories: Array.isArray(initialSubcategories) ? initialSubcategories : [],
-        featuredSections: buildFeaturedSections(Array.isArray(initialArticles) ? initialArticles : []),
         initialShorts: Array.isArray(initialShorts) ? initialShorts.slice(0, 10) : [],
         initialOriginals: (Array.isArray(initialOriginals) ? initialOriginals : [])
           .slice(0, 4)
@@ -106,7 +102,6 @@ export async function getStaticProps() {
         initialArticles: [],
         initialBreaking: [],
         initialSubcategories: [],
-        featuredSections: [],
         initialShorts: [],
         initialOriginals: [],
         initialLoadError: ""
