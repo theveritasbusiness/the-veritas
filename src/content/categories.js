@@ -136,28 +136,29 @@ export function getCategoryPath(nameOrSlug = "") {
   return "/";
 }
 
-// Builds the "Featured Sections" rail shown above the footer: the latest few
-// stories from every category except the one being viewed. Runs at build time
-// over the article list the page already fetches, so it adds no request.
-export function buildFeaturedSections(articles = [], currentCategory = "", perSection = 3) {
-  return CATEGORY_CONFIG.filter(
-    (category) => !currentCategory || !isCategoryMatch(category.name, currentCategory)
-  )
-    .map((category) => ({
-      name: category.name,
-      slug: category.slug,
-      articles: articles
-        .filter((article) => isCategoryMatch(article.category, category.name))
-        .slice(0, perSection)
-        .map((article) => ({
-          id: article.id ?? null,
-          title: article.title || "",
-          slug: article.slug || "",
-          label: article.subcategory || category.name,
-          hero_image: article.hero_image || null,
-          hero_focus: article.hero_focus || null,
-          hero_crop: article.hero_crop || null
-        }))
-    }))
-    .filter((section) => section.articles.length > 0);
+// "Read More" under an article: the latest few stories from the same category,
+// excluding the article itself. Runs server-side over the article list the page
+// already fetches (sorted newest/priority first), so it adds no request.
+export function buildReadMore(articles = [], currentArticle = null, limit = 3) {
+  const category = String(currentArticle?.category || "").trim();
+  if (!category) return [];
+
+  return articles
+    .filter(
+      (article) =>
+        article.slug !== currentArticle.slug && isCategoryMatch(article.category, category)
+    )
+    .slice(0, limit)
+    .map((article) => ({
+      id: article.id ?? null,
+      title: article.title || "",
+      slug: article.slug || "",
+      category: article.category || "",
+      subheadline: article.subheadline || "",
+      author_name: article.author_name || "",
+      published_at: article.published_at || null,
+      hero_image: article.hero_image || null,
+      hero_focus: article.hero_focus || null,
+      hero_crop: article.hero_crop || null
+    }));
 }
