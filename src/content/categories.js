@@ -157,6 +157,9 @@ export function buildReadMore(articles = [], currentArticle = null, limit = 3) {
       subheadline: article.subheadline || "",
       author_name: article.author_name || "",
       published_at: article.published_at || null,
+      live_updated_at: article.live_updated_at || null,
+      is_live: Boolean(article.is_live),
+      is_editorial: Boolean(article.is_editorial),
       hero_image: article.hero_image || null,
       hero_focus: article.hero_focus || null,
       hero_crop: article.hero_crop || null
