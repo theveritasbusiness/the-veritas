@@ -135,3 +135,33 @@ export function getCategoryPath(nameOrSlug = "") {
 
   return "/";
 }
+
+// "Read More" under an article: the latest few stories from the same category,
+// excluding the article itself. Runs server-side over the article list the page
+// already fetches (sorted newest/priority first), so it adds no request.
+export function buildReadMore(articles = [], currentArticle = null, limit = 3) {
+  const category = String(currentArticle?.category || "").trim();
+  if (!category) return [];
+
+  return articles
+    .filter(
+      (article) =>
+        article.slug !== currentArticle.slug && isCategoryMatch(article.category, category)
+    )
+    .slice(0, limit)
+    .map((article) => ({
+      id: article.id ?? null,
+      title: article.title || "",
+      slug: article.slug || "",
+      category: article.category || "",
+      subheadline: article.subheadline || "",
+      author_name: article.author_name || "",
+      published_at: article.published_at || null,
+      live_updated_at: article.live_updated_at || null,
+      is_live: Boolean(article.is_live),
+      is_editorial: Boolean(article.is_editorial),
+      hero_image: article.hero_image || null,
+      hero_focus: article.hero_focus || null,
+      hero_crop: article.hero_crop || null
+    }));
+}

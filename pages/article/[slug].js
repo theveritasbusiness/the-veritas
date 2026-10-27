@@ -1,15 +1,18 @@
 import Layout from "../../src/components/Layout";
 import ArticlePage from "../../src/ArticlePage";
+import ReadMore from "../../src/components/ReadMore";
+import { buildReadMore } from "../../src/content/categories";
 import { API_BASE } from "../../src/lib/env";
 
 function cleanArticleSlug(slug) {
   return String(slug || "").trim().replace(/-\d{10,}$/, "");
 }
 
-export default function ArticleRoute(props) {
+export default function ArticleRoute({ readMore = [], ...props }) {
   return (
     <Layout>
       <ArticlePage {...props} />
+      <ReadMore articles={readMore} category={props.initialArticle?.category || ""} />
     </Layout>
   );
 }
@@ -61,6 +64,7 @@ export async function getServerSideProps({ params }) {
       props: {
         initialArticle: initialArticle || null,
         initialLatest: Array.isArray(latestData) ? latestData.slice(0, 5) : [],
+        readMore: buildReadMore(Array.isArray(latestData) ? latestData : [], initialArticle),
         initialError: ""
       }
     };
