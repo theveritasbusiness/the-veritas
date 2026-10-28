@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "../lib/router";
 import {
   API_BASE,
@@ -93,9 +93,12 @@ function normalizeEditorBlock(block) {
   }
 
   return {
-    type: "paragraph",
-    text: typeof block.text === "string" ? block.text : ""
-  };
+  type: block.type === "subheading" ? "subheading" : "paragraph",
+  text: typeof block.text === "string" ? block.text : "",
+  ...(block.type === "paragraph"
+    ? { links: Array.isArray(block.links) ? block.links : [] }
+    : {})
+};
 }
 
 function normalizeEditorArticle(article) {
@@ -125,6 +128,7 @@ function normalizeEditorArticle(article) {
 }
 
 export default function EditArticle() {
+  const paragraphRefs = useRef({});
   const { id } = useParams();
   const navigate = useNavigate();
   const [article, setArticle] = useState(null);
@@ -186,6 +190,55 @@ export default function EditArticle() {
   function updateContentBlock(index, nextBlock) {
     setContentBlocks((prev) => prev.map((block, blockIndex) => (blockIndex === index ? nextBlock : block)));
   }
+  function addInlineLink(index, textarea) {
+  if (!textarea) return;
+
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  if (start === end) {
+    alert("Select the text you want to hyperlink first.");
+    return;
+  }
+
+  const selectedText = textarea.value.slice(start, end);
+  const rawUrl = window.prompt("Enter destination URL:");
+
+  if (!rawUrl) return;
+
+  let url;
+
+  try {
+    url = new URL(rawUrl.trim());
+  } catch {
+    alert("Enter a valid URL.");
+    return;
+  }
+
+  if (!["http:", "https:"].includes(url.protocol)) {
+    alert("Only HTTP and HTTPS links are allowed.");
+    return;
+  }
+
+  setContentBlocks((previous) =>
+    previous.map((block, blockIndex) =>
+      blockIndex === index
+        ? {
+            ...block,
+            links: [
+              ...(block.links || []),
+              {
+                start,
+                end,
+                text: selectedText,
+                href: url.href
+              }
+            ]
+          }
+        : block
+    )
+  );
+}
 
   useEffect(() => {
     if (!id) {
@@ -502,15 +555,33 @@ export default function EditArticle() {
         {contentBlocks.map((block, i) => (
           <div key={i} className="space-y-2">
             {block.type === "paragraph" ? (
-              <textarea
-                className="w-full p-2 bg-black border mb-2"
-                value={block.text}
-                onChange={(e) => {
-                  const copy = [...contentBlocks];
-                  copy[i].text = e.target.value;
-                  setContentBlocks(copy);
-                }}
-              />
+  <>
+    <textarea
+      ref={(element) => {
+        paragraphRefs.current[i] = element;
+      }}
+      className="w-full p-2 bg-black border mb-2"
+      value={block.text}
+      onChange={(e) => {
+        const copy = [...contentBlocks];
+        copy[i] = {
+          ...copy[i],
+          text: e.target.value,
+          links: []
+        };
+        setContentBlocks(copy);
+      }}
+    />
+
+    <button
+      type="button"
+      className="mb-2 border border-red-600 px-3 py-2 text-sm text-red-500"
+      onClick={() => addInlineLink(i, paragraphRefs.current[i])}
+    >
+      🔗 Insert Link
+    </button>
+  </>
+  
             ) : block.type === "subheading" ? (
               <input
                 className="w-full p-2 bg-black border text-lg font-bold mb-2"

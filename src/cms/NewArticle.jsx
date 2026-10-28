@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "../lib/router";
+import React, { useEffect, useMemo, useRef, useState } from "react";import { useNavigate } from "../lib/router";
 import {
   API_BASE,
   authHeaders,
@@ -13,6 +12,7 @@ import { HERO_FOCUS_OPTIONS } from "../utils/cloudinary";
 import { getYouTubeVideoId, getYouTubeWatchUrl } from "../utils/youtube";
 
 export default function NewArticle() {
+  const paragraphRefs = useRef({});
   const [title, setTitle] = useState("");
   const [subheadline, setSubheadline] = useState("");
   const [category, setCategory] = useState("");
@@ -137,6 +137,49 @@ export default function NewArticle() {
       setUploading(false);
     }
   }
+
+  function addInlineLink(index, textarea) {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+
+  if (start === end) {
+    alert("Select the text you want to hyperlink first.");
+    return;
+  }
+
+  const selectedText = textarea.value.slice(start, end);
+  const rawUrl = window.prompt("Enter destination URL:");
+
+  if (!rawUrl) return;
+
+  let url;
+
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    alert("Enter a valid URL.");
+    return;
+  }
+
+  if (!["http:", "https:"].includes(url.protocol)) {
+    alert("Only HTTP and HTTPS links are allowed.");
+    return;
+  }
+
+  setContentBlocks((previous) =>
+    previous.map((block, blockIndex) =>
+      blockIndex === index
+        ? {
+            ...block,
+            links: [
+              ...(block.links || []),
+              { start, end, text: selectedText, href: url.href },
+            ],
+          }
+        : block
+    )
+  );
+}
 
   async function uploadVideo(file) {
     if (!file) return;
@@ -349,16 +392,34 @@ export default function NewArticle() {
         {contentBlocks.map((block, i) => (
           <div key={i} className="space-y-2">
             {block.type === "paragraph" ? (
-              <textarea
-                className="w-full p-2 bg-black border"
-                placeholder="Paragraph..."
-                value={block.text}
-                onChange={(e) => {
-                  const copy = [...contentBlocks];
-                  copy[i].text = e.target.value;
-                  setContentBlocks(copy);
-                }}
-              />
+  <>
+    <textarea
+      ref={(element) => {
+        paragraphRefs.current[i] = element;
+      }}
+      className="w-full p-2 bg-black border"
+      placeholder="Paragraph..."
+      value={block.text}
+      onChange={(e) => {
+        const copy = [...contentBlocks];
+        copy[i] = {
+          ...copy[i],
+          text: e.target.value,
+          links: [],
+        };
+        setContentBlocks(copy);
+      }}
+    />
+
+    <button
+      type="button"
+      className="mt-2 border border-red-600 px-3 py-2 text-sm text-red-500"
+      onClick={() => addInlineLink(i, paragraphRefs.current[i])}
+    >
+      🔗 Insert Link
+    </button>
+  </>
+
             ) : block.type === "subheading" ? (
               <input
                 className="w-full p-2 bg-black border text-lg font-bold"

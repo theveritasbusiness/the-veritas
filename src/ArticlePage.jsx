@@ -21,6 +21,62 @@ function getTweetEmbedUrl(input = "") {
 
   return `https://twitter.com/i/status/${match[1]}`;
 }
+function renderLinkedText(block) {
+  const text = typeof block.text === "string" ? block.text : "";
+
+  const links = (Array.isArray(block.links) ? block.links : [])
+    .filter((link) => {
+      if (
+        !Number.isInteger(link.start) ||
+        !Number.isInteger(link.end) ||
+        link.start < 0 ||
+        link.end <= link.start ||
+        link.end > text.length ||
+        typeof link.href !== "string"
+      ) {
+        return false;
+      }
+
+      try {
+        const url = new URL(link.href);
+        return ["http:", "https:"].includes(url.protocol);
+      } catch {
+        return false;
+      }
+    })
+    .sort((a, b) => a.start - b.start);
+
+  const parts = [];
+  let cursor = 0;
+
+  links.forEach((link, index) => {
+    if (link.start < cursor) return;
+
+    if (link.start > cursor) {
+      parts.push(text.slice(cursor, link.start));
+    }
+
+    parts.push(
+      <a
+        key={`${link.start}-${link.end}-${index}`}
+        href={link.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-red-500 underline decoration-red-500/70 underline-offset-2 hover:text-red-400"
+      >
+        {text.slice(link.start, link.end)}
+      </a>
+    );
+
+    cursor = link.end;
+  });
+
+  if (cursor < text.length) {
+    parts.push(text.slice(cursor));
+  }
+
+  return parts;
+}
 
 function EditorialBadge() {
   return (
@@ -385,7 +441,7 @@ export default function ArticlePage({
             if (block.type === "subheading") {
               return (
                 <h2 key={index} className="mb-3 mt-8 text-xl font-bold text-white sm:text-2xl">
-                  {text}
+                  {renderLinkedText(block)}
                 </h2>
               );
             }
