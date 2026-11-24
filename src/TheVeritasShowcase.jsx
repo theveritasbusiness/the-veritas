@@ -123,10 +123,10 @@ function OriginalLink({ original, className = "", children }) {
 }
 
 function applyHomepageSliderSelection(allArticles, selectedSliderArticles) {
-  if (!Array.isArray(selectedSliderArticles)) return allArticles;
+  const selectedArticles = Array.isArray(selectedSliderArticles) ? selectedSliderArticles : [];
 
   const selectedById = new Map(
-    selectedSliderArticles.map((article) => [String(article.id), article])
+    selectedArticles.map((article) => [String(article.id), article])
   );
   const mergedArticles = (Array.isArray(allArticles) ? allArticles : []).map((article) => ({
     ...article,
@@ -134,7 +134,7 @@ function applyHomepageSliderSelection(allArticles, selectedSliderArticles) {
   }));
   const existingIds = new Set(mergedArticles.map((article) => String(article.id)));
 
-  selectedSliderArticles.forEach((article) => {
+  selectedArticles.forEach((article) => {
     if (!existingIds.has(String(article.id))) mergedArticles.push(article);
   });
 
@@ -241,8 +241,9 @@ export default function TheVeritasShowcase({
   }, [finalArticles, forcedCategory]);
   const heroSlides = useMemo(() => {
     if (sliderArticles.length > 0) return sliderArticles;
-    return finalArticles[0] ? [finalArticles[0]] : [];
-  }, [finalArticles, sliderArticles]);
+    if (forcedCategory && finalArticles[0]) return [finalArticles[0]];
+    return [];
+  }, [finalArticles, forcedCategory, sliderArticles]);
 
   const activeLogicalIndex = useMemo(() => {
     if (heroSlides.length <= 1) return 0;
@@ -342,7 +343,7 @@ export default function TheVeritasShowcase({
         const [allArticles, breakingArticles, homepageSliderArticles] = await Promise.all([
           fetchArticles(),
           fetchBreaking(),
-          fetchHomepageSliderArticles().catch(() => null)
+          fetchHomepageSliderArticles().catch(() => [])
         ]);
         const [subcategoryData, shortData] = await Promise.all([
           fetchSubcategories().catch(() => []),

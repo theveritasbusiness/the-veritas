@@ -101,10 +101,15 @@ export async function fetchArticles() {
 }
 
 export async function fetchHomepageSliderArticles() {
-  return fetchJson(`/articles?homepage_slider=true&ts=${Date.now()}`, {
+  const data = await fetchJson(`/articles?homepage_slider=true&ts=${Date.now()}`, {
     cache: "no-store",
     headers: { "Cache-Control": "no-cache" }
   });
+
+  const isEnabled = (value) =>
+    value === true || value === 1 || ["true", "t", "1", "yes", "y"].includes(String(value).trim().toLowerCase());
+
+  return Array.isArray(data) ? data.filter((article) => isEnabled(article.show_on_slider)) : [];
 }
 
 export async function fetchBreaking() {
