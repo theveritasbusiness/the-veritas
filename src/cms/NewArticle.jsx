@@ -139,6 +139,7 @@ export default function NewArticle() {
   }
 
   function addInlineLink(index, textarea) {
+  if (!textarea) return;
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
 
@@ -155,7 +156,7 @@ export default function NewArticle() {
   let url;
 
   try {
-    url = new URL(rawUrl);
+    url = new URL(rawUrl.trim());
   } catch {
     alert("Enter a valid URL.");
     return;
@@ -172,7 +173,7 @@ export default function NewArticle() {
         ? {
             ...block,
             links: [
-              ...(block.links || []),
+              ...(block.links || []).filter((link) => link.end <= start || link.start >= end),
               { start, end, text: selectedText, href: url.href },
             ],
           }

@@ -226,7 +226,7 @@ export default function EditArticle() {
         ? {
             ...block,
             links: [
-              ...(block.links || []),
+              ...(block.links || []).filter((link) => link.end <= start || link.start >= end),
               {
                 start,
                 end,

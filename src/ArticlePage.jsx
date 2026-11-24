@@ -613,7 +613,7 @@ export default function ArticlePage({
                       : ""
                   }
                 >
-                  {text}
+                  {renderLinkedText(block)}
                 </p>
                 {index === paragraphIndexes[0] && (
                   <div className="my-6 w-full">

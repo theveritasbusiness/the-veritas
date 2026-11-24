@@ -178,6 +178,13 @@ export default function TheVeritasShowcase({
     forcedCategory || isFilteredHomeView ? [] : initialOriginals.filter(Boolean);
   const [featuredOriginal, ...otherOriginals] = homeOriginals;
 
+  const homeMarketArticles = useMemo(() => {
+    if (forcedCategory || isFilteredHomeView) return [];
+    return articles
+      .filter((article) => article.category && isCategoryMatch(article.category, "Markets"))
+      .slice(0, 5);
+  }, [articles, forcedCategory, isFilteredHomeView]);
+
   const searchedArticles = articles.filter((article) => {
     const query = searchQuery.toLowerCase();
     return (
@@ -749,6 +756,77 @@ export default function TheVeritasShowcase({
       <DeferredSection minHeightClass="min-h-[520px]">
         <DeferredMarketsSection />
       </DeferredSection>
+
+      {/* ── SECTION: Top Market News ── */}
+      {homeMarketArticles.length > 0 && (
+        <section className="mx-auto max-w-7xl px-3 pt-6 sm:px-4 sm:pt-8">
+          <div className="mb-4 flex items-center justify-between gap-4 border-b border-neutral-800 pb-3">
+            <h2 className="text-sm font-extrabold uppercase tracking-[0.12em] text-white sm:text-base">
+              Top Market News <span className="ml-1 text-[var(--veritas-red)]" aria-hidden="true">→</span>
+            </h2>
+            <Link
+              to="/markets"
+              className="shrink-0 text-xs font-semibold uppercase tracking-wider text-neutral-400 transition hover:text-white"
+            >
+              More <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-[1.8fr,1fr] md:gap-6">
+            {homeMarketArticles[0] && (
+              <Link
+                to={`/article/${homeMarketArticles[0].slug}`}
+                className="group relative block h-[280px] overflow-hidden rounded-md bg-neutral-900 sm:h-[360px] lg:h-[420px]"
+              >
+                {homeMarketArticles[0].hero_image ? (
+                  <img
+                    src={getHeroImageUrl(homeMarketArticles[0].hero_image, homeMarketArticles[0].hero_focus)}
+                    alt={homeMarketArticles[0].title}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    loading="lazy"
+                    style={getImagePresentation(homeMarketArticles[0].hero_focus, homeMarketArticles[0].hero_crop)}
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-neutral-900 to-black" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+                  <span className="inline-flex rounded bg-emerald-500 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wider text-black">
+                    Editor&apos;s Pick
+                  </span>
+                  <h3 className="mt-3 max-w-3xl font-serif text-xl font-bold leading-tight text-white sm:text-2xl lg:text-3xl">
+                    {homeMarketArticles[0].title}
+                  </h3>
+                  {homeMarketArticles[0].subheadline ? (
+                    <p className="mt-2 line-clamp-2 max-w-3xl text-sm leading-relaxed text-neutral-300 sm:text-base">
+                      {homeMarketArticles[0].subheadline}
+                    </p>
+                  ) : null}
+                  <span className="mt-3 inline-block text-sm font-bold text-[var(--veritas-red)]">Read Full Story →</span>
+                </div>
+              </Link>
+            )}
+
+            <div className="flex min-w-0 flex-col divide-y divide-neutral-800 border-y border-neutral-800">
+              {homeMarketArticles.slice(1, 5).map((article) => (
+                <Link
+                  key={article.id || article.slug}
+                  to={`/article/${article.slug}`}
+                  className="group flex flex-1 flex-col justify-center py-4 first:pt-4 last:pb-4"
+                >
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-semibold uppercase tracking-wide">
+                    <span className="text-[var(--veritas-red)]">{getArticleDisplayTime(article)}</span>
+                    <span className="rounded border border-indigo-500/40 bg-indigo-500/10 px-2 py-1 text-indigo-300">Markets</span>
+                  </div>
+                  <h3 className="mt-2 font-serif text-base font-bold leading-snug text-white transition group-hover:text-[var(--veritas-red)] sm:text-lg">
+                    {article.title}
+                  </h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── SIDE-BY-SIDE AD BANNERS ── */}
       <div className="mx-auto mt-6 max-w-5xl px-3 sm:mt-8 sm:px-4">
