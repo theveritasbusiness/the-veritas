@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "./lib/router";
 import dynamic from "next/dynamic";
 import {
   fetchArticles,
+  fetchHomepageSliderArticles,
   fetchBreaking,
   fetchShorts,
   fetchSubcategories,
@@ -119,6 +120,25 @@ function OriginalLink({ original, className = "", children }) {
       {children}
     </Link>
   );
+}
+
+function applyHomepageSliderSelection(allArticles, selectedSliderArticles) {
+  if (!Array.isArray(selectedSliderArticles)) return allArticles;
+
+  const selectedById = new Map(
+    selectedSliderArticles.map((article) => [String(article.id), article])
+  );
+  const mergedArticles = (Array.isArray(allArticles) ? allArticles : []).map((article) => ({
+    ...article,
+    show_on_slider: selectedById.has(String(article.id))
+  }));
+  const existingIds = new Set(mergedArticles.map((article) => String(article.id)));
+
+  selectedSliderArticles.forEach((article) => {
+    if (!existingIds.has(String(article.id))) mergedArticles.push(article);
+  });
+
+  return mergedArticles;
 }
 
 
@@ -319,12 +339,16 @@ export default function TheVeritasShowcase({
 
       try {
         if (articles.length === 0 && breaking.length === 0) setLoading(true);
-        const [allArticles, breakingArticles] = await Promise.all([fetchArticles(), fetchBreaking()]);
+        const [allArticles, breakingArticles, homepageSliderArticles] = await Promise.all([
+          fetchArticles(),
+          fetchBreaking(),
+          fetchHomepageSliderArticles().catch(() => null)
+        ]);
         const [subcategoryData, shortData] = await Promise.all([
           fetchSubcategories().catch(() => []),
           fetchShorts().catch(() => [])
         ]);
-        setArticles(allArticles);
+        setArticles(applyHomepageSliderSelection(allArticles, homepageSliderArticles));
         setBreaking(breakingArticles);
         setSubcategories(Array.isArray(subcategoryData) ? subcategoryData : []);
         setShorts(Array.isArray(shortData) ? shortData : []);
@@ -776,7 +800,7 @@ export default function TheVeritasShowcase({
             {homeMarketArticles[0] && (
               <Link
                 to={`/article/${homeMarketArticles[0].slug}`}
-                className="group relative block h-[280px] overflow-hidden rounded-md bg-neutral-900 sm:h-[360px] lg:h-[420px]"
+                className="group relative block min-h-[280px] overflow-hidden rounded-md bg-neutral-900 sm:min-h-[360px] lg:min-h-[420px]"
               >
                 {homeMarketArticles[0].hero_image ? (
                   <img

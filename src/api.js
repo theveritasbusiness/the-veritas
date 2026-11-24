@@ -100,6 +100,13 @@ export async function fetchArticles() {
   return data;
 }
 
+export async function fetchHomepageSliderArticles() {
+  return fetchJson(`/articles?homepage_slider=true&ts=${Date.now()}`, {
+    cache: "no-store",
+    headers: { "Cache-Control": "no-cache" }
+  });
+}
+
 export async function fetchBreaking() {
   const data = await fetchJson("/articles/breaking");
   writeCache(BREAKING_CACHE_KEY, data);

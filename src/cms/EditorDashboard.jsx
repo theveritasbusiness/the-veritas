@@ -5,7 +5,6 @@ import {
   authHeaders,
   deleteSubcategory,
   fetchAdminArticle,
-  fetchArticles,
   deleteOriginal,
   deleteShort,
   fetchAdminArticles,
@@ -27,19 +26,8 @@ export default function EditorDashboard() {
 
   async function loadArticles() {
     try {
-      const [data, publishedArticles] = await Promise.all([
-        fetchAdminArticles(),
-        fetchArticles().catch(() => [])
-      ]);
-      const sliderArticleIds = new Set(
-        (Array.isArray(publishedArticles) ? publishedArticles : [])
-          .filter((article) => article.show_on_slider)
-          .map((article) => String(article.id))
-      );
-      setArticles((Array.isArray(data) ? data : []).map((article) => ({
-        ...article,
-        show_on_slider: Boolean(article.show_on_slider || sliderArticleIds.has(String(article.id)))
-      })));
+      const data = await fetchAdminArticles();
+      setArticles(Array.isArray(data) ? data : []);
       setError("");
     } catch (err) {
       setError(err.message);
