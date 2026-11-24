@@ -98,6 +98,37 @@ export default function EditorDashboard() {
     }
   }
 
+  async function setHomepageSlider(articleId, enabled) {
+    try {
+      const article = await fetchAdminArticle(articleId);
+      await updateArticle(articleId, {
+        title: article.title || "",
+        subheadline: article.subheadline || "",
+        category: article.category || "",
+        subcategory: article.subcategory || "",
+        subcategory_slug: article.subcategory_slug || "",
+        hero_image: article.hero_image || "",
+        hero_caption: article.hero_caption || "",
+        hero_focus: article.hero_focus || "auto",
+        hero_crop: article.hero_crop || null,
+        author_name: article.author_name || "",
+        hashtags: Array.isArray(article.hashtags) ? article.hashtags : [],
+        content_blocks: Array.isArray(article.content_blocks) ? article.content_blocks : [],
+        paragraphs: Array.isArray(article.paragraphs) ? article.paragraphs : [],
+        bibliography: article.bibliography || "",
+        is_breaking: Boolean(article.is_breaking),
+        show_on_slider: enabled,
+        show_on_category_slider: Boolean(article.show_on_category_slider),
+        is_editorial: Boolean(article.is_editorial),
+        is_live: Boolean(article.is_live),
+        live_updates: Array.isArray(article.live_updates) ? article.live_updates : []
+      });
+      await loadArticles();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
   async function handleDeleteShort(id) {
     const confirmDelete = window.confirm("Delete this short?");
     if (!confirmDelete) return;
@@ -239,6 +270,44 @@ export default function EditorDashboard() {
       </div>
 
       {error && <div className="mb-4" style={{ color: "var(--veritas-red)" }}>{error}</div>}
+
+      <section className="mb-10 rounded-lg border border-neutral-800 bg-neutral-900 p-5">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-serif">Homepage slider articles</h2>
+            <p className="mt-1 text-sm text-neutral-400">Choose which existing articles appear in the homepage slider.</p>
+          </div>
+          <select
+            aria-label="Add article to homepage slider"
+            value=""
+            onChange={(event) => event.target.value && setHomepageSlider(event.target.value, true)}
+            className="max-w-full rounded border border-neutral-700 bg-black px-3 py-2 text-white"
+          >
+            <option value="">Add an article…</option>
+            {articles.filter((article) => !article.show_on_slider).map((article) => (
+              <option key={article.id} value={article.id}>{article.title}</option>
+            ))}
+          </select>
+        </div>
+        {articles.some((article) => article.show_on_slider) ? (
+          <div className="space-y-2">
+            {articles.filter((article) => article.show_on_slider).map((article) => (
+              <div key={article.id} className="flex items-center justify-between gap-4 rounded border border-neutral-800 bg-black/40 px-4 py-3">
+                <span className="min-w-0 truncate">{article.title}</span>
+                <button
+                  type="button"
+                  onClick={() => setHomepageSlider(article.id, false)}
+                  className="shrink-0 text-sm text-red-400 hover:text-red-300"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-neutral-500">No articles are currently in the homepage slider.</p>
+        )}
+      </section>
 
       <div className="mb-10 space-y-4">
         {articles.map((article) => (
