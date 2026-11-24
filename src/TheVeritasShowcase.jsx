@@ -3,7 +3,6 @@ import { Link, useSearchParams } from "./lib/router";
 import dynamic from "next/dynamic";
 import {
   fetchArticles,
-  fetchHomepageSliderArticles,
   fetchBreaking,
   fetchShorts,
   fetchSubcategories,
@@ -121,26 +120,6 @@ function OriginalLink({ original, className = "", children }) {
     </Link>
   );
 }
-
-function applyHomepageSliderSelection(allArticles, selectedSliderArticles) {
-  const selectedArticles = Array.isArray(selectedSliderArticles) ? selectedSliderArticles : [];
-
-  const selectedById = new Map(
-    selectedArticles.map((article) => [String(article.id), article])
-  );
-  const mergedArticles = (Array.isArray(allArticles) ? allArticles : []).map((article) => ({
-    ...article,
-    show_on_slider: selectedById.has(String(article.id))
-  }));
-  const existingIds = new Set(mergedArticles.map((article) => String(article.id)));
-
-  selectedArticles.forEach((article) => {
-    if (!existingIds.has(String(article.id))) mergedArticles.push(article);
-  });
-
-  return mergedArticles;
-}
-
 
 function getHeroHeadlineClass(title = "") {
   const wordCount = String(title || "")
@@ -340,16 +319,15 @@ export default function TheVeritasShowcase({
 
       try {
         if (articles.length === 0 && breaking.length === 0) setLoading(true);
-        const [allArticles, breakingArticles, homepageSliderArticles] = await Promise.all([
-          fetchArticles(),
-          fetchBreaking(),
-          fetchHomepageSliderArticles().catch(() => [])
+        const [allArticles, breakingArticles] = await Promise.all([
+          fetchArticles({ fresh: true }),
+          fetchBreaking()
         ]);
         const [subcategoryData, shortData] = await Promise.all([
           fetchSubcategories().catch(() => []),
           fetchShorts().catch(() => [])
         ]);
-        setArticles(applyHomepageSliderSelection(allArticles, homepageSliderArticles));
+        setArticles(Array.isArray(allArticles) ? allArticles : []);
         setBreaking(breakingArticles);
         setSubcategories(Array.isArray(subcategoryData) ? subcategoryData : []);
         setShorts(Array.isArray(shortData) ? shortData : []);

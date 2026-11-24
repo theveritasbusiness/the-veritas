@@ -94,22 +94,14 @@ export async function fetchJson(path, options = {}, retries = 2) {
   throw lastError || new Error("Request failed");
 }
 
-export async function fetchArticles() {
-  const data = await fetchJson("/articles");
-  writeCache(ARTICLES_CACHE_KEY, data);
-  return data;
-}
-
-export async function fetchHomepageSliderArticles() {
-  const data = await fetchJson(`/articles?homepage_slider=true&ts=${Date.now()}`, {
+export async function fetchArticles({ fresh = false } = {}) {
+  const path = fresh ? `/articles?ts=${Date.now()}` : "/articles";
+  const data = await fetchJson(path, fresh ? {
     cache: "no-store",
     headers: { "Cache-Control": "no-cache" }
-  });
-
-  const isEnabled = (value) =>
-    value === true || value === 1 || ["true", "t", "1", "yes", "y"].includes(String(value).trim().toLowerCase());
-
-  return Array.isArray(data) ? data.filter((article) => isEnabled(article.show_on_slider)) : [];
+  } : {});
+  writeCache(ARTICLES_CACHE_KEY, data);
+  return data;
 }
 
 export async function fetchBreaking() {
