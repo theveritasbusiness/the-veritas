@@ -232,6 +232,11 @@ export default function EditorDashboard() {
     }
   }
 
+  const sliderQuery = sliderSearch.trim().toLowerCase();
+  const sliderPickerArticles = articles.filter((article) =>
+    article.title?.toLowerCase().includes(sliderQuery)
+  );
+
   useEffect(() => {
     loadArticles();
     loadShorts();
@@ -301,26 +306,40 @@ export default function EditorDashboard() {
             placeholder="Search articles by title…"
             className="w-full rounded border border-neutral-700 bg-black px-3 py-2 text-white placeholder:text-neutral-500"
           />
-          {sliderSearch.trim() && (
-            <div className="mt-2 max-h-64 overflow-y-auto rounded border border-neutral-800">
-              {articles
-                .filter((article) => !article.show_on_slider && article.title?.toLowerCase().includes(sliderSearch.trim().toLowerCase()))
-                .map((article) => (
-                  <label key={article.id} className="flex cursor-pointer items-center gap-3 border-b border-neutral-800 px-3 py-2 last:border-b-0 hover:bg-neutral-800">
-                    <input
-                      type="checkbox"
-                      checked={selectedSliderArticles.includes(String(article.id))}
-                      onChange={(event) => setSelectedSliderArticles((selected) => event.target.checked
-                        ? [...selected, String(article.id)]
-                        : selected.filter((id) => id !== String(article.id)))}
-                    />
-                    <span className="min-w-0 truncate">{article.title}</span>
-                  </label>
-                ))}
-              {!articles.some((article) => !article.show_on_slider && article.title?.toLowerCase().includes(sliderSearch.trim().toLowerCase())) && (
-                <p className="px-3 py-2 text-sm text-neutral-500">No matching articles available to add.</p>
-              )}
-            </div>
+          {/* Results appear once a search is typed. Matches already in the slider stay
+              visible but ticked and locked, so nothing is added twice. */}
+          {sliderQuery && (
+          <div className="mt-2 max-h-64 overflow-y-auto rounded border border-neutral-800">
+            {sliderPickerArticles.map((article) => {
+              const inSlider = Boolean(article.show_on_slider);
+              return (
+                <label
+                  key={article.id}
+                  className={`flex items-center gap-3 border-b border-neutral-800 px-3 py-2 last:border-b-0 ${
+                    inSlider ? "cursor-default opacity-70" : "cursor-pointer hover:bg-neutral-800"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={inSlider || selectedSliderArticles.includes(String(article.id))}
+                    disabled={inSlider}
+                    onChange={(event) => setSelectedSliderArticles((selected) => event.target.checked
+                      ? [...selected, String(article.id)]
+                      : selected.filter((id) => id !== String(article.id)))}
+                  />
+                  <span className="min-w-0 flex-1 truncate">{article.title}</span>
+                  {inSlider ? (
+                    <span className="shrink-0 rounded-full border border-neutral-700 px-2 py-0.5 text-[11px] text-neutral-400">
+                      In slider
+                    </span>
+                  ) : null}
+                </label>
+              );
+            })}
+            {sliderPickerArticles.length === 0 && (
+              <p className="px-3 py-2 text-sm text-neutral-500">No matching articles.</p>
+            )}
+          </div>
           )}
           <div className="mt-3 flex items-center justify-between gap-3">
             <span className="text-sm text-neutral-400">{selectedSliderArticles.length} selected</span>
