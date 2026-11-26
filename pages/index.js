@@ -73,8 +73,12 @@ export async function getStaticProps() {
         originalsRes.ok ? originalsRes.json() : []
       ]);
 
-    const minimizedArticles = (Array.isArray(initialArticles) ? initialArticles : [])
-      .slice(0, 60)
+    const allArticles = Array.isArray(initialArticles) ? initialArticles : [];
+    // The newest 60 feed the page, plus every homepage-slider article however old:
+    // the slider is picked from this list, so a capped list silently dropped
+    // older slider picks made in the CMS.
+    const minimizedArticles = allArticles
+      .filter((article, index) => index < 60 || article.show_on_slider)
       .map(minimizeArticle)
       .filter(Boolean);
 
