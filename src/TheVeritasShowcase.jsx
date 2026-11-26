@@ -536,14 +536,14 @@ export default function TheVeritasShowcase({
                   &#8250;
                 </button>
 
-                <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5">
                   {heroSlides.map((slide, index) => (
                     <button
                       key={`hero-dot-${index}-${slide.id || slide.slug}`}
                       type="button"
                       onClick={() => goToHeroSlide(index)}
                       aria-label={`Go to hero article ${index + 1}`}
-                      className={`h-2.5 rounded-full transition-all ${index === activeLogicalIndex ? "w-8 bg-[var(--veritas-red)]" : "w-2.5 bg-white/45 hover:bg-white/70"
+                      className={`h-2 rounded-full transition-all ${index === activeLogicalIndex ? "w-6 bg-[var(--veritas-red)]" : "w-2 bg-white/45 hover:bg-white/70"
                         }`}
                     />
                   ))}
